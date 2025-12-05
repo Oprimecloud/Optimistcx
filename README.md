@@ -272,9 +272,9 @@ Create new blog cards by duplicating the blog-card structure:
 ## 📞 Contact & Support
 
 For questions or support:
-- Email: info@optimistcx.com
-- Phone: +234 814 590 3277
-- Office: 8 Merciful Avenue, Alimosho, Ikeja, Lagos
+- Email: support@optimistcx.space
+- Phone: +234 811 567 2822
+- Office: 48 Majesty Avenue, Abeokuta, Ogun
 
 ## 📄 License
 
@@ -350,6 +350,6 @@ This template is provided as-is for use in your projects.
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: December 2024  
+**Last Updated**: December 2025  
 **Built with**: HTML5, CSS3, Vanilla JavaScript  
 **License**: Free to use and modify
