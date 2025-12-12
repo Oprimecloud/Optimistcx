@@ -14,7 +14,7 @@ html {
 
 :root {
     /* Dark, premium palette */
-    --bg: #0f1419;           /* page background - dark navy */
+    --bg: #ffffff;           /* page background - dark navy */
     --card-bg: #111622;      /* cards and panels */
     --primary: #1a4d5c;      /* deep teal */
     --accent: #d4a574;       /* warm gold */
@@ -29,8 +29,8 @@ html {
     --primary: #00091b;
     --accent: #eab308;
     --muted: #bac0c8;
-    --heading: #010818;
-    --text: #2c3e50;
+    --heading: #e8e8e8;
+    --text: #cbd5e1;
     --glass: rgba(0,0,0,0.03);
 }
 

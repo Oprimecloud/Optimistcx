@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description"
-        content="OptimistCx - Premium Digital Agency offering web development, SEO, PPC, and social media marketing solutions for business growth." />
+        content="Geministudio - Premium Digital Agency offering web development, SEO, PPC, and social media marketing solutions for business growth." />
     <meta name="keywords" content="digital agency, web development, SEO, digital marketing, PPC advertising" />
-    <meta property="og:title" content="OptimistCx - Digital Marketing Agency" />
+    <meta property="og:title" content="Geministudio - Digital Marketing Agency" />
     <meta property="og:description"
         content="Transform your business with our professional digital marketing solutions." />
     <meta property="og:type" content="website" />
 
-    <title>OptimistCx - Professional Digital Marketing Agency</title>
+    <title>Geministudio - Professional Digital Marketing Agency</title>
 
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,46 +27,68 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container">
-            <div class="nav-wrapper">
-                <div class="logo">
-                    <span class="logo-text">OptimistCx</span>
+            <div class="nav-wrapper" style="display:flex; align-items:center; justify-content:space-between;">
+                <!-- Left: navigation links (menu starts closed on mobile) -->
+                <div class="nav-left" style="flex:1;">
+                    <div class="nav-menu" id="navMenu" data-open="false" style="display:none; align-items:center; gap:16px;">
+                        <ul class="nav-list" style="display:flex; gap:12px; margin:0; padding:0; list-style:none; align-items:center;">
+                            <li><a href="#home" class="nav-link active">Home</a></li>
+                            <li class="nav-dropdown" style="position:relative;">
+                                <a href="#services" class="nav-link">Services <span class="chevron">›</span></a>
+                                <div class="dropdown-menu">
+                                    <a href="index.html#web-design">Web Design</a>
+                                    <a href="index.html#seo">SEO Solutions</a>
+                                    <a href="index.html#ppc">PPC Advertising</a>
+                                    <a href="index.html#social-media">Social Media Management</a>
+                                    <a href="index.html#branding">Branding &amp; Strategy</a>
+                                    <a href="index.html#content-marketing">Content Marketing</a>
+                                </div>
+                            </li>
+                            <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+                            <li><a href="about.html" class="nav-link">About</a></li>
+                            <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
+                            <li><a href="blog.html" class="nav-link">Tips</a></li>
+                        </ul>
+                    </div>
                 </div>
 
-                <div class="nav-menu" id="navMenu">
-                    <ul class="nav-list">
-                        <li><a href="#home" class="nav-link active">Home</a></li>
-                        <li class="nav-dropdown">
-                            <a href="#services" class="nav-link">Services <span class="chevron">›</span></a>
-                            <div class="dropdown-menu">
-                                <a href="index.html#web-design">Web Design</a>
-                                <a href="index.html#seo">SEO Solutions</a>
-                                <a href="index.html#ppc">PPC Advertising</a>
-                                <a href="index.html#social-media">Social Media Management</a>
-                                <a href="index.html#branding">Branding &amp; Strategy</a>
-                                <a href="index.html#content-marketing">Content Marketing</a>
-                            </div>
-                        </li>
-                        <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
-                        <li><a href="about.html" class="nav-link">About</a></li>
-                        <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
-                        <li><a href="blog.html" class="nav-link">Tips</a></li>
-                    </ul>
-                    <a href="#contact" class="cta-button">Get Started</a>
+                <!-- Center: logo -->
+                <div class="nav-center" style="flex:0 0 auto; text-align:center;">
+                    <div class="logo" style="display:inline-block;">
+                        <img src="logo.png"
+                             alt="Geministudio logo featuring a circular design with a stylized G and brush stroke element in black and white"
+                             class="logo-image"
+                             style="width:50px; height:50px; border-radius:50%; object-fit:cover; display:block;" />
+                    </div>
                 </div>
-                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+
+                <!-- Right: theme toggle and hamburger (each on its own) -->
+                <div class="nav-right" style="flex:1; display:flex; justify-content:flex-end; align-items:center; gap:8px;">
+                    <!-- Theme toggle is separate from the nav menu -->
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" style="padding:8px;">
+                        <!-- icon/content handled by CSS/JS -->
+                    </button>
+
+                    <!-- Hamburger button toggles the main menu -->
+                    <button id="hamburger" class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu" style="cursor:pointer; display:inline-flex; flex-direction:column; gap:4px; padding:8px; background:transparent; border:none;">
+                        <span style="display:block; width:22px; height:2px; background:currentColor; border-radius:2px;"></span>
+                        <span style="display:block; width:18px; height:2px; background:currentColor; border-radius:2px;"></span>
+                        <span style="display:block; width:14px; height:2px; background:currentColor; border-radius:2px;"></span>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
+    <section class="hero" id="home"
+        style="background-image: url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxhY2slMjBib2FyZHxlbnwwfHwwfHx8MA%3D%3D'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; color: #fff;">
+        <!-- decorative overlay for better text contrast -->
+        <div class="hero-overlay" aria-hidden="true"
+            style="position: absolute; inset: 0; background: rgba(0,0,0,0.45); mix-blend-mode: multiply;"></div>
+
+        <div class="container" style="position: relative; z-index: 1;">
+            <div class="hero-content" style="max-width: 760px;">
                 <h1 class="hero-title">Transform Your Business with <span class="highlight">Digital Excellence</span>
                 </h1>
                 <p class="hero-subtitle">Award-winning digital agency specializing in web design & development, SEO, and
@@ -76,31 +98,7 @@
                     <a href="#contact" class="btn btn-primary">Schedule Free Consultation</a>
                     <a href="#services" class="btn btn-secondary">Explore Services</a>
                 </div>
-     <section class="brands" id="brands">
-          <div class="container">
-            <div class="section-header">
-            <h3>Trusted by leading companies and startups</h3>
-            </div>
-            <div class="brands-carousel-wrapper">
-              <button class="brands-control brands-prev" aria-label="Previous brand">‹</button>
-              <div class="brands-track">
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg" alt="Nike" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg" alt="IBM" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" /></div>
-                <!-- duplicates for smooth loop -->
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" /></div>
-               <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg" alt="Nike" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg" alt="IBM" /></div>
-                <div class="brand-slide"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix" /></div>
-              </div>
-              <button class="brands-control brands-next" aria-label="Next brand">›</button>
-            </div>
-          </div>
-        </section>
+    </section>
                 <div class="hero-stats">
                     <div class="stat">
                         <h3 class="stat-number" style="text-align: center;">250+</h3>
@@ -462,7 +460,7 @@
             <div class="contact-wrapper">
                 <div class="contact-form-container">
                     <h3>Get in Touch</h3>
-                    <form class="contact-form" id="contactForm" action="hhttps://formspree.io/f/xvgeqbay" method="POST">
+                    <form class="contact-form" id="contactForm" action="https://formspree.io/f/xvgeqbay" method="POST">
                         <div class="form-group">
                             <input type="text" name="name" placeholder="Your Name" required />
                         </div>
@@ -509,10 +507,11 @@
                     </div>
 
                     <div class="social-links">
-                        <a href="#" title="Facebook">f</a>
-                        <a href="#" title="Twitter">𝕏</a>
-                        <a href="#" title="LinkedIn">in</a>
+                        <a href="https://www.facebook.com/profile.php?id=61577123303575" title="Facebook">f</a>
+                        <a href="https://x.com/Geministudioacy" title="Twitter">𝕏</a>
+                        <a href="" title="LinkedIn">in</a>
                         <a href="#" title="Instagram">◉</a>
+                        <a href="https://www.tiktok.com/@geministudioagency" title="Tiktok">🎵</a>
                     </div>
                 </div>
             </div>
@@ -524,7 +523,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>OptimistCx</h4>
+                    <h4>Geministudio</h4>
                     <p>Your trusted partner for digital transformation and growth.</p>
                 </div>
 
@@ -557,7 +556,7 @@
                             <a href="#" class="legal-link" data-legal="privacy">Privacy Policy</a>
                             <div class="legal-dropdown" id="privacy-content" style="display:none;">
                                 <h5>Privacy Policy</h5>
-                                <p>We value your privacy. OptimistCx collects only necessary information to provide our
+                                <p>We value your privacy. Geministudio collects only necessary information to provide our
                                     services. We do not sell or share your data with third parties except as required
                                     for service delivery or by law. You may contact us to request, update, or delete
                                     your personal information at any time.</p>
@@ -573,7 +572,7 @@
                             <a href="#" class="legal-link" data-legal="terms">Terms of Service</a>
                             <div class="legal-dropdown" id="terms-content" style="display:none;">
                                 <h5>Terms of Service</h5>
-                                <p>By using OptimistCx services, you agree to our terms: all content and services are
+                                <p>By using Geministudio services, you agree to our terms: all content and services are
                                     provided as-is. Payment terms, project timelines, and deliverables are agreed upon
                                     before project start. We reserve the right to update these terms at any time.
                                     Disputes are resolved under Nigerian law.</p>
@@ -589,7 +588,7 @@
                             <a href="#" class="legal-link" data-legal="cookie">Cookie Policy</a>
                             <div class="legal-dropdown" id="cookie-content" style="display:none;">
                                 <h5>Cookie Policy</h5>
-                                <p>OptimistCx uses cookies to improve website experience and analyze traffic. Cookies
+                                <p>Geministudio uses cookies to improve website experience and analyze traffic. Cookies
                                     are small files stored on your device. You may disable cookies in your browser
                                     settings, but some features may not work as intended. We do not use cookies for
                                     advertising or tracking outside our site.</p>
@@ -605,7 +604,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 OptimistCx. All rights reserved.</p>
+                <p>&copy; 2026 Geministudio. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -613,18 +612,80 @@
     <!-- Scripts -->
     <script src="script.js"></script>
     <script>
-        document.querySelectorAll('.legal-link').forEach(function (link) {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-                var type = this.getAttribute('data-legal');
-                var dropdown = document.getElementById(type + '-content');
-                var allDropdowns = document.querySelectorAll('.legal-dropdown');
-                allDropdowns.forEach(function (d) {
-                    if (d !== dropdown) d.style.display = 'none';
+        (function () {
+            var hamburger = document.getElementById('hamburger');
+            var navMenu = document.getElementById('navMenu');
+
+            // initialize data-open based on current display
+            if (navMenu && !navMenu.hasAttribute('data-open')) {
+                var displayed = window.getComputedStyle(navMenu).display !== 'none';
+                navMenu.setAttribute('data-open', displayed ? 'true' : 'false');
+            }
+
+            function openMenu() {
+                navMenu.style.display = 'flex';
+                navMenu.setAttribute('data-open', 'true');
+                hamburger.setAttribute('aria-expanded', 'true');
+                hamburger.classList.add('open');
+            }
+
+            function closeMenu() {
+                navMenu.style.display = 'none';
+                navMenu.setAttribute('data-open', 'false');
+                hamburger.setAttribute('aria-expanded', 'false');
+                hamburger.classList.remove('open');
+            }
+
+            if (hamburger && navMenu) {
+                // toggle on hamburger click
+                hamburger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var isOpen = navMenu.getAttribute('data-open') === 'true';
+                    if (isOpen) {
+                        closeMenu();
+                    } else {
+                        openMenu();
+                    }
                 });
-                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+
+                // close when a nav link is clicked (useful on mobile)
+                navMenu.querySelectorAll('a').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        if (navMenu.getAttribute('data-open') === 'true') closeMenu();
+                    });
+                });
+
+                // close when clicking outside menu
+                document.addEventListener('click', function (e) {
+                    if (navMenu.getAttribute('data-open') === 'true') {
+                        if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                            closeMenu();
+                        }
+                    }
+                });
+
+                // close on Escape key
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && navMenu.getAttribute('data-open') === 'true') {
+                        closeMenu();
+                    }
+                });
+            }
+
+            // legal links toggles
+            document.querySelectorAll('.legal-link').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var type = this.getAttribute('data-legal');
+                    var dropdown = document.getElementById(type + '-content');
+                    var allDropdowns = document.querySelectorAll('.legal-dropdown');
+                    allDropdowns.forEach(function (d) {
+                        if (d !== dropdown) d.style.display = 'none';
+                    });
+                    if (dropdown) dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                });
             });
-        });
+        })();
     </script>
 </body>
 
