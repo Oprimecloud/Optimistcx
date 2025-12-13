@@ -92,7 +92,7 @@
                         </div>
                     </div>
                     <div class="about-image">
-                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fHRlY2h8ZW58MHx8MHx8fDA%3D" alt="OptimistCx Team" />
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fD" alt="OptimistCx Team" />
                     </div>
                 </div>
             </div>
@@ -101,33 +101,62 @@
         <section class="team" id="team">
           <div class="container">
             <div class="section-header">
-              <h2>Meet Our Team</h2>
-              <p>Passionate professionals dedicated to your success</p>
+              <h2>Meet the Team</h2>
+              <p>The Minds Behind the Work</p>
             </div>
-            <div class="team-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 600px; margin: 0 auto;">
-              <div class="team-member">
-                <img src="abd.png" style="display: block; margin: 0 auto; width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Abdulmalik Solagbade - CEO" />
-                <h4 style="text-align: center;">Abdulmalik Solagbade</h4>
-                <p style="text-align: center;">CEO & Founder</p>
+            <div class="team-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; max-width: 1000px; margin: 0 auto; padding: 2rem 0;">
+              <div class="team-member" style="text-align: center; animation: fadeInUp 0.6s ease-out forwards; opacity: 0;">
+            <div style="position: relative; margin-bottom: 1.5rem; overflow: hidden; border-radius: 50%; width: 160px; height: 160px; margin-left: auto; margin-right: auto;">
+              <img src="opt.png" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" alt="Abdulmalik Solagbade - Web Design & SEO Specialist" />
+            </div>
+            <h4 style="margin: 1rem 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Abdulmalik</h4>
+            <p style="color: #0066cc; font-size: 0.9rem; margin: 0.5rem 0; font-weight: 500;"><a href="#">Website Designer & SEO Specialist</a></p>
+            <p style="color: #666; font-size: 0.9rem; margin: 0.75rem 0; line-height: 1.5;">Crafting beautiful, high-converting websites that drive organic traffic and boost your online visibility.</p>
               </div>
-              <div class="team-member">
-                <img src="abd.png" style="display: block; margin: 0 auto; width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Abdulmalik Solagbade - CEO" />
-                <h4 style="text-align: center;">Michael Brown</h4>
-                <p style="text-align: center;">Head of Strategy</p>
+              <div class="team-member" style="text-align: center; animation: fadeInUp 0.6s ease-out 0.1s forwards; opacity: 0;">
+            <div style="position: relative; margin-bottom: 1.5rem; overflow: hidden; border-radius: 50%; width: 160px; height: 160px; margin-left: auto; margin-right: auto;">
+              <img src="ema.png" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" alt="Emmanuel - Brand Strategist & Paid Ads Specialist" />
+            </div>
+            <h4 style="margin: 1rem 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Emmanuel</h4>
+            <p style="color: #0066cc; font-size: 0.9rem; margin: 0.5rem 0; font-weight: 500;"><a href="#">Brand Strategist & Paid Ads Specialist</p>
+            <p style="color: #666; font-size: 0.9rem; margin: 0.75rem 0; line-height: 1.5;">Strategic storyteller specializing in paid campaigns that generate qualified leads and maximize ROI for brands.</p>
               </div>
-              <div class="team-member">
-                <img src="abd.png" style="display: block; margin: 0 auto; width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Michael Brown - Lead Developer" />
-                <h4 style="text-align: center;">Michael Brown</h4>
-                <p style="text-align: center;">Lead Developer</p>
-              </div>
-              <div class="team-member">
-                <img src="abd.png" style="display: block; margin: 0 auto; width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" alt="Abdulmalik Solagbade - CEO" />
-                <h4 style="text-align: center;">Linda Lee</h4>
-                <p style="text-align: center;">Creative Director</p>
+              <div class="team-member" style="text-align: center; animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0;">
+            <div style="position: relative; margin-bottom: 1.5rem; overflow: hidden; border-radius: 50%; width: 160px; height: 160px; margin-left: auto; margin-right: auto;">
+              <img src="iib.png" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" alt="Ibrahim - Content Strategist & Social Media Manager" />
+            </div>
+            <h4 style="margin: 1rem 0 0.5rem; font-size: 1.25rem; font-weight: 600;">Ibrahim</h4>
+            <p style="color: #0066cc; font-size: 0.9rem; margin: 0.5rem 0; font-weight: 500;"a href="#"></p>Content Strategist & Social Media Manager</p>
+            <p style="color: #666; font-size: 0.9rem; margin: 0.75rem 0; line-height: 1.5;">Creating compelling content and building engaged communities that amplify your brand voice across all platforms.</p>
               </div>
             </div>
           </div>
         </section>
+
+        <style>
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .team-member:hover img {
+            transform: scale(1.08);
+          }
+
+          .team-member {
+            transition: transform 0.3s ease;
+          }
+
+          .team-member:hover {
+            transform: translateY(-8px);
+          }
+        </style>
         <!-- Brands/Clients Carousel Section -->
         <!-- <section class="brands" id="brands">
           <div class="container">
