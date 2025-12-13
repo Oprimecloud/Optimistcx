@@ -12,27 +12,30 @@ html {
     scroll-behavior: smooth;
 }
 
-:root {
-    /* Dark, premium palette */
-    --bg: #ffffff;           /* page background - dark navy */
-    --card-bg: #111622;      /* cards and panels */
-    --primary: #1a4d5c;      /* deep teal */
-    --accent: #d4a574;       /* warm gold */
-    --muted: #94a3b8;        /* subdued gray for supporting text */
-    --heading: #e8e8e8;      /* light heading color */
-    --text: #cbd5e1;         /* main body text */
-    --glass: rgba(255,255,255,0.03);
+ :root {/* dark theme */
+    --bg: #0E0D0C;              /* warm black */
+    --card-bg: #1A1917;         /* soft warm charcoal */
+    --primary: #F2F1EF;         /* warm white */
+    --accent: #C9A67A;          /* soft champagne gold */
+    --muted: #9C958B;           /* warm gray */
+    --heading: #F8F7F6;         /* bright warm white */
+    --text: #E1DFDC;            /* warm light gray */
+    --glass: rgba(255, 255, 255, 0.04);
 }
+
+
+
 :root[data-theme='light'] {
-    --bg: #ffffff;
-    --card-bg: #f8fafc;
-    --primary: #00091b;
-    --accent: #eab308;
-    --muted: #bac0c8;
-    --heading: #e8e8e8;
-    --text: #cbd5e1;
-    --glass: rgba(0,0,0,0.03);
+    --bg: #ffffff;              /* clean white */
+    --card-bg: #F7F7F7;         /* light neutral */
+    --primary: #0C0C0C;         /* black for balance */
+    --accent: #D6A94B;          /* premium gold */
+    --muted: #A7A7A7;           /* soft gray */
+    --heading: #0C0C0C;         /* strong title */
+    --text: #2E2E2E;            /* dark gray text */
+    --glass: rgba(0, 0, 0, 0.03);
 }
+
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -947,8 +950,8 @@ section {
    ============================================================ */
 
 .contact-section {
-    background: linear-gradient(135deg, #10262b 0%, #0f1419 100%);
-    color: white;
+    background: linear-gradient(135deg, #F2F2F2 0%, #151515 25%);
+    color:rgba(255, 255, 255, 0.06);
 }
 
 .contact-header {
@@ -1014,7 +1017,7 @@ section {
 }
 
 .form-group select option {
-    background: #2c3e50;
+    background: #090909;
     color: white;
 }
 
@@ -1080,7 +1083,7 @@ section {
    ============================================================ */
 
 .footer {
-    background: #0f172a;
+    background: #0b0b0b;
     color: #cbd5e0;
     padding: 3rem 0 1rem;
 }

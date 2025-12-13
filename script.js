@@ -640,6 +640,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const next = current === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    themeToggle.textContent = next === 'light' ? '🌞' : '🌙';
+    themeToggle.textContent = next === 'light' ? '🌞' : '🌚';
   });
 });
