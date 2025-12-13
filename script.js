@@ -643,3 +643,4 @@ document.addEventListener('DOMContentLoaded', function() {
     themeToggle.textContent = next === 'light' ? '🌞' : '🌚';
   });
 });
+
