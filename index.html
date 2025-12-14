@@ -485,36 +485,100 @@
             <div class="contact-wrapper">
                 <div class="contact-form-container">
                     <h3>Get in Touch</h3>
-                    <form action="https://api.web3forms.com/submit" method="POST"> <input type="hidden" name="access_key" value="91210a9b-d6da-45d4-b149-07f129b1841c"><!-- Redirect after submission --><input type="hidden" name="redirect" value="https://optimistluxe.shop/">
+                    
+   <form 
+    action="https://docs.google.com/forms/d/e/1FAIpQLSdqOrCCj61o72tSXRZwL48Qn4pCdX8GXM-RAXXDCF1_ZicRuA/formResponse"
+    method="POST"
+    target="hidden_iframe"
+    onsubmit="handleSubmit(); return true;"
+>
 
-                        <div class="form-group">
-                            <input type="text" name="name" placeholder="Your Name" required />
-                        </div>
-                        <div class="form-group">
-                            <input type="email" name="email" placeholder="Your Email" required />
-                        </div>
-                        <div class="form-group">
-                            <input type="tel" name="phone" placeholder="Phone Number" />
-                        </div>
-                        <div class="form-group">
-                            <select name="service" required>
-                                <option value="">Select Service</option>
-                                <option>Web Design</option>
-                                <option>SEO</option>
-                                <option>Paid Advertising</option>
-                                <option>Social Media</option>
-                                <option>Branding</option>
-                                <option>Content Marketing</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <textarea name="message" placeholder="Tell us about your project..." rows="5"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
+    <div class="form-group">
+        <input type="text" name="entry.1917424205" placeholder="Your Name" required />
+    </div>
+
+    <div class="form-group">
+        <input type="email" name="entry.1839785389" placeholder="Your Email" required />
+    </div>
+
+    <div class="form-group">
+        <input type="tel" name="entry.502763001" placeholder="Phone Number" required />
+    </div>
+
+    <div class="form-group">
+        <select name="entry.2099580202" required>
+            <option value="">Select Service</option>
+            <option value="Web Design">Web Design</option>
+            <option value="SEO">SEO</option>
+            <option value="Paid Advertising">Paid Advertising</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Branding">Branding</option>
+            <option value="Content Marketing">Content Marketing</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <textarea 
+            name="entry.1863589637" placeholder="Tell us about your project..."
+            rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Send Message</button>
+
+    <!-- Loading Spinner -->
+    <div id="form-loading" style="display:none; margin-top:15px;">
+        <div class="spinner"></div>
+        <span style="margin-left:10px;">Sending your message...</span>
+    </div>
+
+    <!-- Success Message -->
+    <p id="form-status" style="display:none; color:#ecf2ed; margin-top:15px;">
+        ✅ Message sent successfully. Redirecting…
+    </p>
+</form>
+
+<iframe name="hidden_iframe" style="display:none;"></iframe>
+
+<!-- Spinner CSS -->
+<style>
+.spinner {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #007bff; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+function handleSubmit() {
+    // Hide submit button to prevent double submissions
+    document.querySelector("button[type='submit']").style.display = 'none';
+
+    // Show loading spinner
+    document.getElementById("form-loading").style.display = "block";
+
+    // After 1.5 seconds, show success message
+    setTimeout(function () {
+        document.getElementById("form-loading").style.display = "none";
+        document.getElementById("form-status").style.display = "block";
+
+        // Redirect after 2 more seconds
+        setTimeout(function () {
+            window.location.href = "https://optimistcx-gamma.vercel.app";
+        }, 2000);
+
+    }, 1500);
+}
+</script>
                 </div>
-        
-
                 <div class="contact-info">
                     <h3>Contact Information</h3>
 
