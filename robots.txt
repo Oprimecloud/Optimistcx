@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://geministudio.agency/sitemap.xml
+# Crawl-delay can be added if needed
+# Disallow paths below if you have private sections
+# Disallow: /admin/

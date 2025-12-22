@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Geministudio Blog</title>
+    <link>https://geministudio.agency/blog.html</link>
+    <description>Latest insights on digital marketing, SEO, and web design from Geministudio.</description>
+    <language>en-US</language>
+
+    <item>
+      <title>Your Website Invisible on Google? Here's the Fix</title>
+      <link>https://geministudio.agency/blog.html#post-website-invisible-google</link>
+      <pubDate>Wed, 10 Dec 2025 00:00:00 +0000</pubDate>
+      <description>Most businesses lose up to 70% of their potential customers because their site doesn't rank. Here's a quick fix to start improving visibility.</description>
+    </item>
+
+    <item>
+      <title>Burning Cash on Google Ads? Stop Now</title>
+      <link>https://geministudio.agency/blog.html#post-burning-cash-google-ads</link>
+      <pubDate>Thu, 04 Dec 2025 00:00:00 +0000</pubDate>
+      <description>Bad PPC management wastes ad budgets. Request a free audit to find leaks and improve ROI.</description>
+    </item>
+
+    <item>
+      <title>Your Website Looks Stuck in 2025</title>
+      <link>https://geministudio.agency/blog.html#post-website-stuck-2025</link>
+      <pubDate>Fri, 28 Nov 2025 00:00:00 +0000</pubDate>
+      <description>Outdated design kills credibility. Modern design converts visitors into customers.</description>
+    </item>
+
+    <item>
+      <title>Content That Actually Sells (Not Just Entertains)</title>
+      <link>https://geministudio.agency/blog.html#post-content-that-sells</link>
+      <pubDate>Mon, 24 Nov 2025 00:00:00 +0000</pubDate>
+      <description>Create content that educates, builds trust, and converts — not just buzz.</description>
+    </item>
+
+    <item>
+      <title>Social Media Silence = Business Death</title>
+      <link>https://geministudio.agency/blog.html#post-social-media-silence</link>
+      <pubDate>Thu, 20 Nov 2025 00:00:00 +0000</pubDate>
+      <description>Strategic social media and consistent content are essential for modern growth.</description>
+    </item>
+
+    <item>
+      <title>Email: Your Goldmine You're Ignoring</title>
+      <link>https://geministudio.agency/blog.html#post-email-goldmine</link>
+      <pubDate>Sun, 16 Nov 2025 00:00:00 +0000</pubDate>
+      <description>Email marketing with segmentation and automation yields high ROI and repeat sales.</description>
+    </item>
+
+  </channel>
+</rss>

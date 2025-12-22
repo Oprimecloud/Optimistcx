@@ -1,0 +1,194 @@
+{
+  "Preview-branding.png": [
+    "optimized/Preview-branding-480.webp",
+    "optimized/Preview-branding-768.webp",
+    "optimized/Preview-branding-1200.webp",
+    "optimized/Preview-branding-1600.webp",
+    "optimized/Preview-branding-orig.jpg",
+    "optimized/Preview-branding-320.webp"
+  ],
+  "Preview-homepage.png": [
+    "optimized/Preview-homepage-480.webp",
+    "optimized/Preview-homepage-768.webp",
+    "optimized/Preview-homepage-1200.webp",
+    "optimized/Preview-homepage-1600.webp",
+    "optimized/Preview-homepage-orig.jpg",
+    "optimized/Preview-homepage-320.webp"
+  ],
+  "Preview-marketing.png": [
+    "optimized/Preview-marketing-480.webp",
+    "optimized/Preview-marketing-768.webp",
+    "optimized/Preview-marketing-1200.webp",
+    "optimized/Preview-marketing-1600.webp",
+    "optimized/Preview-marketing-orig.jpg",
+    "optimized/Preview-marketing-320.webp"
+  ],
+  "ROAS.png": [
+    "optimized/ROAS-480.webp",
+    "optimized/ROAS-768.webp",
+    "optimized/ROAS-1126.webp",
+    "optimized/ROAS-1126.webp",
+    "optimized/ROAS-orig.jpg",
+    "optimized/ROAS-320.webp"
+  ],
+  "SEO.png": [
+    "optimized/SEO-480.webp",
+    "optimized/SEO-768.webp",
+    "optimized/SEO-1200.webp",
+    "optimized/SEO-1600.webp",
+    "optimized/SEO-orig.jpg",
+    "optimized/SEO-320.webp"
+  ],
+  "abd.png": [
+    "optimized/abd-480.webp",
+    "optimized/abd-768.webp",
+    "optimized/abd-810.webp",
+    "optimized/abd-810.webp",
+    "optimized/abd-orig.jpg",
+    "optimized/abd-320.webp"
+  ],
+  "aysh.png": [
+    "optimized/aysh-480.webp",
+    "optimized/aysh-768.webp",
+    "optimized/aysh-1002.webp",
+    "optimized/aysh-1002.webp",
+    "optimized/aysh-orig.jpg",
+    "optimized/aysh-320.webp"
+  ],
+  "bizbud.png": [
+    "optimized/bizbud-480.webp",
+    "optimized/bizbud-644.webp",
+    "optimized/bizbud-644.webp",
+    "optimized/bizbud-644.webp",
+    "optimized/bizbud-orig.jpg",
+    "optimized/bizbud-320.webp"
+  ],
+  "campaign.png": [
+    "optimized/campaign-480.webp",
+    "optimized/campaign-768.webp",
+    "optimized/campaign-1024.webp",
+    "optimized/campaign-1024.webp",
+    "optimized/campaign-orig.jpg",
+    "optimized/campaign-320.webp"
+  ],
+  "ema.png": [
+    "optimized/ema-480.webp",
+    "optimized/ema-603.webp",
+    "optimized/ema-603.webp",
+    "optimized/ema-603.webp",
+    "optimized/ema-orig.jpg",
+    "optimized/ema-320.webp"
+  ],
+  "iib.png": [
+    "optimized/iib-463.webp",
+    "optimized/iib-463.webp",
+    "optimized/iib-463.webp",
+    "optimized/iib-463.webp",
+    "optimized/iib-orig.jpg",
+    "optimized/iib-320.webp"
+  ],
+  "image.png": [
+    "optimized/image-480.webp",
+    "optimized/image-512.webp",
+    "optimized/image-512.webp",
+    "optimized/image-512.webp",
+    "optimized/image-orig.jpg",
+    "optimized/image-320.webp"
+  ],
+  "logo.png": [
+    "optimized/logo-480.webp",
+    "optimized/logo-768.webp",
+    "optimized/logo-1080.webp",
+    "optimized/logo-1080.webp",
+    "optimized/logo-orig.jpg",
+    "optimized/logo-320.webp"
+  ],
+  "marketing.png": [
+    "optimized/marketing-480.webp",
+    "optimized/marketing-768.webp",
+    "optimized/marketing-1140.webp",
+    "optimized/marketing-1140.webp",
+    "optimized/marketing-orig.jpg",
+    "optimized/marketing-320.webp"
+  ],
+  "opt.png": [
+    "optimized/opt-480.webp",
+    "optimized/opt-768.webp",
+    "optimized/opt-828.webp",
+    "optimized/opt-828.webp",
+    "optimized/opt-orig.jpg",
+    "optimized/opt-320.webp"
+  ],
+  "organic.png": [
+    "optimized/organic-480.webp",
+    "optimized/organic-768.webp",
+    "optimized/organic-831.webp",
+    "optimized/organic-831.webp",
+    "optimized/organic-orig.jpg",
+    "optimized/organic-320.webp"
+  ],
+  "ppc.png": [
+    "optimized/ppc-480.webp",
+    "optimized/ppc-768.webp",
+    "optimized/ppc-1000.webp",
+    "optimized/ppc-1000.webp",
+    "optimized/ppc-orig.jpg",
+    "optimized/ppc-320.webp"
+  ],
+  "preview-ppc.png": [
+    "optimized/preview-ppc-480.webp",
+    "optimized/preview-ppc-768.webp",
+    "optimized/preview-ppc-1200.webp",
+    "optimized/preview-ppc-1600.webp",
+    "optimized/preview-ppc-orig.jpg",
+    "optimized/preview-ppc-320.webp"
+  ],
+  "preview-seo.png": [
+    "optimized/preview-seo-480.webp",
+    "optimized/preview-seo-768.webp",
+    "optimized/preview-seo-1200.webp",
+    "optimized/preview-seo-1600.webp",
+    "optimized/preview-seo-orig.jpg",
+    "optimized/preview-seo-320.webp"
+  ],
+  "preview-social.png": [
+    "optimized/preview-social-480.webp",
+    "optimized/preview-social-768.webp",
+    "optimized/preview-social-1200.webp",
+    "optimized/preview-social-1600.webp",
+    "optimized/preview-social-orig.jpg",
+    "optimized/preview-social-320.webp"
+  ],
+  "preview-web-design.png": [
+    "optimized/preview-web-design-480.webp",
+    "optimized/preview-web-design-768.webp",
+    "optimized/preview-web-design-1200.webp",
+    "optimized/preview-web-design-1600.webp",
+    "optimized/preview-web-design-orig.jpg",
+    "optimized/preview-web-design-320.webp"
+  ],
+  "raw.png": [
+    "optimized/raw-480.webp",
+    "optimized/raw-644.webp",
+    "optimized/raw-644.webp",
+    "optimized/raw-644.webp",
+    "optimized/raw-orig.jpg",
+    "optimized/raw-320.webp"
+  ],
+  "socialmedia.png": [
+    "optimized/socialmedia-480.webp",
+    "optimized/socialmedia-768.webp",
+    "optimized/socialmedia-1200.webp",
+    "optimized/socialmedia-1600.webp",
+    "optimized/socialmedia-orig.jpg",
+    "optimized/socialmedia-320.webp"
+  ],
+  "website.png": [
+    "optimized/website-480.webp",
+    "optimized/website-768.webp",
+    "optimized/website-777.webp",
+    "optimized/website-777.webp",
+    "optimized/website-orig.jpg",
+    "optimized/website-320.webp"
+  ]
+}

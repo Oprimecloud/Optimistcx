@@ -27,22 +27,54 @@
     <meta name="twitter:site" content="@Geministudioacy" />
     <meta name="twitter:title" content="Geministudio - Professional Digital Marketing Agency" />
     <meta name="twitter:description" content="Transform your business with award-winning web design, SEO, and performance marketing." />
-    <meta name="twitter:image" content="https://geministudio.agency/logo.png" />
+    <meta name="twitter:image" content="https://geministudio.agency/Preview-homepage.png" />
     <meta name="twitter:image:alt" content="Geministudio logo and hero image" />
 
     <!-- Favicons / App icons -->
-    <link rel="icon" href="favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon.ico" />
-    <link rel="manifest" href="site.webmanifest" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="msapplication-TileColor" content="#ffffff" />
     <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
 
+    <link rel="preload" as="image" href="/Preview-homepage.png" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="canonical" href="https://geministudio.agency/" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": "https://geministudio.agency/",
+        "name": "Geministudio",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://geministudio.agency/?s={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://geministudio.agency/"
+        }
+      ]
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -104,6 +136,7 @@
                         <img src="logo.png"
                              alt="Geministudio logo featuring a circular design with a stylized G and brush stroke element in black and white"
                              class="logo-image"
+                             width="50" height="50"
                              style="width:50px; height:50px; border-radius:50%; object-fit:cover; display:block;" />
                     </div>
                 </div>
