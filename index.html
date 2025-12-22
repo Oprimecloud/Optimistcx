@@ -103,6 +103,7 @@
 </head>
 
 <body>
+    
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -549,6 +550,39 @@
             </div>
         </div>
     </section>
+<!-- Floating Chat Bubble -->
+<div id="gemini-chat-trigger">
+  <img src="https://geministudio.agency/logo.png" alt="Chat" />
+</div>
+
+<!-- Chat Window -->
+<div id="gemini-chat-window">
+
+  <div id="gemini-chat-header">
+    <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" />
+    <div>
+      <h3>Gemini Studio Assistant</h3>
+      <p>Online 🟢 Ask me anything</p>
+    </div>
+    <button id="gemini-chat-close">✖</button>
+  </div>
+
+  <div id="gemini-chat-body">
+    <div id="gemini-messages"></div>
+
+    <div id="gemini-typing" class="typing hidden">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="gemini-chat-input">
+    <input type="text" id="gemini-input" placeholder="Type your message..." />
+    <button id="gemini-send">➤</button>
+  </div>
+
+</div>
+<script src="api/chat.js"></script>
+<script src="api/send-lead.js"></script>
 
     <!-- Contact/CTA Section -->
     <section class="contact-section" id="contact">
