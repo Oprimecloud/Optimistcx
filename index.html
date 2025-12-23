@@ -595,6 +595,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let welcomed = false;
 
+  // Static Data
+  const services = [
+    { name: "Web Design & Development", price: "$500+", description: "Modern, responsive websites tailored to your brand." },
+    { name: "SEO & Digital Marketing", price: "$300+", description: "Boost your website ranking and reach more clients." },
+    { name: "Branding & UI/UX Design", price: "$200+", description: "Creative designs to make your brand memorable." },
+    { name: "Social Media Management", price: "$150+", description: "Manage and grow your social media presence." }
+  ];
+
+  const faqs = [
+    { q: "How long does a website take to build?", a: "Typically, it takes 2-6 weeks depending on complexity." },
+    { q: "Do you offer revisions?", a: "Yes, we offer up to 3 free revisions per project." },
+    { q: "Can you help with SEO?", a: "Absolutely! We provide full SEO services for websites and content." },
+    { q: "How do I get a quote?", a: "Just type 'quote' or select a service and I can generate a quote instantly." }
+  ];
+
   // Open chat
   trigger.addEventListener("click", () => {
     windowBox.style.display = "flex";
@@ -602,7 +617,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!welcomed) {
       appendMessage(
-        "Hi 👋 I’m Opti, your AI assistant at Gemini Studio. How can I help you today?",
+        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio Agency! How can I help you today?\n\nYou can type 'services', 'faq', or 'quote' to get started.",
         "bot"
       );
       welcomed = true;
@@ -615,7 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
     trigger.style.display = "flex";
   });
 
-  // Send message on click or Enter key
+  // Send message
   sendBtn.addEventListener("click", sendMessage);
   input.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
@@ -625,7 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function appendMessage(text, sender) {
     const div = document.createElement("div");
     div.classList.add("message", sender === "user" ? "user-message" : "bot-message");
-    div.textContent = text;
+    div.innerHTML = text.replace(/\n/g, "<br>");
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   }
@@ -639,13 +654,54 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function sendMessage() {
-    const msg = input.value.trim();
+    const msg = input.value.trim().toLowerCase();
     if (!msg) return;
 
-    appendMessage(msg, "user");
+    appendMessage(input.value.trim(), "user");
     input.value = "";
     showTyping();
 
+    // Check for keywords
+    if (msg.includes("services")) {
+      hideTyping();
+      let reply = "<b>Our Services:</b><br>";
+      services.forEach(s => {
+        reply += `<b>${s.name}</b> - ${s.price}<br>${s.description}<br><br>`;
+      });
+      appendMessage(reply, "bot");
+      return;
+    }
+
+    if (msg.includes("faq")) {
+      hideTyping();
+      let reply = "<b>Frequently Asked Questions:</b><br>";
+      faqs.forEach(f => {
+        reply += `<b>Q:</b> ${f.q}<br><b>A:</b> ${f.a}<br><br>`;
+      });
+      appendMessage(reply, "bot");
+      return;
+    }
+
+    if (msg.includes("quote")) {
+      hideTyping();
+      let reply = "<b>Service Quotes:</b><br>";
+      services.forEach(s => {
+        reply += `<b>${s.name}</b> - Starting from ${s.price}<br>`;
+      });
+      reply += "<br>Reply with the service name you want a detailed quote for.";
+      appendMessage(reply, "bot");
+      return;
+    }
+
+    // If user types a specific service for quote
+    const serviceSelected = services.find(s => msg.includes(s.name.toLowerCase()));
+    if (serviceSelected) {
+      hideTyping();
+      appendMessage(`<b>${serviceSelected.name} Quote:</b> Starting at ${serviceSelected.price}. Delivery: 2-6 weeks depending on project size.`, "bot");
+      return;
+    }
+
+    // Default: Send to OpenAI API
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -664,6 +720,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+
 
     <!-- Footer -->
     <footer class="footer">
