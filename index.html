@@ -591,13 +591,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const messages = document.getElementById("gemini-messages");
   const input = document.getElementById("gemini-input");
   const sendBtn = document.getElementById("gemini-send");
-  const typing = document.getElementById("gemini-let welcomed = false;
+  const typing = document.getElementById("gemini-typing");
 
-// Open chat
-trigger.addEventListener("click", () => {
-   windowBox.style.display = "flex";
-   trigger.style.display = "none";
-});
+  let welcomed = false;
+
+  // Open chat
+  trigger.addEventListener("click", () => {
+    windowBox.style.display = "flex";
+    trigger.style.display = "none";
+
+    if (!welcomed) {
+      appendMessage(
+        "Hi 👋 I’m Gemini, your AI assistant at Gemini Studio. How can I help you today?",
+        "bot"
+      );
+      welcomed = true;
+    }
+  });
 
   // Close chat
   closeBtn.addEventListener("click", () => {
@@ -611,7 +621,7 @@ trigger.addEventListener("click", () => {
     if (e.key === "Enter") sendMessage();
   });
 
-  // Append message to chat
+  // Append message
   function appendMessage(text, sender) {
     const div = document.createElement("div");
     div.classList.add("message", sender === "user" ? "user-message" : "bot-message");
@@ -620,31 +630,30 @@ trigger.addEventListener("click", () => {
     messages.scrollTop = messages.scrollHeight;
   }
 
-  // Show typing indicator
-  function showTyping() { typing.classList.remove("hidden"); }
+  function showTyping() {
+    typing.classList.remove("hidden");
+  }
 
-  // Hide typing indicator
-  function hideTyping() { typing.classList.add("hidden"); }
+  function hideTyping() {
+    typing.classList.add("hidden");
+  }
 
-  // Send user message to backend
   async function sendMessage() {
     const msg = input.value.trim();
     if (!msg) return;
 
     appendMessage(msg, "user");
     input.value = "";
-
     showTyping();
 
     try {
-      const res = await fetch("./api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg })
       });
 
       const data = await res.json();
-
       hideTyping();
       appendMessage(data.reply, "bot");
     } catch (err) {
@@ -655,8 +664,6 @@ trigger.addEventListener("click", () => {
   }
 });
 </script>
-<script src="api/chat.js"></script>
-<script src="api/send-lead.js"></script>
 
     <!-- Footer -->
     <footer class="footer">
