@@ -579,7 +579,6 @@
     <input type="text" id="gemini-input" placeholder="Type your message..." />
     <button id="gemini-send">➤</button>
   </div>
-
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -594,13 +593,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const typing = document.getElementById("gemini-typing");
 
   let welcomed = false;
+  let currentService = null; // Track service for interactive quote
 
   // Static Data
   const services = [
-    { name: "Web Design & Development", price: "$500+", description: "Modern, responsive websites tailored to your brand." },
-    { name: "SEO & Digital Marketing", price: "$300+", description: "Boost your website ranking and reach more clients." },
-    { name: "Branding & UI/UX Design", price: "$200+", description: "Creative designs to make your brand memorable." },
-    { name: "Social Media Management", price: "$150+", description: "Manage and grow your social media presence." }
+    { 
+      name: "Web Design & Development", 
+      basePrice: 500, 
+      description: "Modern, responsive websites tailored to your brand.", 
+      options: [
+        { name: "Additional Page", price: 50 },
+        { name: "SEO Package", price: 150 }
+      ]
+    },
+    { 
+      name: "SEO & Digital Marketing", 
+      basePrice: 300, 
+      description: "Boost your website ranking and reach more clients.",
+      options: [
+        { name: "Social Media Integration", price: 100 }
+      ]
+    },
+    { 
+      name: "Branding & UI/UX Design", 
+      basePrice: 200, 
+      description: "Creative designs to make your brand memorable.", 
+      options: []
+    },
+    { 
+      name: "Social Media Management", 
+      basePrice: 150, 
+      description: "Manage and grow your social media presence.",
+      options: []
+    }
   ];
 
   const faqs = [
@@ -653,6 +678,38 @@ document.addEventListener("DOMContentLoaded", () => {
     typing.classList.add("hidden");
   }
 
+  // Generate Invoice / Quote
+  function generateInvoice(serviceName, basePrice, selectedOptionsIndexes) {
+    const service = services.find(s => s.name === serviceName);
+    let total = basePrice;
+    let optionsText = "";
+
+    selectedOptionsIndexes.forEach(i => {
+      const opt = service.options[i];
+      if (opt) {
+        total += opt.price;
+        optionsText += `${opt.name} (+$${opt.price})\n`;
+      }
+    });
+
+    const invoiceText = `
+Gemini Studio Agency
+-------------------------
+Service: ${serviceName}
+Base Price: $${basePrice}
+Options:
+${optionsText}
+-------------------------
+Total: $${total}
+    `;
+
+    const blob = new Blob([invoiceText], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${serviceName}-invoice.txt`;
+    link.click();
+  }
+
   async function sendMessage() {
     const msg = input.value.trim().toLowerCase();
     if (!msg) return;
@@ -661,12 +718,22 @@ document.addEventListener("DOMContentLoaded", () => {
     input.value = "";
     showTyping();
 
+    // Handle option selection if user is in quote flow
+    if (currentService && /^[0-9, ]+$/.test(msg)) {
+      const indexes = msg.split(",").map(n => parseInt(n.trim()) - 1);
+      generateInvoice(currentService.name, currentService.basePrice, indexes);
+      currentService = null; // reset after generating invoice
+      hideTyping();
+      appendMessage("✅ Invoice generated! Check your download.", "bot");
+      return;
+    }
+
     // Check for keywords
     if (msg.includes("services")) {
       hideTyping();
       let reply = "<b>Our Services:</b><br>";
       services.forEach(s => {
-        reply += `<b>${s.name}</b> - ${s.price}<br>${s.description}<br><br>`;
+        reply += `<b>${s.name}</b> - $${s.basePrice}<br>${s.description}<br><br>`;
       });
       appendMessage(reply, "bot");
       return;
@@ -686,7 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hideTyping();
       let reply = "<b>Service Quotes:</b><br>";
       services.forEach(s => {
-        reply += `<b>${s.name}</b> - Starting from ${s.price}<br>`;
+        reply += `<b>${s.name}</b> - Starting from $${s.basePrice}<br>`;
       });
       reply += "<br>Reply with the service name you want a detailed quote for.";
       appendMessage(reply, "bot");
@@ -697,7 +764,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const serviceSelected = services.find(s => msg.includes(s.name.toLowerCase()));
     if (serviceSelected) {
       hideTyping();
-      appendMessage(`<b>${serviceSelected.name} Quote:</b> Starting at ${serviceSelected.price}. Delivery: 2-6 weeks depending on project size.`, "bot");
+      currentService = serviceSelected;
+      let reply = `<b>${serviceSelected.name} Quote:</b><br>`;
+      reply += `Base Price: $${serviceSelected.basePrice}<br>`;
+      if (serviceSelected.options.length > 0) {
+        reply += `Select options (type numbers separated by commas):<br>`;
+        serviceSelected.options.forEach((opt, index) => {
+          reply += `${index + 1}. ${opt.name} (+$${opt.price})<br>`;
+        });
+        reply += `<br>Example: "1,2" to select options 1 and 2.`;
+      } else {
+        reply += `<button onclick="generateInvoice('${serviceSelected.name}', ${serviceSelected.basePrice}, [])">Generate Invoice</button>`;
+      }
+      appendMessage(reply, "bot");
       return;
     }
 
