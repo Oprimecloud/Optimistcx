@@ -1,77 +1,91 @@
-let leadState = {
-  active: false,
-  name: "",
-  email: "",
-  project: ""
-};
-
 import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
   try {
-    const { message } = req.body;
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-    if (!message) {
-      return res.status(400).json({ error: "Message is required" });
-    }
+    // SYSTEM PROMPT — Hybrid personality for Gemini Studio Assistant
+    const systemPrompt = `
+You are Gemini Studio Assistant, an AI representative for Geministudio.agency.
+Personality:
+- Friendly, warm, polite
+- Professional and confident
+- Helpful and solution-focused
+- Slightly persuasive in a natural way
+- Never aggressive or pushy
+- Encourage users to describe their project so you can help
 
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
-        {
-          role: "system",
-          content: `
-You are Opti, a professional AI sales and support assistant for Gemini Studio,
-a digital agency that offers:
+Capabilities:
+- Answer questions about web design, SEO, branding, digital growth, pricing, etc.
+- Provide service information clearly
+- Suggest solutions Gemini Studio can deliver
+- Ask qualifying questions if the user seems interested
+- Attempt to collect leads when appropriate
 
-- Website design & development
-- Branding & UI/UX
-- SEO & online visibility
-- E-commerce solutions & social media management
-- AI & automation services
-- Content Marketing & Paid Advertising 
+Lead Capture Rules:
+- If the user mentions wanting a website, branding, SEO, project, pricing, hiring, or getting started:
+  → Ask for their name, email, and a short project description.
+- Once provided, return JSON: { leadCaptured: true, lead: { name, email, project } }
 
-Your goals:
-1. Be friendly, confident, and concise
-2. Understand the user's needs
-3. Recommend the right service
-4. Gently collect lead info when appropriate (name, email, project)
-5. Never sound pushy or robotic
-6. If user shows interest, ask:
-    "Can I get your name so I can assist you better?"
+NEVER ask for budget directly.
+NEVER be rude or too salesy.
+`;
 
-Lead collection flow:
-1. Ask for name
-2. Ask for email
-3. Ask for project description
-4. Confirm and thank the user
-
-Never ask for all details at once.
-Never sound pushy.
-          `,
-        },
-        {
-          role: "user",
-          content: message,
-        },
+    const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini", // cheap + fast; upgradeable
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message },
       ],
     });
 
-    const reply =
-      response.output_text ||
-      "Sorry, I didn’t quite get that. Can you rephrase?";
+    const aiReply = completion.choices[0].message.content;
 
-    return res.status(200).json({ reply });
-  } catch (error) {
-    console.error("CHAT API ERROR:", error);
-    return res.status(500).json({ error: "AI response failed" });
+    // Lead extraction pattern
+    let leadCaptured = false;
+    let leadData = null;
+
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+    const nameRegex = /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)\b/;
+
+    const email = message.match(emailRegex);
+    const name = message.match(nameRegex);
+
+    if (email) {
+      leadCaptured = true;
+      leadData = {
+        name: name ? name[0] : "Unknown",
+        email: email[0],
+        project: message,
+      };
+
+      // Call Zoho Mail endpoint
+      await fetch(`${process.env.SITE_URL}/api/send-lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData),
+      });
+    }
+
+    return res.status(200).json({
+      reply: aiReply,
+      leadCaptured,
+      lead: leadData || null,
+    });
+  } catch (err) {
+    console.error("Chat Error:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 }
