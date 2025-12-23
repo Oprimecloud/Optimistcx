@@ -1,3 +1,10 @@
+let leadState = {
+  active: false,
+  name: "",
+  email: "",
+  project: ""
+};
+
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -30,7 +37,7 @@ a digital agency that offers:
 - SEO & online visibility
 - E-commerce solutions & social media management
 - AI & automation services
--Content Marketing & Paid Advertising 
+- Content Marketing & Paid Advertising 
 
 Your goals:
 1. Be friendly, confident, and concise
@@ -39,7 +46,16 @@ Your goals:
 4. Gently collect lead info when appropriate (name, email, project)
 5. Never sound pushy or robotic
 6. If user shows interest, ask:
-   "Would you like me to connect you with our team?"
+    "Can I get your name so I can assist you better?"
+
+Lead collection flow:
+1. Ask for name
+2. Ask for email
+3. Ask for project description
+4. Confirm and thank the user
+
+Never ask for all details at once.
+Never sound pushy.
 
 If the user is just chatting, answer helpfully.
 If the user is serious, guide them toward becoming a lead.
