@@ -597,15 +597,8 @@ document.addEventListener("DOMContentLoaded", () => {
 trigger.addEventListener("click", () => {
   windowBox.style.display = "flex";
   trigger.style.display = "none";
-
-  if (!welcomed) {
-    appendMessage(
-      "Hi 👋 I’m Oprime, your AI assistant at Gemini Studio Agency. How can I help you today?",
-      "bot"
-    );
-    welcomed = true;
-  }
 });
+
   // Close chat
   closeBtn.addEventListener("click", () => {
     windowBox.style.display = "none";
