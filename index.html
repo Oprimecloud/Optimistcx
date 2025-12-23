@@ -50,7 +50,7 @@
     <link rel="preload" as="image" href="/optimized/Preview-homepage-1200.webp" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="canonical" href="https://geministudio.agency/" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
 
 
     <!-- Verification meta tags: replace the CONTENT values with the tokens provided by the services -->
@@ -595,9 +595,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const typing = document.getElementById("gemini-typing");
 
   let welcomed = false;
-  let currentService = null;
-
-  // Services and FAQs here (same as before)...
 
   // Open chat
   trigger.addEventListener("click", () => {
@@ -606,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!welcomed) {
       appendMessage(
-        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio Agency! How can I help you today?\n\nYou can type 'services', 'faq', or 'quote' to get started.",
+        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio Agency! How can I help you today?",
         "bot"
       );
       welcomed = true;
@@ -619,132 +616,37 @@ document.addEventListener("DOMContentLoaded", () => {
     trigger.style.display = "flex";
   });
 
-  // Send message
+  // Send message on click or Enter key
   sendBtn.addEventListener("click", sendMessage);
   input.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
   });
 
-  // Append message function
+  // Append message
   function appendMessage(text, sender) {
     const div = document.createElement("div");
     div.classList.add("message", sender === "user" ? "user-message" : "bot-message");
-    div.innerHTML = text.replace(/\n/g, "<br>");
+    div.textContent = text;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   }
 
-  function showTyping() { typing.classList.remove("hidden"); }
-  function hideTyping() { typing.classList.add("hidden"); }
-
-  // Generate Invoice function (PDF version)
-  function generateInvoice(serviceName, basePrice, selectedOptionsIndexes) {
-    const { jsPDF } = window.jspdf;
-    const service = services.find(s => s.name === serviceName);
-
-    let total = basePrice;
-    let optionsText = "";
-
-    selectedOptionsIndexes.forEach(i => {
-      const opt = service.options[i];
-      if (opt) {
-        total += opt.price;
-        optionsText += `${opt.name} (+$${opt.price})\n`;
-      }
-    });
-
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Gemini Studio Agency", 105, 20, { align: "center" });
-    doc.setFontSize(14);
-    doc.text("Invoice", 105, 30, { align: "center" });
-    doc.setFontSize(12);
-    doc.text(`Service: ${serviceName}`, 20, 50);
-    doc.text(`Base Price: $${basePrice}`, 20, 60);
-    doc.text("Options:", 20, 70);
-
-    if (optionsText === "") {
-      doc.text("None", 25, 80);
-    } else {
-      optionsText.split("\n").forEach((line, idx) => {
-        if (line) doc.text(line, 25, 80 + idx * 10);
-      });
-    }
-
-    doc.text(`Total: $${total}`, 20, 120);
-    doc.save(`${serviceName}-invoice.pdf`);
+  function showTyping() {
+    typing.classList.remove("hidden");
   }
 
-  // Send message function
+  function hideTyping() {
+    typing.classList.add("hidden");
+  }
+
   async function sendMessage() {
-    const msg = input.value.trim().toLowerCase();
+    const msg = input.value.trim();
     if (!msg) return;
 
-    appendMessage(input.value.trim(), "user");
+    appendMessage(msg, "user");
     input.value = "";
     showTyping();
 
-    // ✅ All logic must be inside sendMessage
-    if (currentService && /^[0-9, ]+$/.test(msg)) {
-      const indexes = msg.split(",").map(n => parseInt(n.trim()) - 1);
-      generateInvoice(currentService.name, currentService.basePrice, indexes);
-      currentService = null;
-      hideTyping();
-      appendMessage("✅ Invoice generated! Check your download.", "bot");
-      return;
-    }
-
-    if (msg.includes("services")) {
-      hideTyping();
-      let reply = "<b>Our Services:</b><br>";
-      services.forEach(s => {
-        reply += `<b>${s.name}</b> - $${s.basePrice}<br>${s.description}<br><br>`;
-      });
-      appendMessage(reply, "bot");
-      return;
-    }
-
-    if (msg.includes("faq")) {
-      hideTyping();
-      let reply = "<b>Frequently Asked Questions:</b><br>";
-      faqs.forEach(f => {
-        reply += `<b>Q:</b> ${f.q}<br><b>A:</b> ${f.a}<br><br>`;
-      });
-      appendMessage(reply, "bot");
-      return;
-    }
-
-    if (msg.includes("quote")) {
-      hideTyping();
-      let reply = "<b>Service Quotes:</b><br>";
-      services.forEach(s => {
-        reply += `<b>${s.name}</b> - Starting from $${s.basePrice}<br>`;
-      });
-      reply += "<br>Reply with the service name you want a detailed quote for.";
-      appendMessage(reply, "bot");
-      return;
-    }
-
-    const serviceSelected = services.find(s => msg.includes(s.name.toLowerCase()));
-    if (serviceSelected) {
-      hideTyping();
-      currentService = serviceSelected;
-      let reply = `<b>${serviceSelected.name} Quote:</b><br>`;
-      reply += `Base Price: $${serviceSelected.basePrice}<br>`;
-      if (serviceSelected.options.length > 0) {
-        reply += `Select options (type numbers separated by commas):<br>`;
-        serviceSelected.options.forEach((opt, index) => {
-          reply += `${index + 1}. ${opt.name} (+$${opt.price})<br>`;
-        });
-        reply += `<br>Example: "1,2" to select options 1 and 2.`;
-      } else {
-        reply += `<button onclick="generateInvoice('${serviceSelected.name}', ${serviceSelected.basePrice}, [])">Generate Invoice</button>`;
-      }
-      appendMessage(reply, "bot");
-      return;
-    }
-
-    // Default: Send to OpenAI
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
