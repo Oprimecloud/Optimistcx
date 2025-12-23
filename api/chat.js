@@ -56,9 +56,6 @@ Lead collection flow:
 
 Never ask for all details at once.
 Never sound pushy.
-
-If the user is just chatting, answer helpfully.
-If the user is serious, guide them toward becoming a lead.
           `,
         },
         {
