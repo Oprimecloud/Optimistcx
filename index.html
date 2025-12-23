@@ -50,6 +50,8 @@
     <link rel="preload" as="image" href="/optimized/Preview-homepage-1200.webp" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="canonical" href="https://geministudio.agency/" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 
     <!-- Verification meta tags: replace the CONTENT values with the tokens provided by the services -->
     <!-- Google Search Console (HTML tag verification): replace PASTE_GOOGLE_TOKEN_HERE with the code from Search Console -->
@@ -678,45 +680,49 @@ document.addEventListener("DOMContentLoaded", () => {
     typing.classList.add("hidden");
   }
 
-  // Generate Invoice / Quote
+  // Generate Invoice / 
   function generateInvoice(serviceName, basePrice, selectedOptionsIndexes) {
-    const service = services.find(s => s.name === serviceName);
-    let total = basePrice;
-    let optionsText = "";
+  const { jsPDF } = window.jspdf;
+  const service = services.find(s => s.name === serviceName);
 
-    selectedOptionsIndexes.forEach(i => {
-      const opt = service.options[i];
-      if (opt) {
-        total += opt.price;
-        optionsText += `${opt.name} (+$${opt.price})\n`;
-      }
+  let total = basePrice;
+  let optionsText = "";
+
+  selectedOptionsIndexes.forEach(i => {
+    const opt = service.options[i];
+    if (opt) {
+      total += opt.price;
+      optionsText += `${opt.name} (+$${opt.price})\n`;
+    }
+  });
+
+  const doc = new jsPDF();
+
+  // Branding / Title
+  doc.setFontSize(18);
+  doc.text("Gemini Studio Agency", 105, 20, { align: "center" });
+  doc.setFontSize(14);
+  doc.text("Invoice", 105, 30, { align: "center" });
+
+  // Service details
+  doc.setFontSize(12);
+  doc.text(`Service: ${serviceName}`, 20, 50);
+  doc.text(`Base Price: $${basePrice}`, 20, 60);
+  doc.text("Options:", 20, 70);
+
+  if (optionsText === "") {
+    doc.text("None", 25, 80);
+  } else {
+    optionsText.split("\n").forEach((line, idx) => {
+      if (line) doc.text(line, 25, 80 + idx * 10);
     });
-
-    const invoiceText = `
-Gemini Studio Agency
--------------------------
-Service: ${serviceName}
-Base Price: $${basePrice}
-Options:
-${optionsText}
--------------------------
-Total: $${total}
-    `;
-
-    const blob = new Blob([invoiceText], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${serviceName}-invoice.txt`;
-    link.click();
   }
 
-  async function sendMessage() {
-    const msg = input.value.trim().toLowerCase();
-    if (!msg) return;
+  doc.text(`Total: $${total}`, 20, 120);
 
-    appendMessage(input.value.trim(), "user");
-    input.value = "";
-    showTyping();
+  // Download PDF
+  doc.save(`${serviceName}-invoice.pdf`);
+}
 
     // Handle option selection if user is in quote flow
     if (currentService && /^[0-9, ]+$/.test(msg)) {
