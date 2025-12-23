@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "nodemailer": "^7.0.12",
+    "openai": "^6.15.0"
+  }
+}
