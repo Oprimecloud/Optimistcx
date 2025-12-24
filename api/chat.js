@@ -150,16 +150,18 @@ export default async function handler(req, res) {
 
   // --- MENU SELECTION ---
   if (type === "service") {
-    session.state = "SERVICE_SELECTED";
-    session.service = value;
+  session.state = "SERVICE_SELECTED";
+  session.service = value; // overwrite always
+  session.lead = {}; // reset lead
+  session.goal = null;
 
-    return res.json({
-      reply: `Great choice! 👌  
+  return res.json({
+    reply: `Great choice! 👌  
 Let me ask you a few quick questions about **${value}**.
 
-What is this project for? (business, personal brand, startup, etc.)`,
-    });
-  }
+What is this project for? (business, personal brand, startup, etc.)`
+  });
+}
 
   // --- QUALIFYING ---
   if (session.state === "SERVICE_SELECTED") {
