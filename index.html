@@ -559,13 +559,13 @@
 
 <!-- Chat Window -->
 <div id="gemini-chat-window">
-
   <div id="gemini-chat-header">
     <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" />
     <div>
       <h3>Gemini Studio Assistant</h3>
       <p>Powered by Optimist</p>
     </div>
+    <button id="clear-chat" title="Clear chat">🗑️</button>
     <button id="gemini-chat-close">✖</button>
   </div>
 
@@ -594,14 +594,31 @@
   </div>
 </div>
 <script>
-    document.querySelectorAll(".menu button").forEach(btn => {
+  document.querySelectorAll(".menu button").forEach(btn => {
   btn.addEventListener("click", () => {
+    const service = btn.dataset.value;
+
+    // 1️⃣ Show as user message
+    appendUserMessage(service);
+
+    // 2️⃣ Hide menu after selection
+    document.getElementById("chat-menu").style.display = "none";
+
+    // 3️⃣ Send to backend
     sendMessage({
       type: "service",
-      value: btn.dataset.value
+      value: service
     });
   });
 });
+    function appendUserMessage(text) {
+    const messages = document.getElementById("gemini-messages");
+    const div = document.createElement("div");
+    div.classList.add("message", "user-message");
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    }
 
 function sendMessage(payload) {
   fetch("/api/chat", {

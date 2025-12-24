@@ -145,6 +145,10 @@ export default async function handler(req, res) {
       lead: {},
     };
   }
+if (type === "reset") {
+  delete sessions[sessionId];
+  return res.json({ reply: "" });
+}
 
   const session = sessions[sessionId];
 

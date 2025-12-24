@@ -39,6 +39,18 @@
   box-shadow: 0 15px 40px rgba(0,0,0,0.3);
   animation: chatBounce 1.3s infinite ease-in-out;
 }
+#clear-chat {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+}
+
+#clear-chat:hover {
+  color: red;
+}
+
 
 #gemini-chat-trigger img {
   width: 35px;
