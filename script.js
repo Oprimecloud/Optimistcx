@@ -643,3 +643,18 @@ document.addEventListener('DOMContentLoaded', function() {
     themeToggle.textContent = next === 'light' ? '🌞' : '🌚';
   });
 });
+
+document.querySelectorAll("#goal-menu button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const goal = btn.dataset.goal;
+
+    appendUserMessage(goal);
+    document.getElementById("goal-menu").style.display = "none";
+
+    sendMessage({
+      type: "goal",
+      value: goal
+    });
+  });
+});
+

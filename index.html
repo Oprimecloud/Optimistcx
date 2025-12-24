@@ -581,6 +581,14 @@
   <button data-action="service" data-value="PPC Ads">PPC Ads</button>
 </div>
 
+<div id="goal-menu" class="menu" style="display:none;">
+  <button data-goal="sales">Sales</button>
+  <button data-goal="visibility">Visibility</button>
+  <button data-goal="branding">Branding</button>
+  <button data-goal="leads">Leads</button>
+</div>
+
+
     <div id="gemini-messages"></div>
 
     <div id="gemini-typing" class="typing hidden">
@@ -628,6 +636,9 @@ function sendMessage(payload) {
   })
     .then(res => res.json())
     .then(data => appendBotMessage(data.reply));
+    if (data.showGoals) {
+    document.getElementById("goal-menu").style.display = "grid";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

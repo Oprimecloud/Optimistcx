@@ -138,12 +138,16 @@ let sessions = {}; // simple in-memory session store
 export default async function handler(req, res) {
   const { sessionId = "default", type, value, message } = req.body;
 
-  if (!sessions[sessionId]) {
-    sessions[sessionId] = {
-      state: "MENU",
-      service: null,
-      lead: {},
-    };
+  if (type === "service") {
+  session.state = "QUALIFYING";
+  session.service = value;
+  session.lead = {};
+  session.goal = null;
+
+  return res.json({
+    reply: `Nice 👍 What is your main goal with this project?`,
+    showGoals: true
+  });
   }
 
   const session = sessions[sessionId];
