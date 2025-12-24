@@ -553,19 +553,64 @@
         </div>
     </section>
 <!-- Floating Chat Bubble -->
-<div id="gemini-chat-trigger">
-  <img src="https://geministudio.agency/logo.png" alt="Chat" />
+<div id="gemini-chat-trigger" style="position:fixed; bottom:20px; right:20px; width:60px; height:60px; background:linear-gradient(135deg, #fefefe 0%, #efedf0 100%); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(102, 126, 234, 0.4); z-index:999; animation:floatBounce 3s ease-in-out infinite, pulseGlow 2s ease-in-out infinite;">
+    <span style="font-size:28px; animation:ringPhone 1.5s ease-in-out infinite;">🦥</span>
+    <style>
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 4px 12px rgba(237, 234, 233, 0.4); }
+            50% { box-shadow: 0 8px 24px rgba(10, 10, 10, 0.8); }
+        }
+        @keyframes ringPhone {
+            0%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(-15deg); }
+            20% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            40% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+        }
+        #gemini-chat-trigger:hover {
+            animation: floatBounce 2s ease-in-out infinite, pulseGlow 1.5s ease-in-out infinite;
+            transform: scale(1.1);
+        }
+    </style>
 </div>
 
 <!-- Chat Window -->
 <div id="gemini-chat-window" style="display:none;">
   <div id="gemini-chat-header">
-    <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" />
-    <div>
-      <h3>Gemini Studio Assistant</h3>
-      <p>Powered by GemBot 🤖</p>
+    <style>
+        #gemini-chat-header .logo-call{display:flex;align-items:center;gap:10px;}
+        #gemini-chat-header .logo-wrap{position:relative;display:inline-block;}
+        #gemini-chat-header .logo-img{width:44px;height:44px;border-radius:50%;object-fit:cover;display:block;
+            animation:callPulse 1500ms infinite cubic-bezier(.4,.0,.2,1);}
+        #gemini-chat-header .logo-badge{position:absolute;right:-4px;top:-4px;width:10px;height:10px;background:#0c3a01;border-radius:50%;
+            box-shadow:0 0 0 rgba(240, 79, 4, 0.6);pointer-events:none;animation:badgeRing 1400ms infinite;}
+        #gemini-chat-header h3{margin:0;font-size:14px;}
+        #gemini-chat-header p{margin:0;font-size:12px;opacity:0.85;}
+        #gemini-chat-header #clear-chat{background:transparent;border:0;cursor:pointer;padding:6px;font-size:16px;
+            display:inline-flex;align-items:center;justify-content:center;animation:gentleNudge 3500ms infinite;}
+        @keyframes callPulse{0%{transform:scale(1)}50%{transform:scale(1.09)}100%{transform:scale(1)}}
+        @keyframes badgeRing{0%{box-shadow:0 0 0 0 rgba(255,77,79,0.7)}70%{box-shadow:0 0 0 10px rgba(255,77,79,0)}100%{box-shadow:0 0 0 0 rgba(255,77,79,0)}}
+        @keyframes gentleNudge{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
+    </style>
+
+    <div class="logo-call">
+        <div class="logo-wrap" aria-hidden="true">
+            <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" class="logo-img" />
+            <span class="logo-badge"></span>
+        </div>
+
+        <div>
+            <h3>Gemini Studio Assistant</h3>
+            <p>Powered by Optimist 😃</p>
+        </div>
+
+        <button id="clear-chat" title="Clear chat" aria-label="Clear chat">🗑️</button>
     </div>
-    <button id="clear-chat" title="Clear chat">🗑️</button>
     <button id="gemini-chat-close">✖</button>
   </div>
 
@@ -594,7 +639,7 @@
   </div>
 
   <div id="gemini-chat-input">
-    <input type="text" id="gemini-input" placeholder="Type your message..." />
+    <input type="text"  id="gemini-input" placeholder="Type your message..." rows="5" />
     <button id="gemini-send">➤</button>
   </div>
 </div>
