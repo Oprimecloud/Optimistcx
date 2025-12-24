@@ -124,6 +124,15 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// ✅ Helper function (TOP OF FILE)
+async function saveToGoogleSheets(lead) {
+  await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(lead),
+  });
+}
+
 let sessions = {}; // simple in-memory session store
 
 export default async function handler(req, res) {
@@ -133,7 +142,7 @@ export default async function handler(req, res) {
     sessions[sessionId] = {
       state: "MENU",
       service: null,
-      lead: {}
+      lead: {},
     };
   }
 
@@ -148,7 +157,7 @@ export default async function handler(req, res) {
       reply: `Great choice! 👌  
 Let me ask you a few quick questions about **${value}**.
 
-What is this project for? (business, personal brand, startup, etc.)`
+What is this project for? (business, personal brand, startup, etc.)`,
     });
   }
 
@@ -159,7 +168,7 @@ What is this project for? (business, personal brand, startup, etc.)`
 
     return res.json({
       reply: `Nice 👍  
-What is your main goal with this project? (sales, visibility, branding, leads)`
+What is your main goal with this project? (sales, visibility, branding, leads)`,
     });
   }
 
@@ -170,7 +179,7 @@ What is your main goal with this project? (sales, visibility, branding, leads)`
     return res.json({
       reply: `Perfect. This is something we handle really well at Gemini Studio 🚀  
 
-To continue, may I have your **name**?`
+To continue, may I have your **name**?`,
     });
   }
 
@@ -189,26 +198,38 @@ To continue, may I have your **name**?`
     session.lead.project = message;
     session.state = "DONE";
 
-    console.log("🔥 NEW LEAD:", {
+    const leadData = {
+      name: session.lead.name,
+      email: session.lead.email,
       service: session.service,
-      ...session.lead
-    });
+      project: session.lead.project,
+      goal: session.goal,
+    };
+
+    console.log("🔥 NEW LEAD:", leadData);
+
+    // ✅ SAVE TO GOOGLE SHEETS HERE
+    try {
+      await saveToGoogleSheets(leadData);
+    } catch (err) {
+      console.error("Google Sheets save failed:", err);
+    }
 
     return res.json({
       reply: `Thanks ${session.lead.name}! 🎉  
 We’ve received your details.
 
-Would you like me to connect you with our team now?`
+Would you like me to connect you with our team now?`,
     });
   }
 
   // --- FALLBACK (AI FAQ / SUPPORT) ---
   const aiResponse = await client.responses.create({
     model: "gpt-4.1-mini",
-    input: message
+    input: message,
   });
 
   return res.json({
-    reply: aiResponse.output_text || "Can you clarify that for me?"
+    reply: aiResponse.output_text || "Can you clarify that for me?",
   });
 }
