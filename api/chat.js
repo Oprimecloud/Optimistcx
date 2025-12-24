@@ -164,8 +164,6 @@ export default async function handler(req, res) {
     showGoals: true
   });
 }
-sendPayload({ type: "service", value: service });
-
   // ---------- GOAL ----------
   if (type === "goal") {
   session.goal = value;  // <- important
