@@ -171,7 +171,8 @@ export default async function handler(req, res) {
 
   return res.json({
     reply: `Perfect. This is something we handle really well 🚀  
-May I have your **name**?`
+May I have your **name**?`,
+    showLead: true
   });
 }
 
