@@ -156,25 +156,27 @@ export default async function handler(req, res) {
 
   // ---------- SERVICE ----------
   if (type === "service") {
-    session.service = value;
-    session.state = "GOAL";
+  session.service = value;   // <- important
+  session.state = "GOAL";
 
-    return res.json({
-      reply: `Nice 👍 What is your main goal with this project?`,
-      showGoals: true
-    });
-  }
+  return res.json({
+    reply: `Nice 👍 What is your main goal with this project?`,
+    showGoals: true
+  });
+}
+sendPayload({ type: "service", value: service });
 
   // ---------- GOAL ----------
   if (type === "goal") {
-    session.goal = value;
-    session.state = "LEAD";
+  session.goal = value;  // <- important
+  session.state = "LEAD";
 
-    return res.json({
-      reply: `Perfect. This is something we handle really well 🚀  
+  return res.json({
+    reply: `Perfect. This is something we handle really well 🚀  
 May I have your **name**?`
-    });
-  }
+  });
+}
+
 
   // ---------- LEAD ----------
   if (session.state === "LEAD" && !session.lead.name) {

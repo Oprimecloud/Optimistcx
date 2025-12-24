@@ -720,20 +720,25 @@ async function sendPayload(payload) {
 
 // ---------- SERVICE BUTTONS ----------
 document.addEventListener("DOMContentLoaded", () => {
+  const chatMenu = document.getElementById("chat-menu");
+
   const chatMenuButtons = document.querySelectorAll("#chat-menu button");
+
   chatMenuButtons.forEach(btn => {
-    // Remove any old listeners (safety)
+    // Remove previous listener just in case
     btn.replaceWith(btn.cloneNode(true));
   });
 
-  // Re-select cloned buttons
   document.querySelectorAll("#chat-menu button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const service = btn.dataset.value;
+    btn.addEventListener("click", e => {
+      const service = e.target.dataset.value;
 
       appendUserMessage(service);
+
+      // Hide menu
       chatMenu.style.display = "none";
 
+      // Send to backend
       sendPayload({ type: "service", value: service });
     });
   });
