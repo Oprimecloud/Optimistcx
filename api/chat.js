@@ -124,6 +124,7 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Save leads helper
 async function saveToGoogleSheets(lead) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
     method: "POST",
@@ -132,52 +133,59 @@ async function saveToGoogleSheets(lead) {
   });
 }
 
+// In-memory session store
 let sessions = {};
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const { sessionId = "default", type, value, message } = req.body;
 
+  // Initialize session
   if (!sessions[sessionId]) {
     sessions[sessionId] = {
       state: "MENU",
       service: null,
       goal: null,
-      lead: {}
+      lead: {},
     };
   }
-
   const session = sessions[sessionId];
 
-  // ---------- RESET ----------
+  // RESET chat/session
   if (type === "reset") {
-    delete sessions[sessionId];
-    return res.json({ reply: "Chat cleared. How can I help you today?" });
+    sessions[sessionId] = {
+      state: "MENU",
+      service: null,
+      goal: null,
+      lead: {},
+    };
+    return res.json({ reply: "Chat has been reset. How can I help you today?" });
   }
 
   // ---------- SERVICE ----------
   if (type === "service") {
-  session.service = value;   // <- important
-  session.state = "GOAL";
+    session.service = value;
+    session.state = "GOAL";
+    return res.json({
+      reply: `Nice 👍 What is your main goal with this project?`,
+      showGoals: true,
+    });
+  }
 
-  return res.json({
-    reply: `Nice 👍 What is your main goal with this project?`,
-    showGoals: true
-  });
-}
   // ---------- GOAL ----------
   if (type === "goal") {
-  session.goal = value;  // <- important
-  session.state = "LEAD";
+    session.goal = value;
+    session.state = "LEAD";
+    return res.json({
+      reply: `Perfect. This is something we handle really well 🚀\nMay I have your **name**?`,
+      showLead: true,
+    });
+  }
 
-  return res.json({
-    reply: `Perfect. This is something we handle really well 🚀  
-May I have your **name**?`,
-    showLead: true
-  });
-}
-
-
-  // ---------- LEAD ----------
+  // ---------- LEAD COLLECTION ----------
   if (session.state === "LEAD" && !session.lead.name) {
     session.lead.name = message;
     return res.json({ reply: "Thanks! What’s your **email address**?" });
@@ -195,26 +203,76 @@ May I have your **name**?`,
     const lead = {
       name: session.lead.name,
       email: session.lead.email,
-      service: session.service,
-      goal: session.goal,
-      project: session.lead.project
+      service: session.service || "N/A",
+      goal: session.goal || "N/A",
+      project: session.lead.project,
     };
 
-    await saveToGoogleSheets(lead);
+    console.log("🔥 NEW LEAD:", lead);
 
+    try {
+      await saveToGoogleSheets(lead);
+    } catch (err) {
+      console.error("Google Sheets save failed:", err);
+    }
+
+    // ✅ Ask if user wants to connect with live team
     return res.json({
-      reply: `Thanks ${lead.name}! 🎉  
-We’ve received your details. Would you like me to connect you with our team?`
+      reply: `Thanks ${lead.name}! 🎉\nWe’ve received your details.\nWould you like me to connect you with our team now?`,
+      showConnectTeam: true,
     });
   }
 
   // ---------- AI FALLBACK ----------
-  const aiResponse = await client.responses.create({
-    model: "gpt-4.1-mini",
-    input: message
-  });
+  if (!type) {
+    try {
+      const systemPrompt = `
+You are GemBot 🤖, a professional AI sales and support assistant for Gemini Studio.
 
-  return res.json({
-    reply: aiResponse.output_text || "Can you clarify that?"
-  });
+Your expertise:
+- Website design & development
+- Branding & UI/UX
+- SEO & online visibility
+- E-commerce solutions & social media management
+- AI & automation services
+- Content Marketing & Paid Advertising
+
+Your goals:
+1. Be friendly, confident, and concise
+2. Detect FAQ questions and answer them accurately
+3. Suggest relevant services dynamically based on user keywords
+4. If the user expresses interest, pitch your service in a helpful, non-pushy way
+5. Always sound professional and approachable
+6. End sales messages with: "Would you like me to connect you with our team?" if relevant
+7. If user is casual, chat naturally; if serious, guide toward lead capture
+      `;
+
+      const aiResponse = await client.responses.create({
+        model: "gpt-4.1-mini",
+        input: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message },
+        ],
+      });
+
+      // Detect interest keywords to show goal menu
+      let showGoals = false;
+      const keywords = ["website", "branding", "seo", "social media", "ads", "e-commerce"];
+      for (const k of keywords) {
+        if (message.toLowerCase().includes(k)) {
+          showGoals = true;
+          break;
+        }
+      }
+
+      return res.json({
+        reply: aiResponse.output_text || "Can you clarify that?",
+        showGoals,
+      });
+
+    } catch (err) {
+      console.error("AI response error:", err);
+      return res.status(500).json({ reply: "Oops! Something went wrong." });
+    }
+  }
 }

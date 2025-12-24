@@ -558,42 +558,39 @@
 </div>
 
 <!-- Chat Window -->
-<div id="gemini-chat-window">
+<div id="gemini-chat-window" style="display:none;">
   <div id="gemini-chat-header">
     <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" />
     <div>
       <h3>Gemini Studio Assistant</h3>
-      <p>Powered by Optimist</p>
+      <p>Powered by GemBot 🤖</p>
     </div>
     <button id="clear-chat" title="Clear chat">🗑️</button>
     <button id="gemini-chat-close">✖</button>
   </div>
 
   <div id="gemini-chat-body">
-    <div id="chat-messages"></div>
-
-<div id="chat-menu" class="menu">
-  <button data-action="service" data-value="Web Development">Web Development</button>
-  <button data-action="service" data-value="Branding">Branding</button>
-  <button data-action="service" data-value="SEO">SEO</button>
-  <button data-action="service" data-value="Content Creation">Content Creation</button>
-  <button data-action="service" data-value="Social Media Management">Social Media Management</button>
-  <button data-action="service" data-value="PPC Ads">PPC Ads</button>
-</div>
-
-<div id="goal-menu" class="menu" style="display:none;">
-  <button data-goal="sales">Sales</button>
-  <button data-goal="visibility">Visibility</button>
-  <button data-goal="branding">Branding</button>
-  <button data-goal="leads">Leads</button>
-</div>
-
-
     <div id="gemini-messages"></div>
 
-    <div id="gemini-typing" class="typing hidden">
-      <span></span><span></span><span></span>
+    <!-- Service Menu -->
+    <div id="chat-menu" class="menu" style="display:grid;">
+      <button data-value="Web Development">Web Development</button>
+      <button data-value="Branding">Branding</button>
+      <button data-value="SEO">SEO</button>
+      <button data-value="Content Creation">Content Creation</button>
+      <button data-value="Social Media Management">Social Media Management</button>
+      <button data-value="PPC Ads">PPC Ads</button>
     </div>
+
+    <!-- Goal Menu -->
+    <div id="goal-menu" class="menu" style="display:none;">
+      <button data-goal="sales">Sales</button>
+      <button data-goal="visibility">Visibility</button>
+      <button data-goal="branding">Branding</button>
+      <button data-goal="leads">Leads</button>
+    </div>
+
+    <div id="gemini-typing" class="typing hidden"><span></span><span></span><span></span></div>
   </div>
 
   <div id="gemini-chat-input">
@@ -601,197 +598,113 @@
     <button id="gemini-send">➤</button>
   </div>
 </div>
-<script>
-const chatMessages = document.getElementById("gemini-messages");
-const chatMenu = document.getElementById("chat-menu");
-const goalMenu = document.getElementById("goal-menu");
-const input = document.getElementById("gemini-input");
 
+<script>
 document.addEventListener("DOMContentLoaded", () => {
-  // Elements
   const trigger = document.getElementById("gemini-chat-trigger");
   const windowBox = document.getElementById("gemini-chat-window");
-  const closeBtn = document.getElementById("gemini-chat-close");
-
-  const messages = document.getElementById("gemini-messages");
+  const chatMenu = document.getElementById("chat-menu");
+  const goalMenu = document.getElementById("goal-menu");
+  const messagesDiv = document.getElementById("gemini-messages");
   const input = document.getElementById("gemini-input");
   const sendBtn = document.getElementById("gemini-send");
   const typing = document.getElementById("gemini-typing");
+  const clearBtn = document.getElementById("clear-chat");
+  const closeBtn = document.getElementById("gemini-chat-close");
 
   let welcomed = false;
-// Open chat
+
+  // --- OPEN / CLOSE ---
   trigger.addEventListener("click", () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
-
     if (!welcomed) {
-      appendMessage(
-        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio Agency! How can I help you today?",
-        "bot"
-      );
+      appendBotMessage("Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?");
       welcomed = true;
     }
   });
-  // Close chat
-  closeBtn.addEventListener("click", () => {
-    windowBox.style.display = "none";
-    trigger.style.display = "flex";
+  closeBtn.addEventListener("click", () => { windowBox.style.display = "none"; trigger.style.display = "flex"; });
+
+  // --- CLEAR CHAT ---
+  clearBtn.addEventListener("click", () => {
+    messagesDiv.innerHTML = "";
+    chatMenu.style.display = "grid";
+    goalMenu.style.display = "none";
+    fetch("/api/chat", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({type:"reset"}) });
   });
 
-  // Send message on click or Enter key
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keypress", e => {
-    if (e.key === "Enter") sendMessage();
-  });
-  // Append message
-  function appendMessage(text, sender) {
-    const div = document.createElement("div");
-    div.classList.add("message", sender === "user" ? "user-message" : "bot-message");
-    div.textContent = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-  }
+  // --- APPEND MESSAGES ---
+  function appendUserMessage(text){ const div=document.createElement("div"); div.className="message user-message"; div.textContent=text; messagesDiv.appendChild(div); messagesDiv.scrollTop=messagesDiv.scrollHeight; }
+  function appendBotMessage(text){ const div=document.createElement("div"); div.className="message bot-message"; div.textContent=text; messagesDiv.appendChild(div); messagesDiv.scrollTop=messagesDiv.scrollHeight; }
 
-  function showTyping() {
-    typing.classList.remove("hidden");
-  }
+  function showTyping(){ typing.classList.remove("hidden"); }
+  function hideTyping(){ typing.classList.add("hidden"); }
 
-  function hideTyping() {
-    typing.classList.add("hidden");
-  }
-
-  async function sendMessage() {
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    appendMessage(msg, "user");
-    input.value = "";
+  // --- SEND PAYLOAD TO BACKEND ---
+  async function sendPayload(payload){
     showTyping();
-
-    try {
+    try{
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
       });
-
       const data = await res.json();
       hideTyping();
-      appendMessage(data.reply, "bot");
-    } catch (err) {
+      appendBotMessage(data.reply);
+
+      if(data.showGoals) goalMenu.style.display="grid";
+      else goalMenu.style.display="none";
+
+      if(data.showConnectTeam){
+        const connectBtn=document.createElement("button");
+        connectBtn.textContent="Connect with Team";
+        connectBtn.addEventListener("click",()=>{
+          appendUserMessage("Yes, connect me with the team");
+          appendBotMessage("✅ Awesome! Our team will reach out to you shortly.");
+        });
+        messagesDiv.appendChild(connectBtn);
+        messagesDiv.scrollTop=messagesDiv.scrollHeight;
+      }
+
+    }catch(err){
       hideTyping();
-      appendMessage("Oops! Something went wrong. Please try again.", "bot");
+      appendBotMessage("Oops! Something went wrong.");
       console.error(err);
     }
   }
-  });
-// ---------- MESSAGE HELPERS ----------
-function appendUserMessage(text) {
-  const div = document.createElement("div");
-  div.className = "message user-message";
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
 
-function appendBotMessage(text) {
-  const div = document.createElement("div");
-  div.className = "message bot-message";
-  div.textContent = text;
-  chatMessages.appendChild(div);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// ---------- SEND TO BACKEND ----------
-async function sendPayload(payload) {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-  appendBotMessage(data.reply);
-
-  if (data.showGoals) {
-    goalMenu.style.display = "grid";
-  }
-}
-
-// ---------- SERVICE BUTTONS ----------
-document.addEventListener("DOMContentLoaded", () => {
-  const chatMenu = document.getElementById("chat-menu");
-
-  const chatMenuButtons = document.querySelectorAll("#chat-menu button");
-
-  chatMenuButtons.forEach(btn => {
-    // Remove previous listener just in case
-    btn.replaceWith(btn.cloneNode(true));
-  });
-
-  document.querySelectorAll("#chat-menu button").forEach(btn => {
-    btn.addEventListener("click", e => {
-      const service = e.target.dataset.value;
-
+  // --- SERVICE BUTTONS ---
+  document.querySelectorAll("#chat-menu button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const service=btn.dataset.value;
       appendUserMessage(service);
-
-      // Hide menu
-      chatMenu.style.display = "none";
-
-      // Send to backend
-      sendPayload({ type: "service", value: service });
+      chatMenu.style.display="none";
+      sendPayload({type:"service", value:service});
     });
   });
-});
 
-// ---------- GOAL BUTTONS ----------
-document.querySelectorAll("#goal-menu button").forEach(btn => {
-  btn.replaceWith(btn.cloneNode(true));
-});
-
-document.querySelectorAll("#goal-menu button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const goal = btn.dataset.goal;
-
-    appendUserMessage(goal);
-    goalMenu.style.display = "none";
-
-    sendPayload({ type: "goal", value: goal });
-  });
-});
-
-
-// ---------- TEXT INPUT ----------
-document.getElementById("gemini-send").addEventListener("click", async () => {
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  appendUserMessage(msg);
-  input.value = "";
-
-  sendPayload({ message: msg });
-});
-
-// ---------- CLEAR CHAT ----------
-document.getElementById("clear-chat").addEventListener("click", async () => {
-  // Clear UI
-  chatMessages.innerHTML = "";
-
-  // Reset menus
-  chatMenu.style.display = "grid";
-  goalMenu.style.display = "none";
-
-  // Reset backend session
-  await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "reset" })
+  // --- GOAL BUTTONS ---
+  document.querySelectorAll("#goal-menu button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const goal=btn.dataset.goal;
+      appendUserMessage(goal);
+      goalMenu.style.display="none";
+      sendPayload({type:"goal", value:goal});
+    });
   });
 
-  // Optional welcome message
-  appendBotMessage("Chat cleared. How can I help you today?");
-});
+  // --- TEXT INPUT ---
+  sendBtn.addEventListener("click", ()=>{
+    const msg=input.value.trim();
+    if(!msg) return;
+    appendUserMessage(msg);
+    input.value="";
+    sendPayload({message:msg});
+  });
+  input.addEventListener("keypress", e=>{ if(e.key==="Enter") sendBtn.click(); });
 
+});
 </script>
 
 
