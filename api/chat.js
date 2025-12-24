@@ -124,7 +124,6 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ✅ Helper function (TOP OF FILE)
 async function saveToGoogleSheets(lead) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
     method: "POST",
@@ -133,107 +132,88 @@ async function saveToGoogleSheets(lead) {
   });
 }
 
-let sessions = {}; // simple in-memory session store
+let sessions = {};
 
 export default async function handler(req, res) {
   const { sessionId = "default", type, value, message } = req.body;
 
-  if (type === "service") {
-  session.state = "QUALIFYING";
-  session.service = value;
-  session.lead = {};
-  session.goal = null;
-
-  return res.json({
-    reply: `Nice 👍 What is your main goal with this project?`,
-    showGoals: true
-  });
+  if (!sessions[sessionId]) {
+    sessions[sessionId] = {
+      state: "MENU",
+      service: null,
+      goal: null,
+      lead: {}
+    };
   }
 
   const session = sessions[sessionId];
 
-  // --- MENU SELECTION ---
+  // ---------- RESET ----------
+  if (type === "reset") {
+    delete sessions[sessionId];
+    return res.json({ reply: "Chat cleared. How can I help you today?" });
+  }
+
+  // ---------- SERVICE ----------
   if (type === "service") {
-    session.state = "SERVICE_SELECTED";
     session.service = value;
+    session.state = "GOAL";
 
     return res.json({
-      reply: `Great choice! 👌  
-Let me ask you a few quick questions about **${value}**.
-
-What is this project for? (business, personal brand, startup, etc.)`,
+      reply: `Nice 👍 What is your main goal with this project?`,
+      showGoals: true
     });
   }
 
-  // --- QUALIFYING ---
-  if (session.state === "SERVICE_SELECTED") {
-    session.state = "QUALIFYING";
-    session.projectType = message;
+  // ---------- GOAL ----------
+  if (type === "goal") {
+    session.goal = value;
+    session.state = "LEAD";
 
     return res.json({
-      reply: `Nice 👍  
-What is your main goal with this project? (sales, visibility, branding, leads)`,
+      reply: `Perfect. This is something we handle really well 🚀  
+May I have your **name**?`
     });
   }
 
-  if (session.state === "QUALIFYING") {
-    session.goal = message;
-    session.state = "LEAD_COLLECTION";
-
-    return res.json({
-      reply: `Perfect. This is something we handle really well at Gemini Studio 🚀  
-
-To continue, may I have your **name**?`,
-    });
-  }
-
-  // --- LEAD COLLECTION ---
-  if (session.state === "LEAD_COLLECTION" && !session.lead.name) {
+  // ---------- LEAD ----------
+  if (session.state === "LEAD" && !session.lead.name) {
     session.lead.name = message;
     return res.json({ reply: "Thanks! What’s your **email address**?" });
   }
 
-  if (session.state === "LEAD_COLLECTION" && !session.lead.email) {
+  if (session.state === "LEAD" && !session.lead.email) {
     session.lead.email = message;
-    return res.json({ reply: "Great 👍 Please briefly describe your project." });
+    return res.json({ reply: "Please briefly describe your project." });
   }
 
-  if (session.state === "LEAD_COLLECTION" && !session.lead.project) {
+  if (session.state === "LEAD" && !session.lead.project) {
     session.lead.project = message;
     session.state = "DONE";
 
-    const leadData = {
+    const lead = {
       name: session.lead.name,
       email: session.lead.email,
       service: session.service,
-      project: session.lead.project,
       goal: session.goal,
+      project: session.lead.project
     };
 
-    console.log("🔥 NEW LEAD:", leadData);
-
-    // ✅ SAVE TO GOOGLE SHEETS HERE
-    try {
-      await saveToGoogleSheets(leadData);
-    } catch (err) {
-      console.error("Google Sheets save failed:", err);
-    }
+    await saveToGoogleSheets(lead);
 
     return res.json({
-      reply: `Thanks ${session.lead.name}! 🎉  
-We’ve received your details.
-
-Would you like me to connect you with our team now?`,
+      reply: `Thanks ${lead.name}! 🎉  
+We’ve received your details. Would you like me to connect you with our team?`
     });
   }
 
-  // --- FALLBACK (AI FAQ / SUPPORT) ---
+  // ---------- AI FALLBACK ----------
   const aiResponse = await client.responses.create({
     model: "gpt-4.1-mini",
-    input: message,
+    input: message
   });
 
   return res.json({
-    reply: aiResponse.output_text || "Can you clarify that for me?",
+    reply: aiResponse.output_text || "Can you clarify that?"
   });
 }

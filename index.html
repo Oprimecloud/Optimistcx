@@ -602,44 +602,10 @@
   </div>
 </div>
 <script>
-    document.querySelectorAll(".menu button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const service = btn.dataset.value;
-
-    // 1️⃣ Show as user message
-    appendUserMessage(service);
-
-    // 2️⃣ Hide menu after selection
-    document.getElementById("chat-menu").style.display = "none";
-
-    // 3️⃣ Send to backend
-    sendMessage({
-      type: "service",
-      value: service
-    });
-  });
-});
-function appendUserMessage(text) {
-  const messages = document.getElementById("gemini-messages");
-  const div = document.createElement("div");
-  div.classList.add("message", "user-message");
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function sendMessage(payload) {
-  fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-    .then(res => res.json())
-    .then(data => appendBotMessage(data.reply));
-    if (data.showGoals) {
-    document.getElementById("goal-menu").style.display = "grid";
-  }
-}
+const chatMessages = document.getElementById("gemini-messages");
+const chatMenu = document.getElementById("chat-menu");
+const goalMenu = document.getElementById("goal-menu");
+const input = document.getElementById("gemini-input");
 
 document.addEventListener("DOMContentLoaded", () => {
   // Elements
@@ -653,8 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const typing = document.getElementById("gemini-typing");
 
   let welcomed = false;
-
-  // Open chat
+// Open chat
   trigger.addEventListener("click", () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
@@ -667,7 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
       welcomed = true;
     }
   });
-
   // Close chat
   closeBtn.addEventListener("click", () => {
     windowBox.style.display = "none";
@@ -679,7 +643,6 @@ document.addEventListener("DOMContentLoaded", () => {
   input.addEventListener("keypress", e => {
     if (e.key === "Enter") sendMessage();
   });
-
   // Append message
   function appendMessage(text, sender) {
     const div = document.createElement("div");
@@ -721,7 +684,109 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error(err);
     }
   }
+  });
+// ---------- MESSAGE HELPERS ----------
+function appendUserMessage(text) {
+  const div = document.createElement("div");
+  div.className = "message user-message";
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function appendBotMessage(text) {
+  const div = document.createElement("div");
+  div.className = "message bot-message";
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// ---------- SEND TO BACKEND ----------
+async function sendPayload(payload) {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  appendBotMessage(data.reply);
+
+  if (data.showGoals) {
+    goalMenu.style.display = "grid";
+  }
+}
+
+// ---------- SERVICE BUTTONS ----------
+document.addEventListener("DOMContentLoaded", () => {
+  const chatMenuButtons = document.querySelectorAll("#chat-menu button");
+  chatMenuButtons.forEach(btn => {
+    // Remove any old listeners (safety)
+    btn.replaceWith(btn.cloneNode(true));
+  });
+
+  // Re-select cloned buttons
+  document.querySelectorAll("#chat-menu button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const service = btn.dataset.value;
+
+      appendUserMessage(service);
+      chatMenu.style.display = "none";
+
+      sendPayload({ type: "service", value: service });
+    });
+  });
 });
+
+// ---------- GOAL BUTTONS ----------
+document.querySelectorAll("#goal-menu button").forEach(btn => {
+  btn.replaceWith(btn.cloneNode(true));
+});
+
+document.querySelectorAll("#goal-menu button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const goal = btn.dataset.goal;
+
+    appendUserMessage(goal);
+    goalMenu.style.display = "none";
+
+    sendPayload({ type: "goal", value: goal });
+  });
+});
+
+
+// ---------- TEXT INPUT ----------
+document.getElementById("gemini-send").addEventListener("click", async () => {
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  appendUserMessage(msg);
+  input.value = "";
+
+  sendPayload({ message: msg });
+});
+
+// ---------- CLEAR CHAT ----------
+document.getElementById("clear-chat").addEventListener("click", async () => {
+  // Clear UI
+  chatMessages.innerHTML = "";
+
+  // Reset menus
+  chatMenu.style.display = "grid";
+  goalMenu.style.display = "none";
+
+  // Reset backend session
+  await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "reset" })
+  });
+
+  // Optional welcome message
+  appendBotMessage("Chat cleared. How can I help you today?");
+});
+
 </script>
 
 

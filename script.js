@@ -644,17 +644,41 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-document.querySelectorAll("#goal-menu button").forEach(btn => {
+document.querySelectorAll(".menu button").forEach(btn => {
   btn.addEventListener("click", () => {
-    const goal = btn.dataset.goal;
+    const service = btn.dataset.value;
 
-    appendUserMessage(goal);
-    document.getElementById("goal-menu").style.display = "none";
+    // 1️⃣ Show as user message
+    appendUserMessage(service);
 
+    // 2️⃣ Hide menu after selection
+    document.getElementById("chat-menu").style.display = "none";
+
+    // 3️⃣ Send to backend
     sendMessage({
-      type: "goal",
-      value: goal
+      type: "service",
+      value: service
     });
   });
 });
+function appendUserMessage(text) {
+  const messages = document.getElementById("gemini-messages");
+  const div = document.createElement("div");
+  div.classList.add("message", "user-message");
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
 
+function sendMessage(payload) {
+  fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => appendBotMessage(data.reply));
+    if (data.showGoals) {
+    document.getElementById("goal-menu").style.display = "grid";
+  }
+}
