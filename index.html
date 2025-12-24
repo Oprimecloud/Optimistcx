@@ -570,6 +570,17 @@
   </div>
 
   <div id="gemini-chat-body">
+    <div id="chat-messages"></div>
+
+<div id="chat-menu" class="menu">
+  <button data-action="service" data-value="Web Development">Web Development</button>
+  <button data-action="service" data-value="Branding">Branding</button>
+  <button data-action="service" data-value="SEO">SEO</button>
+  <button data-action="service" data-value="Content Creation">Content Creation</button>
+  <button data-action="service" data-value="Social Media Management">Social Media Management</button>
+  <button data-action="service" data-value="PPC Ads">PPC Ads</button>
+</div>
+
     <div id="gemini-messages"></div>
 
     <div id="gemini-typing" class="typing hidden">
@@ -583,6 +594,25 @@
   </div>
 </div>
 <script>
+    document.querySelectorAll(".menu button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    sendMessage({
+      type: "service",
+      value: btn.dataset.value
+    });
+  });
+});
+
+function sendMessage(payload) {
+  fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => appendBotMessage(data.reply));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // Elements
   const trigger = document.getElementById("gemini-chat-trigger");
