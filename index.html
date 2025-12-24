@@ -760,6 +760,29 @@ Please tell me more.`;
   function hideTyping() {
     typing.classList.add("hidden");
   }
+function shouldRedirectToWhatsApp(text) {
+  const keywords = [
+    "connect",
+    "whatsapp",
+    "human",
+    "agent",
+    "team",
+    "talk to someone",
+    "contact",
+    "call you"
+  ];
+
+  return keywords.some(k => text.toLowerCase().includes(k));
+}
+  function hideAllMenus() {
+  chatMenu.style.display = "none";
+  goalMenu.style.display = "none";
+
+  document
+    .querySelectorAll(".connect-team-btn")
+    .forEach(btn => btn.remove());
+}
+  
 
   /* ---------------- SEND PAYLOAD ---------------- */
   async function sendPayload(payload) {
@@ -853,18 +876,35 @@ Please tell me more.`;
 
   /* ---------------- TEXT INPUT ---------------- */
   sendBtn.addEventListener("click", () => {
-    const msg = input.value.trim();
-    if (!msg) return;
-    appendUserMessage(msg);
-    input.value = "";
-    sendPayload({ message: msg });
-  });
+  const msg = input.value.trim();
+  if (!msg) return;
 
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendBtn.click();
-  });
+  appendUserMessage(msg);
+  input.value = "";
 
+  // 🔒 Hide menus immediately when typing starts
+  hideAllMenus();
+
+  // 🚀 WhatsApp intent detected
+  if (shouldRedirectToWhatsApp(msg)) {
+    updateWhatsAppMessage(); // dynamic context-based message
+    appendBotMessage(
+      "Sure 👍 I’ll connect you to our team on WhatsApp now."
+    );
+
+    setTimeout(() => {
+      window.open(whatsappBtn.href, "_blank");
+    }, 800);
+
+    return;
+  }
+
+  sendPayload({ message: msg });
 });
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") sendBtn.click();
+});
+
 </script>
 
 
