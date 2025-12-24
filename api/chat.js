@@ -145,27 +145,21 @@ export default async function handler(req, res) {
       lead: {},
     };
   }
-if (type === "reset") {
-  delete sessions[sessionId];
-  return res.json({ reply: "" });
-}
 
   const session = sessions[sessionId];
 
   // --- MENU SELECTION ---
   if (type === "service") {
-  session.state = "SERVICE_SELECTED";
-  session.service = value; // overwrite always
-  session.lead = {}; // reset lead
-  session.goal = null;
+    session.state = "SERVICE_SELECTED";
+    session.service = value;
 
-  return res.json({
-    reply: `Great choice! 👌  
+    return res.json({
+      reply: `Great choice! 👌  
 Let me ask you a few quick questions about **${value}**.
 
-What is this project for? (business, personal brand, startup, etc.)`
-  });
-}
+What is this project for? (business, personal brand, startup, etc.)`,
+    });
+  }
 
   // --- QUALIFYING ---
   if (session.state === "SERVICE_SELECTED") {

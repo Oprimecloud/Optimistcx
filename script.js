@@ -643,20 +643,3 @@ document.addEventListener('DOMContentLoaded', function() {
     themeToggle.textContent = next === 'light' ? '🌞' : '🌚';
   });
 });
-
-document.getElementById("clear-chat").addEventListener("click", () => {
-  // 1️⃣ Clear chat UI
-  document.getElementById("chat-messages").innerHTML = "";
-
-  // 2️⃣ Reset menu
-  document.getElementById("chat-menu").style.display = "grid";
-
-  // 3️⃣ Reset session ID (important!)
-  localStorage.removeItem("chat_session");
-
-  // 4️⃣ Optional: tell backend to reset
-  sendMessage({ type: "reset" });
-
-  // 5️⃣ Show welcome message again
-  appendBotMessage("Hi 👋 How can I help you today?");
-});
