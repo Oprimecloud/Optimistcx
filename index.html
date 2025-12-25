@@ -803,7 +803,7 @@ My goal is ${selectedGoal}.`;
   }
 
   /* ---------------- BUTTONS ---------------- */
-  /*document.querySelectorAll("#chat-menu button").forEach(btn => {
+  document.querySelectorAll("#chat-menu button").forEach(btn => {
     btn.onclick = () => {
       selectedService = btn.dataset.value;
       appendUserMessage(selectedService);
@@ -821,7 +821,7 @@ My goal is ${selectedGoal}.`;
       updateWhatsAppMessage();
       sendPayload({ type: "goal", value: selectedGoal });
     };
-  });*/
+  });
 
     btn.onclick = async () => {
   appendUserMessage("Connect me with the team");
@@ -851,7 +851,7 @@ My goal is ${selectedGoal}.`;
 
 
   /* ---------------- TEXT INPUT ---------------- */
-  sendBtn.onclick = () => {
+  /*sendBtn.onclick = () => {
     const msg = input.value.trim();
     if (!msg) return;
 
@@ -875,7 +875,7 @@ My goal is ${selectedGoal}.`;
     if (e.key === "Enter") sendBtn.click();
   });
 
-});
+});*/
 </script>
 
 
