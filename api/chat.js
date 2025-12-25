@@ -331,7 +331,7 @@ Session ID: ${sessionId}`;
     const ai = await client.responses.create({
       model: "gpt-4.1-mini",
       input: [
-        { role: "system", content: "You are GemBot 🤖, a professional sales assistant." },
+        { role: "system", content: "You are GemBot 🤖, an AI-powered sales and support assistant for Gemini Studio, a digital agency offering:" },
         { role: "user", content: message },
       ],
     });
