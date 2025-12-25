@@ -751,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.showConnectTeam && !connecting) {
         const connectBtn = document.createElement("button");
         connectBtn.className = "connect-btn";
-        connectBtn.textContent = "💬 Connect with Team on WhatsApp";
+        connectBtn.textContent = "💬 Connect with Team";
 
         connectBtn.addEventListener("click", async () => {
           if (connecting) return;
@@ -776,7 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
             waBtn.target = "_blank";
             waBtn.rel = "noopener noreferrer";
             waBtn.className = "whatsapp-btn";
-            waBtn.textContent = "👉 Open WhatsApp Chat";
+            waBtn.textContent = "👉 Click To Start Chat";
 
             messagesDiv.appendChild(waBtn);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;

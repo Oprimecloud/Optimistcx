@@ -124,6 +124,30 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+//name validation
+function isValidName(name) {
+  return /^[A-Za-z\s]{2,50}$/.test(name.trim());
+}
+
+//email validation
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+//project validation
+function isValidProject(text) {
+  if (!text) return false;
+
+  const trimmed = text.trim();
+
+  if (trimmed.length < 10) return false;        // too short
+  if (trimmed.length > 500) return false;       // too long
+  if (!/[a-zA-Z]/.test(trimmed)) return false;  // must contain letters
+
+  return true;
+}
+
+
 // Save leads helper
 async function saveToGoogleSheets(lead) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
@@ -164,7 +188,7 @@ export default async function handler(req, res) {
       lead: {},
       connected: false,
     };
-    return res.json({ reply: "Chat has been reset. How can I help you today?" });
+    return res.json({ reply: "Chat has been deleted. How can I help you today?" });
   }
 
   // ---------- SERVICE ----------
@@ -188,38 +212,59 @@ export default async function handler(req, res) {
 
   // ---------- LEAD ----------
   if (session.state === "LEAD" && !session.lead.name) {
-    session.lead.name = message;
-    return res.json({ reply: "Thanks! What’s your **email address**?" });
-  }
-
-  if (session.state === "LEAD" && !session.lead.email) {
-    session.lead.email = message;
-    return res.json({ reply: "Please briefly describe your project." });
-  }
-
-  if (session.state === "LEAD" && !session.lead.project) {
-    session.lead.project = message;
-    session.state = "DONE";
-
-    const lead = {
-      name: session.lead.name,
-      email: session.lead.email,
-      service: session.service || "N/A",
-      goal: session.goal || "N/A",
-      project: session.lead.project,
-    };
-
-    try {
-      await saveToGoogleSheets(lead);
-    } catch (err) {
-      console.error("Google Sheets error:", err);
-    }
-
+  if (!isValidName(message)) {
     return res.json({
-      reply: `Thanks ${lead.name}! 🎉\nWould you like me to connect you with our team on WhatsApp?`,
-      showConnectTeam: true,
+      reply: "Please enter a valid name (letters only, e.g. John or Mary Jane).",
     });
   }
+
+  session.lead.name = message.trim();
+  return res.json({ reply: "Thanks! What’s your **email address**?" });
+}
+
+ if (session.state === "LEAD" && !session.lead.email) {
+  if (!isValidEmail(message)) {
+    return res.json({
+      reply: "Hmm 🤔 That doesn’t look like a valid email. Can you double check and send it again?",
+    });
+  }
+
+  session.lead.email = message;
+  return res.json({ reply: "Great! Please briefly describe your project." });
+}
+
+
+ if (session.state === "LEAD" && !session.lead.project) {
+  if (!isValidProject(message)) {
+    return res.json({
+      reply:
+        "Please describe your project in a bit more detail (at least a sentence or more 😊).",
+    });
+  }
+
+  session.lead.project = message.trim();
+  session.state = "DONE";
+
+  const lead = {
+    name: session.lead.name,
+    email: session.lead.email,
+    service: session.service || "N/A",
+    goal: session.goal || "N/A",
+    project: session.lead.project,
+  };
+
+  try {
+    await saveToGoogleSheets(lead);
+  } catch (err) {
+    console.error("Google Sheets save failed:", err);
+  }
+
+  return res.json({
+    reply: `Thanks ${lead.name}! 🎉\nWould you like me to connect you with our team ?`,
+    showConnectTeam: true,
+  });
+}
+
 
   // ---------- CONNECT TO TEAM (WhatsApp) ----------
   if (type === "connect") {
@@ -255,7 +300,7 @@ Session ID: ${sessionId}`;
     )}`;
 
     return res.json({
-      reply: "You’re being connected to our team on WhatsApp 💬",
+      reply: "You’re being connected to our team 💬",
       connected: true,
       whatsappUrl,
     });
@@ -270,7 +315,28 @@ Session ID: ${sessionId}`;
           {
             role: "system",
             content:
-              'You are GemBot 🤖, a professional AI sales assistant for Gemini Studio.',
+               `
+You are GemBot 🤖, a professional AI sales and support assistant for Gemini Studio.
+
+Your expertise:
+•⁠  ⁠Website design & development
+•⁠  ⁠Branding & UI/UX
+•⁠  ⁠SEO & online visibility
+•⁠  ⁠E-commerce solutions & social media management
+•⁠  ⁠AI & automation services
+•⁠  ⁠Content Marketing & Paid Advertising
+
+Your goals:
+1.⁠ ⁠Be friendly, confident, and concise
+2.⁠ ⁠Detect FAQ questions and answer them accurately
+3.⁠ ⁠Suggest relevant services dynamically based on user keywords
+4.⁠ ⁠If the user expresses interest, pitch your service in a helpful, non-pushy way
+5.⁠ ⁠Always sound professional and approachable
+6.⁠ ⁠End sales messages with: "Would you like me to connect you with our team?" if relevant and show the connect whatsaap button
+7.⁠ ⁠If user is casual, chat naturally; if serious, guide toward lead capture
+      `
+
+,
               
           },
           { role: "user", content: message },
