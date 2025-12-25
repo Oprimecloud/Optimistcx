@@ -650,7 +650,8 @@
   </div>
 
   <div id="gemini-chat-input">
-    <input type="text"  id="gemini-input" placeholder="Type your message..." rows="5" />
+      <button id="gemini-back" style="display:none;">⬅ Back</button>
+    <input type="text"  id="gemini-input" placeholder="I'm active🪼, Type your message..." rows="5" />
     <button id="gemini-send">➤</button>
   </div>
 </div>
@@ -658,19 +659,24 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* ---------------- STATE ---------------- */
   let selectedService = null;
   let selectedGoal = null;
   let welcomed = false;
   let connecting = false;
+  let lastUserAction = Date.now();
+  let leadStep = localStorage.getItem("geminiLeadStep") || null;
 
-  /* ---------- SESSION ---------- */
+  const SESSION_TIMEOUT = 10 * 60 * 100; // 10 mins
+
+  /* ---------------- SESSION ---------------- */
   let sessionId = localStorage.getItem("geminiSessionId");
   if (!sessionId) {
     sessionId = crypto.randomUUID();
     localStorage.setItem("geminiSessionId", sessionId);
   }
 
-  /* ---------- ELEMENTS ---------- */
+  /* ---------------- ELEMENTS ---------------- */
   const trigger = document.getElementById("gemini-chat-trigger");
   const windowBox = document.getElementById("gemini-chat-window");
   const chatMenu = document.getElementById("chat-menu");
@@ -678,20 +684,88 @@ document.addEventListener("DOMContentLoaded", () => {
   const messagesDiv = document.getElementById("gemini-messages");
   const input = document.getElementById("gemini-input");
   const sendBtn = document.getElementById("gemini-send");
+  const backBtn = document.getElementById("gemini-back");
   const typing = document.getElementById("gemini-typing");
   const clearBtn = document.getElementById("clear-chat");
   const closeBtn = document.getElementById("gemini-chat-close");
 
-  /* ---------- OPEN / CLOSE ---------- */
+  /* ---------------- UX HELPERS ---------------- */
+  function lockInput(lock=true){
+    sendBtn.disabled = lock;
+    input.disabled = lock;
+  }
+
+  function showTyping(){
+    typing.classList.remove("hidden");
+    lockInput(true);
+  }
+
+  function hideTyping(){
+    typing.classList.add("hidden");
+    lockInput(false);
+  }
+
+  function delayedBotReply(text, delay = 600){
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      appendBotMessage(text);
+    }, delay);
+  }
+
+  function appendUserMessage(text){
+    lastUserAction = Date.now();
+    const d = document.createElement("div");
+    d.className = "message user-message";
+    d.textContent = text;
+    messagesDiv.appendChild(d);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function appendBotMessage(text){
+    const d = document.createElement("div");
+    d.className = "message bot-message";
+    d.textContent = text;
+    messagesDiv.appendChild(d);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function hideAllMenus(){
+    chatMenu.style.display = "none";
+    goalMenu.style.display = "none";
+    document.querySelectorAll(".connect-team-btn").forEach(b => b.remove());
+  }
+
+  /* ---------------- AUTO TIMEOUT ---------------- */
+  setInterval(() => {
+    if (Date.now() - lastUserAction > SESSION_TIMEOUT) {
+      localStorage.removeItem("geminiSessionId");
+      localStorage.removeItem("geminiLeadStep");
+      sessionId = crypto.randomUUID();
+      localStorage.setItem("geminiSessionId", sessionId);
+      messagesDiv.innerHTML = "";
+      chatMenu.style.display = "grid";
+      delayedBotReply("Session expired ⏳ Let’s start again. How can I help?");
+      fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "reset", sessionId })
+      });
+    }
+  }, 30000);
+
+  /* ---------------- OPEN / CLOSE ---------------- */
   trigger.onclick = () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
 
     if (!welcomed) {
-      appendBotMessage(
-        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?"
-      );
+      delayedBotReply("Hi, I’m GemBot 🤖 How can I help you today?");
       welcomed = true;
+
+      if (leadStep === "name") delayedBotReply("May I have your full name?");
+      if (leadStep === "email") delayedBotReply("What’s your email address?");
+      if (leadStep === "project") delayedBotReply("Please describe your project.");
     }
   };
 
@@ -700,67 +774,22 @@ document.addEventListener("DOMContentLoaded", () => {
     trigger.style.display = "flex";
   };
 
-  /* ---------- CLEAR ---------- */
-  clearBtn.onclick = () => {
-    messagesDiv.innerHTML = "";
-    chatMenu.style.display = "grid";
-    goalMenu.style.display = "none";
-
-    localStorage.removeItem("geminiSessionId");
-    sessionId = crypto.randomUUID();
-    localStorage.setItem("geminiSessionId", sessionId);
-
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "reset", sessionId }),
-    });
+  /* ---------------- BACK BUTTON ---------------- */
+  backBtn.onclick = () => {
+    if (leadStep === "email") {
+      leadStep = "name";
+      localStorage.setItem("geminiLeadStep", "name");
+      delayedBotReply("Okay, what’s your full name?");
+    } 
+    else if (leadStep === "project") {
+      leadStep = "email";
+      localStorage.setItem("geminiLeadStep", "email");
+      delayedBotReply("What’s your email address?");
+    }
   };
 
-  /* ---------- HELPERS ---------- */
-  function appendUserMessage(text) {
-    const d = document.createElement("div");
-    d.className = "message user-message";
-    d.textContent = text;
-    messagesDiv.appendChild(d);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  function appendBotMessage(text) {
-    const d = document.createElement("div");
-    d.className = "message bot-message";
-    d.textContent = text;
-    messagesDiv.appendChild(d);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  function showTyping() { typing.classList.remove("hidden"); }
-  function hideTyping() { typing.classList.add("hidden"); }
-
-  function hideAllMenus() {
-    chatMenu.style.display = "none";
-    goalMenu.style.display = "none";
-    document.querySelectorAll(".connect-team-btn").forEach(b => b.remove());
-  }
-
- function shouldRedirectToWhatsApp(text) {
-  return [
-    "connect",
-    "whatsapp",
-    "human",
-    "agent",
-    "team",
-    "yes",
-    "sure",
-    "yeah",
-    "customer rep",
-    "representative",
-    "contact"
-  ].some(k => text.toLowerCase().includes(k));
-}
-
-  /* ---------- API ---------- */
-  async function sendPayload(payload) {
+  /* ---------------- API ---------------- */
+  async function sendPayload(payload){
     showTyping();
     try {
       const res = await fetch("/api/chat", {
@@ -768,118 +797,63 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, sessionId }),
       });
-
       const data = await res.json();
       hideTyping();
 
-      if (data.reply) appendBotMessage(data.reply);
-      goalMenu.style.display = data.showGoals ? "grid" : "none";
+      if (data.reply) delayedBotReply(data.reply, 500);
 
-      if (data.showConnectTeam && !connecting) {
-        const btn = document.createElement("button");
-        btn.className = "connect-team-btn";
-        btn.textContent = "💬 Connect with the team";
+      if (data.showGoals) goalMenu.style.display = "grid";
 
-        btn.onclick = async () => {
-          if (connecting) return;
-          connecting = true;
-
-          appendUserMessage("Connect me with the team");
-          appendBotMessage("Connecting you to our team on WhatsApp 💬");
-          showTyping();
-
-          try {
-            const res2 = await fetch("/api/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: "connect", sessionId }),
-            });
-
-            const connectData = await res2.json();
-            hideTyping();
-
-            if (connectData.whatsappUrl) {
-              window.open(connectData.whatsappUrl, "_blank");
-            } else {
-              appendBotMessage("Unable to open WhatsApp. Please try again.");
-            }
-          } catch {
-            hideTyping();
-            appendBotMessage("Connection failed. Please try again.");
-          }
-        };
-
-        messagesDiv.appendChild(btn);
+      if (data.reply?.includes("full name")) {
+        leadStep = "name";
+        backBtn.style.display = "none";
       }
+      if (data.reply?.includes("email")) {
+        leadStep = "email";
+        backBtn.style.display = "inline-block";
+      }
+      if (data.reply?.includes("describe")) {
+        leadStep = "project";
+        backBtn.style.display = "inline-block";
+      }
+
+      localStorage.setItem("geminiLeadStep", leadStep);
 
     } catch {
       hideTyping();
-      appendBotMessage("Something went wrong.");
+      delayedBotReply("Something went wrong 😕");
     }
   }
 
-  /* ---------- SERVICE / GOAL ---------- */
+  /* ---------------- MENU EVENTS ---------------- */
   document.querySelectorAll("#chat-menu button").forEach(btn => {
     btn.onclick = () => {
-      selectedService = btn.dataset.value;
-      appendUserMessage(selectedService);
+      appendUserMessage(btn.dataset.value);
       hideAllMenus();
-      sendPayload({ type: "service", value: selectedService });
+      sendPayload({ type: "service", value: btn.dataset.value });
     };
   });
 
   document.querySelectorAll("#goal-menu button").forEach(btn => {
     btn.onclick = () => {
-      selectedGoal = btn.dataset.goal;
-      appendUserMessage(selectedGoal);
+      appendUserMessage(btn.dataset.goal);
       hideAllMenus();
-      sendPayload({ type: "goal", value: selectedGoal });
+      sendPayload({ type: "goal", value: btn.dataset.goal });
     };
   });
 
-  /* ---------- TEXT INPUT ---------- */
-  sendBtn.onclick = async () => {
-  const msg = input.value.trim();
-  if (!msg) return;
+  /* ---------------- INPUT ---------------- */
+  sendBtn.onclick = () => {
+    const msg = input.value.trim();
+    if (!msg) return;
+    appendUserMessage(msg);
+    input.value = "";
+    hideAllMenus();
+    sendPayload({ message: msg });
+  };
 
-  appendUserMessage(msg);
-  input.value = "";
-  hideAllMenus();
-
-  // 🟢 USER TYPED CONNECT / WHATSAPP
-  if (shouldRedirectToWhatsApp(msg)) {
-    appendBotMessage("Connecting you to our team on WhatsApp 💬");
-    showTyping();
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "connect", sessionId }),
-      });
-
-      const data = await res.json();
-      hideTyping();
-
-      if (data.whatsappUrl) {
-        window.open(data.whatsappUrl, "_blank");
-      } else {
-        appendBotMessage("Unable to open WhatsApp. Please try again.");
-      }
-    } catch (err) {
-      hideTyping();
-      appendBotMessage("Connection failed. Please try again.");
-    }
-
-    return;
-  }
-
-  // 🟢 NORMAL CHAT FLOW
-  sendPayload({ message: msg });
-};
 });
 </script>
-
 
 
     <!-- Footer -->
