@@ -174,9 +174,9 @@ const FAQS = [
   { keywords: ["portfolio", "previous work"], answer: "Yes, we can share samples of our work upon request." },
 
   // Getting Started
-  { keywords: ["start", "get started", "begin"], answer: "Send us a message and our team will guide you step by step 🚀 type (Yes) to get connected" },
-  { keywords: ["contact", "talk to human", "reach"], answer: "I can connect you directly with a Gemini Studio team member right now 💬 type (Yes) to get connected" },
-  { keywords: ["consultation", "meeting", "call"], answer: "We offer free consultations to understand your goals and recommend the best solution. type (Yes) to get connected" }
+  { keywords: ["start", "get started", "begin"], answer: "Send us a message and our team will guide you step by step 🚀 type (Ok) to get connected" },
+  { keywords: ["contact", "talk to human", "reach"], answer: "I can connect you directly with a Gemini Studio team member right now 💬 type (Ok) to get connected" },
+  { keywords: ["consultation", "meeting", "call"], answer: "We offer free consultations to understand your goals and recommend the best solution. type (Ok) to get connected" }
 ];
 
 function getFaqAnswer(message) {
