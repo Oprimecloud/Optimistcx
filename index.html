@@ -597,7 +597,16 @@
         @keyframes badgeRing{0%{box-shadow:0 0 0 0 rgba(255,77,79,0.7)}70%{box-shadow:0 0 0 10px rgba(255,77,79,0)}100%{box-shadow:0 0 0 0 rgba(255,77,79,0)}}
         @keyframes gentleNudge{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
     </style>
-
+<a
+  id="floating-whatsapp"
+  href="https://wa.me/2348115672822"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="floating-whatsapp pulse"
+  aria-label="Chat with us on WhatsApp"
+>
+  💬
+</a>
     <div class="logo-call">
         <div class="logo-wrap" aria-hidden="true">
             <img src="https://geministudio.agency/logo.png" alt="Gemini Logo" class="logo-img" />
@@ -648,6 +657,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+let selectedService = null;
+let selectedGoal = null;
+
+const whatsappBtn = document.getElementById("floating-whatsapp");
 
   /* ---------------- SESSION ID ---------------- */
   let sessionId = localStorage.getItem("geminiSessionId");
@@ -673,20 +686,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- OPEN / CLOSE ---------------- */
   trigger.addEventListener("click", () => {
-    windowBox.style.display = "flex";
-    trigger.style.display = "none";
-    if (!welcomed) {
-      appendBotMessage(
-        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?"
-      );
-      welcomed = true;
-    }
-  });
+  windowBox.style.display = "flex";
+  trigger.style.display = "none";
+  whatsappBtn.classList.add("hidden");
 
-  closeBtn.addEventListener("click", () => {
-    windowBox.style.display = "none";
-    trigger.style.display = "flex";
-  });
+  if (!welcomed) {
+    appendBotMessage("Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?");
+    welcomed = true;
+  }
+});
+
+closeBtn.addEventListener("click", () => {
+  windowBox.style.display = "none";
+  trigger.style.display = "flex";
+  whatsappBtn.classList.remove("hidden");
+});
 
   /* ---------------- CLEAR CHAT ---------------- */
   clearBtn.addEventListener("click", () => {
@@ -705,6 +719,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ---------------- UI HELPERS ---------------- */
+  function updateWhatsAppMessage() {
+  let message = "Hi Gemini Studio, I would like to make an enquiry.";
+
+  if (selectedService && selectedGoal) {
+    message = `Hi Gemini Studio 👋
+I’m interested in *${selectedService}*.
+My main goal is *${selectedGoal}*.
+Please let me know the next steps.`;
+  } else if (selectedService) {
+    message = `Hi Gemini Studio 👋
+I’m interested in *${selectedService}*.
+Please tell me more.`;
+  }
+
+  const encoded = encodeURIComponent(message);
+  whatsappBtn.href = `https://wa.me/2348115672822?text=${encoded}`;
+}
+
   function appendUserMessage(text) {
     const div = document.createElement("div");
     div.className = "message user-message";
@@ -795,24 +827,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------------- SERVICE BUTTONS ---------------- */
-  document.querySelectorAll("#chat-menu button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const service = btn.dataset.value;
-      appendUserMessage(service);
-      chatMenu.style.display = "none";
-      sendPayload({ type: "service", value: service });
-    });
+  document.querySelectorAll("#chat-menu button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    selectedService = btn.dataset.value;
+    appendUserMessage(selectedService);
+    chatMenu.style.display="none";
+    sendPayload({type:"service", value:selectedService});
+    updateWhatsAppMessage();
   });
+});
+
 
   /* ---------------- GOAL BUTTONS ---------------- */
-  document.querySelectorAll("#goal-menu button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const goal = btn.dataset.goal;
-      appendUserMessage(goal);
-      goalMenu.style.display = "none";
-      sendPayload({ type: "goal", value: goal });
-    });
+  document.querySelectorAll("#goal-menu button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    selectedGoal = btn.dataset.goal;
+    appendUserMessage(selectedGoal);
+    goalMenu.style.display="none";
+    sendPayload({type:"goal", value:selectedGoal});
+    updateWhatsAppMessage();
+
   });
+});
+
 
   /* ---------------- TEXT INPUT ---------------- */
   sendBtn.addEventListener("click", () => {

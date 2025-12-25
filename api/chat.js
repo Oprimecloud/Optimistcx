@@ -206,7 +206,7 @@ export default async function handler(req, res) {
     session.goal = value;
     session.state = "LEAD";
     return res.json({
-      reply: "Perfect 🚀 May I have your **name**?",
+      reply: "Perfect 🚀 May I have your **full name**?",
     });
   }
 
