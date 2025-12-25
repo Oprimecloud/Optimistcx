@@ -128,9 +128,11 @@ const client = new OpenAI({
 function isValidName(name) {
   return /^[A-Za-z\s]{2,50}$/.test(name.trim());
 }
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
 function isValidProject(text) {
   if (!text) return false;
   const t = text.trim();
@@ -142,19 +144,12 @@ const FAQS = [
   { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
   { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
   { keywords: ["services", "what do you do"], answer: "We offer web development, branding, SEO, ads, e-commerce, and AI automation." },
-  {
-    keywords: ["location", "where are you", "based"],
-    answer:
-      "We work with clients worldwide 🌍",
-  },
-  {
-    keywords: ["payment", "pay", "installment"],
-    answer:
-      "We offer flexible payment options depending on the project.",
-  },  
+  { keywords: ["location", "where are you", "based"], answer: "We work with clients worldwide 🌍" },
+  { keywords: ["payment", "pay", "installment"], answer: "We offer flexible payment options depending on the project." },
 ];
 
 function getFaqAnswer(message) {
+  if (!message) return null;
   const lower = message.toLowerCase();
   return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
 }
@@ -186,15 +181,19 @@ function shouldUseAI(message, session) {
   if (!message) return false;
   if (session.state === "LEAD") return false;
   if (message.length < 5) return false;
+
+  const waKeywords = ["whatsapp", "agent", "human", "contact"];
+  if (waKeywords.some(k => message.toLowerCase().includes(k))) return false;
+
   return true;
 }
 
 /* ---------------- GOOGLE SHEETS ---------------- */
-async function saveToGoogleSheets(lead) {
+async function saveToGoogleSheets(data) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(lead),
+    body: JSON.stringify(data),
   });
 }
 
@@ -214,13 +213,16 @@ export default async function handler(req, res) {
       lead: {},
       connected: false,
       intentScore: 0,
-      language: "English",
+      leadLevel: "COLD ❄️",
+      whatsappClicked: false,
+      followUpStage: "NEW",
+      lastFollowUpAt: null,
     };
   }
 
   const session = sessions[sessionId];
 
-  /* -------- SCORE USER MESSAGE -------- */
+  /* -------- SCORE -------- */
   if (message) {
     session.intentScore = scoreIntent(message, session);
     session.leadLevel = getLeadLevel(session.intentScore);
@@ -228,15 +230,7 @@ export default async function handler(req, res) {
 
   /* ---------------- RESET ---------------- */
   if (type === "reset") {
-    sessions[sessionId] = {
-      state: "MENU",
-      service: null,
-      goal: null,
-      lead: {},
-      connected: false,
-      intentScore: 0,
-      language: "English",
-    };
+    delete sessions[sessionId];
     return res.json({ reply: "Chat reset. How can I help you?" });
   }
 
@@ -282,9 +276,14 @@ export default async function handler(req, res) {
   /* ---------------- CONNECT ---------------- */
   if (type === "connect") {
     if (session.connected) return res.json({ reply: "You’re already connected 😊" });
+
     session.connected = true;
+    session.whatsappClicked = true;
+    session.followUpStage = "CONNECTED";
+    session.lastFollowUpAt = new Date().toISOString();
 
     await saveToGoogleSheets({
+      timestamp: new Date().toISOString(),
       name: session.lead.name,
       email: session.lead.email,
       service: session.service,
@@ -293,13 +292,21 @@ export default async function handler(req, res) {
       intentScore: session.intentScore,
       leadLevel: session.leadLevel,
       sessionId,
+      whatsappClicked: true,
+      followUpStage: session.followUpStage,
+      lastFollowUpAt: session.lastFollowUpAt,
     });
 
-    const waMsg = `🔥 New Sales Lead
+    const waMsg = `🔥 New Chat Request
+
 Name: ${session.lead.name}
 Email: ${session.lead.email}
 Service: ${session.service}
 Goal: ${session.goal}
+
+Project:
+${session.lead.project}
+
 Intent Score: ${session.intentScore}
 Lead Level: ${session.leadLevel}
 Session ID: ${sessionId}`;
@@ -324,10 +331,7 @@ Session ID: ${sessionId}`;
     const ai = await client.responses.create({
       model: "gpt-4.1-mini",
       input: [
-        {
-          role: "system",
-          content: "You are GemBot 🤖, a professional sales assistant.",
-        },
+        { role: "system", content: "You are GemBot 🤖, a professional sales assistant." },
         { role: "user", content: message },
       ],
     });
