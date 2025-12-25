@@ -142,6 +142,16 @@ const FAQS = [
   { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
   { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
   { keywords: ["services", "what do you do"], answer: "We offer web development, branding, SEO, ads, e-commerce, and AI automation." },
+  {
+    keywords: ["location", "where are you", "based"],
+    answer:
+      "We work with clients worldwide 🌍",
+  },
+  {
+    keywords: ["payment", "pay", "installment"],
+    answer:
+      "We offer flexible payment options depending on the project.",
+  },  
 ];
 
 function getFaqAnswer(message) {
