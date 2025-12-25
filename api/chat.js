@@ -124,31 +124,62 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-//name validation
+/* ---------------- VALIDATIONS ---------------- */
 function isValidName(name) {
   return /^[A-Za-z\s]{2,50}$/.test(name.trim());
 }
-
-//email validation
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
-
-//project validation
 function isValidProject(text) {
   if (!text) return false;
+  const t = text.trim();
+  return t.length >= 10 && t.length <= 500 && /[a-zA-Z]/.test(t);
+}
 
-  const trimmed = text.trim();
+/* ---------------- FAQ ---------------- */
+const FAQS = [
+  { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
+  { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
+  { keywords: ["services", "what do you do"], answer: "We offer web development, branding, SEO, ads, e-commerce, and AI automation." },
+];
 
-  if (trimmed.length < 10) return false;        // too short
-  if (trimmed.length > 500) return false;       // too long
-  if (!/[a-zA-Z]/.test(trimmed)) return false;  // must contain letters
+function getFaqAnswer(message) {
+  const lower = message.toLowerCase();
+  return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
+}
 
+/* ---------------- CONFIDENCE SCORING ---------------- */
+function scoreIntent(message, session) {
+  if (!message) return session.intentScore || 0;
+
+  let score = session.intentScore || 0;
+  const text = message.toLowerCase();
+
+  if (/website|seo|ads|branding|ecommerce|automation/.test(text)) score += 10;
+  if (/price|cost|budget|how much/.test(text)) score += 15;
+  if (/urgent|asap|immediately|now/.test(text)) score += 15;
+  if (/whatsapp|agent|human|representative|contact/.test(text)) score += 20;
+  if (session.state === "DONE") score += 30;
+
+  return Math.min(score, 100);
+}
+
+function getLeadLevel(score) {
+  if (score >= 70) return "HOT 🔥";
+  if (score >= 40) return "WARM 🙂";
+  return "COLD ❄️";
+}
+
+/* ---------------- AI GUARD ---------------- */
+function shouldUseAI(message, session) {
+  if (!message) return false;
+  if (session.state === "LEAD") return false;
+  if (message.length < 5) return false;
   return true;
 }
 
-
-// Save leads helper
+/* ---------------- GOOGLE SHEETS ---------------- */
 async function saveToGoogleSheets(lead) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
     method: "POST",
@@ -157,13 +188,11 @@ async function saveToGoogleSheets(lead) {
   });
 }
 
-// In-memory session store
+/* ---------------- SESSION STORE ---------------- */
 let sessions = {};
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).end();
 
   const { sessionId = "default", type, value, message } = req.body;
 
@@ -174,12 +203,20 @@ export default async function handler(req, res) {
       goal: null,
       lead: {},
       connected: false,
+      intentScore: 0,
+      language: "English",
     };
   }
 
   const session = sessions[sessionId];
 
-  // ---------- RESET ----------
+  /* -------- SCORE USER MESSAGE -------- */
+  if (message) {
+    session.intentScore = scoreIntent(message, session);
+    session.leadLevel = getLeadLevel(session.intentScore);
+  }
+
+  /* ---------------- RESET ---------------- */
   if (type === "reset") {
     sessions[sessionId] = {
       state: "MENU",
@@ -187,182 +224,105 @@ export default async function handler(req, res) {
       goal: null,
       lead: {},
       connected: false,
+      intentScore: 0,
+      language: "English",
     };
-    return res.json({ reply: "Chat has been deleted. How can I help you today?" });
+    return res.json({ reply: "Chat reset. How can I help you?" });
   }
 
-  // ---------- SERVICE ----------
+  /* ---------------- SERVICE ---------------- */
   if (type === "service") {
     session.service = value;
     session.state = "GOAL";
-    return res.json({
-      reply: "Nice 👍 What is your main goal with this project?",
-      showGoals: true,
-    });
+    return res.json({ reply: "Nice 👍 What is your main goal?", showGoals: true });
   }
 
-  // ---------- GOAL ----------
+  /* ---------------- GOAL ---------------- */
   if (type === "goal") {
     session.goal = value;
     session.state = "LEAD";
-    return res.json({
-      reply: "Perfect 🚀 May I have your **full name**?",
-    });
+    return res.json({ reply: "May I have your full name?" });
   }
 
-  // ---------- LEAD ----------
+  /* ---------------- LEAD FLOW ---------------- */
   if (session.state === "LEAD" && !session.lead.name) {
-  if (!isValidName(message)) {
+    if (!isValidName(message)) return res.json({ reply: "Please enter a valid name." });
+    session.lead.name = message.trim();
+    return res.json({ reply: "What’s your email address?" });
+  }
+
+  if (session.state === "LEAD" && !session.lead.email) {
+    if (!isValidEmail(message)) return res.json({ reply: "That email doesn’t look correct." });
+    session.lead.email = message.trim();
+    return res.json({ reply: "Please describe your project." });
+  }
+
+  if (session.state === "LEAD" && !session.lead.project) {
+    if (!isValidProject(message)) return res.json({ reply: "Please describe your project in more detail." });
+
+    session.lead.project = message.trim();
+    session.state = "DONE";
+
     return res.json({
-      reply: "Please enter a valid name (letters only, e.g. John or Mary Jane).",
+      reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+      showConnectTeam: true,
     });
   }
 
-  session.lead.name = message.trim();
-  return res.json({ reply: "Thanks! What’s your **email address**?" });
-}
-
- if (session.state === "LEAD" && !session.lead.email) {
-  if (!isValidEmail(message)) {
-    return res.json({
-      reply: "Hmm 🤔 That doesn’t look like a valid email. Can you double check and send it again?",
-    });
-  }
-
-  session.lead.email = message;
-  return res.json({ reply: "Great! Please briefly describe your project." });
-}
-
-
- if (session.state === "LEAD" && !session.lead.project) {
-  if (!isValidProject(message)) {
-    return res.json({
-      reply:
-        "Please describe your project in a bit more detail (at least a sentence or more 😊).",
-    });
-  }
-
-  session.lead.project = message.trim();
-  session.state = "DONE";
-
-  const lead = {
-    name: session.lead.name,
-    email: session.lead.email,
-    service: session.service || "N/A",
-    goal: session.goal || "N/A",
-    project: session.lead.project,
-  };
-
-  try {
-    await saveToGoogleSheets(lead);
-  } catch (err) {
-    console.error("Google Sheets save failed:", err);
-  }
-
-  return res.json({
-    reply: `Thanks ${lead.name}! 🎉\nWould you like me to connect you with our team ?`,
-    showConnectTeam: true,
-  });
-}
-
-
-  // ---------- CONNECT TO TEAM (WhatsApp) ----------
+  /* ---------------- CONNECT ---------------- */
   if (type === "connect") {
-    if (session.connected) {
-      return res.json({
-        reply: "You’re already connected with our team 😊",
-      });
-    }
-
+    if (session.connected) return res.json({ reply: "You’re already connected 😊" });
     session.connected = true;
 
-    const lead = {
-      name: session.lead.name || "Unknown",
-      email: session.lead.email || "Unknown",
-      service: session.service || "N/A",
-      goal: session.goal || "N/A",
-      project: session.lead.project || "N/A",
-    };
+    await saveToGoogleSheets({
+      name: session.lead.name,
+      email: session.lead.email,
+      service: session.service,
+      goal: session.goal,
+      project: session.lead.project,
+      intentScore: session.intentScore,
+      leadLevel: session.leadLevel,
+      sessionId,
+    });
 
-    const whatsappMessage = `New Chat Request 🔔
-Name: ${lead.name}
-Email: ${lead.email}
-Service: ${lead.service}
-Goal: ${lead.goal}
-
-Project:
-${lead.project}
-
+    const waMsg = `🔥 New Sales Lead
+Name: ${session.lead.name}
+Email: ${session.lead.email}
+Service: ${session.service}
+Goal: ${session.goal}
+Intent Score: ${session.intentScore}
+Lead Level: ${session.leadLevel}
 Session ID: ${sessionId}`;
 
-    const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(
-      whatsappMessage
-    )}`;
+    const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
     return res.json({
-      reply: "You’re being connected to our team 💬",
-      connected: true,
+      reply: "Connecting you to our team 💬",
       whatsappUrl,
+      connected: true,
     });
   }
 
-  // ---------- AI FALLBACK ----------
-  if (typeof type === "undefined" && message) {
-    try {
-      const aiResponse = await client.responses.create({
-        model: "gpt-4.1-mini",
-        input: [
-          {
-            role: "system",
-            content:
-               `
-You are GemBot 🤖, a professional AI sales and support assistant for Gemini Studio.
+  /* ---------------- FAQ FIRST ---------------- */
+  if (message) {
+    const faq = getFaqAnswer(message);
+    if (faq) return res.json({ reply: faq });
+  }
 
-Your expertise:
-•⁠  ⁠Website design & development
-•⁠  ⁠Branding & UI/UX
-•⁠  ⁠SEO & online visibility
-•⁠  ⁠E-commerce solutions & social media management
-•⁠  ⁠AI & automation services
-•⁠  ⁠Content Marketing & Paid Advertising
+  /* ---------------- AI FALLBACK ---------------- */
+  if (shouldUseAI(message, session)) {
+    const ai = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: [
+        {
+          role: "system",
+          content: "You are GemBot 🤖, a professional sales assistant.",
+        },
+        { role: "user", content: message },
+      ],
+    });
 
-Your goals:
-1.⁠ ⁠Be friendly, confident, and concise
-2.⁠ ⁠Detect FAQ questions and answer them accurately
-3.⁠ ⁠Suggest relevant services dynamically based on user keywords
-4.⁠ ⁠If the user expresses interest, pitch your service in a helpful, non-pushy way
-5.⁠ ⁠Always sound professional and approachable
-6.⁠ ⁠End sales messages with: "Would you like me to connect you with our team?" if relevant and show the connect whatsaap button
-7.⁠ ⁠If user is casual, chat naturally; if serious, guide toward lead capture
-      `
-
-,
-              
-          },
-          { role: "user", content: message },
-        ],
-      });
-
-      const keywords = [
-        "website",
-        "branding",
-        "seo",
-        "social media",
-        "ads",
-        "e-commerce",
-      ];
-      const showGoals = keywords.some((k) =>
-        message.toLowerCase().includes(k)
-      );
-
-      return res.json({
-        reply: aiResponse.output_text || "Can you clarify that?",
-        showGoals,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ reply: "AI error occurred." });
-    }
+    return res.json({ reply: ai.output_text || "Can you clarify that?" });
   }
 
   return res.status(400).json({ error: "Invalid request" });
