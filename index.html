@@ -658,20 +658,19 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ---------------- STATE ---------------- */
   let selectedService = null;
   let selectedGoal = null;
   let welcomed = false;
   let connecting = false;
 
-  /* ---------------- SESSION ---------------- */
+  /* ---------- SESSION ---------- */
   let sessionId = localStorage.getItem("geminiSessionId");
   if (!sessionId) {
     sessionId = crypto.randomUUID();
     localStorage.setItem("geminiSessionId", sessionId);
   }
 
-  /* ---------------- ELEMENTS ---------------- */
+  /* ---------- ELEMENTS ---------- */
   const trigger = document.getElementById("gemini-chat-trigger");
   const windowBox = document.getElementById("gemini-chat-window");
   const chatMenu = document.getElementById("chat-menu");
@@ -682,10 +681,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const typing = document.getElementById("gemini-typing");
   const clearBtn = document.getElementById("clear-chat");
   const closeBtn = document.getElementById("gemini-chat-close");
-  const whatsappBtn = document.getElementById("floating-whatsapp");
 
-  /* ---------------- OPEN / CLOSE ---------------- */
-  trigger.addEventListener("click", () => {
+  /* ---------- OPEN / CLOSE ---------- */
+  trigger.onclick = () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
 
@@ -695,15 +693,15 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       welcomed = true;
     }
-  });
+  };
 
-  closeBtn.addEventListener("click", () => {
+  closeBtn.onclick = () => {
     windowBox.style.display = "none";
     trigger.style.display = "flex";
-  });
+  };
 
-  /* ---------------- CLEAR ---------------- */
-  clearBtn.addEventListener("click", () => {
+  /* ---------- CLEAR ---------- */
+  clearBtn.onclick = () => {
     messagesDiv.innerHTML = "";
     chatMenu.style.display = "grid";
     goalMenu.style.display = "none";
@@ -717,22 +715,22 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "reset", sessionId }),
     });
-  });
+  };
 
-  /* ---------------- HELPERS ---------------- */
+  /* ---------- HELPERS ---------- */
   function appendUserMessage(text) {
-    const div = document.createElement("div");
-    div.className = "message user-message";
-    div.textContent = text;
-    messagesDiv.appendChild(div);
+    const d = document.createElement("div");
+    d.className = "message user-message";
+    d.textContent = text;
+    messagesDiv.appendChild(d);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
   function appendBotMessage(text) {
-    const div = document.createElement("div");
-    div.className = "message bot-message";
-    div.textContent = text;
-    messagesDiv.appendChild(div);
+    const d = document.createElement("div");
+    d.className = "message bot-message";
+    d.textContent = text;
+    messagesDiv.appendChild(d);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
@@ -746,24 +744,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function shouldRedirectToWhatsApp(text) {
-    return ["connect","whatsapp","human","agent","team","contact"]
+    return ["connect","whatsapp","human","agent","team","customer rep" "repsentative" "contact"]
       .some(k => text.toLowerCase().includes(k));
   }
 
-  function updateWhatsAppMessage() {
-    if (!whatsappBtn) return;
-
-    let msg = "Hi Gemini Studio, I’d like to make an enquiry.";
-    if (selectedService && selectedGoal) {
-      msg = `Hi Gemini Studio 👋
-I'm interested in ${selectedService}.
-My goal is ${selectedGoal}.`;
-    }
-    whatsappBtn.href =
-      "https://wa.me/2348115672822?text=" + encodeURIComponent(msg);
-  }
-
-  /* ---------------- API ---------------- */
+  /* ---------- API ---------- */
   async function sendPayload(payload) {
     showTyping();
     try {
@@ -772,6 +757,7 @@ My goal is ${selectedGoal}.`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, sessionId }),
       });
+
       const data = await res.json();
       hideTyping();
 
@@ -783,32 +769,50 @@ My goal is ${selectedGoal}.`;
         btn.className = "connect-team-btn";
         btn.textContent = "💬 Connect with the team";
 
-        btn.onclick = () => {
-          appendUserMessage("Connect me with the team");
-          updateWhatsAppMessage();
-          appendBotMessage("Opening WhatsApp now 💬");
+        btn.onclick = async () => {
+          if (connecting) return;
+          connecting = true;
 
-          setTimeout(() => {
-            if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
-          }, 600);
+          appendUserMessage("Connect me with the team");
+          appendBotMessage("Connecting you to our team on WhatsApp 💬");
+          showTyping();
+
+          try {
+            const res2 = await fetch("/api/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ type: "connect", sessionId }),
+            });
+
+            const connectData = await res2.json();
+            hideTyping();
+
+            if (connectData.whatsappUrl) {
+              window.open(connectData.whatsappUrl, "_blank");
+            } else {
+              appendBotMessage("Unable to open WhatsApp. Please try again.");
+            }
+          } catch {
+            hideTyping();
+            appendBotMessage("Connection failed. Please try again.");
+          }
         };
 
         messagesDiv.appendChild(btn);
       }
 
-    } catch (e) {
+    } catch {
       hideTyping();
       appendBotMessage("Something went wrong.");
     }
   }
 
-  /* ---------------- BUTTONS ---------------- */
+  /* ---------- SERVICE / GOAL ---------- */
   document.querySelectorAll("#chat-menu button").forEach(btn => {
     btn.onclick = () => {
       selectedService = btn.dataset.value;
       appendUserMessage(selectedService);
       hideAllMenus();
-      updateWhatsAppMessage();
       sendPayload({ type: "service", value: selectedService });
     };
   });
@@ -818,40 +822,12 @@ My goal is ${selectedGoal}.`;
       selectedGoal = btn.dataset.goal;
       appendUserMessage(selectedGoal);
       hideAllMenus();
-      updateWhatsAppMessage();
       sendPayload({ type: "goal", value: selectedGoal });
     };
   });
 
-    btn.onclick = async () => {
-  appendUserMessage("Connect me with the team");
-  appendBotMessage("Connecting you to our team on WhatsApp 💬");
-  showTyping();
-
-  try {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "connect", sessionId }),
-    });
-
-    const data = await res.json();
-    hideTyping();
-
-    if (data.whatsappUrl) {
-      window.open(data.whatsappUrl, "_blank");
-    } else {
-      appendBotMessage("Unable to start WhatsApp chat. Please try again.");
-    }
-  } catch (err) {
-    hideTyping();
-    appendBotMessage("Connection failed. Please try again.");
-  }
-};
-
-
-  /* ---------------- TEXT INPUT ---------------- */
-  /*sendBtn.onclick = () => {
+  /* ---------- TEXT INPUT ---------- */
+  sendBtn.onclick = () => {
     const msg = input.value.trim();
     if (!msg) return;
 
@@ -860,11 +836,8 @@ My goal is ${selectedGoal}.`;
     hideAllMenus();
 
     if (shouldRedirectToWhatsApp(msg)) {
-      updateWhatsAppMessage();
-      appendBotMessage("Connecting you on WhatsApp 💬");
-      setTimeout(() => {
-        if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
-      }, 600);
+      appendBotMessage("Connecting you to our team on WhatsApp 💬");
+      sendPayload({ type: "connect" });
       return;
     }
 
@@ -875,7 +848,7 @@ My goal is ${selectedGoal}.`;
     if (e.key === "Enter") sendBtn.click();
   });
 
-});*/
+});
 </script>
 
 
