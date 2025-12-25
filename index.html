@@ -803,7 +803,7 @@ My goal is ${selectedGoal}.`;
   }
 
   /* ---------------- BUTTONS ---------------- */
-  document.querySelectorAll("#chat-menu button").forEach(btn => {
+  /*document.querySelectorAll("#chat-menu button").forEach(btn => {
     btn.onclick = () => {
       selectedService = btn.dataset.value;
       appendUserMessage(selectedService);
@@ -821,7 +821,34 @@ My goal is ${selectedGoal}.`;
       updateWhatsAppMessage();
       sendPayload({ type: "goal", value: selectedGoal });
     };
-  });
+  });*/
+
+    btn.onclick = async () => {
+  appendUserMessage("Connect me with the team");
+  appendBotMessage("Connecting you to our team on WhatsApp 💬");
+  showTyping();
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "connect", sessionId }),
+    });
+
+    const data = await res.json();
+    hideTyping();
+
+    if (data.whatsappUrl) {
+      window.open(data.whatsappUrl, "_blank");
+    } else {
+      appendBotMessage("Unable to start WhatsApp chat. Please try again.");
+    }
+  } catch (err) {
+    hideTyping();
+    appendBotMessage("Connection failed. Please try again.");
+  }
+};
+
 
   /* ---------------- TEXT INPUT ---------------- */
   sendBtn.onclick = () => {
