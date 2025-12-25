@@ -170,13 +170,13 @@ const FAQS = [
   // Process & Trust
   { keywords: ["process", "how it works"], answer: "We consult, plan, execute, and deliver with clear communication at every stage." },
   { keywords: ["revision", "changes"], answer: "Revisions are included to ensure the final result meets your expectations." },
-  { keywords: ["support", "maintenance"], answer: "We provide ongoing support and maintenance after project delivery." },
+  { keywords: ["help", "maintenance"], answer: "Yes, we provide full support and maintenance even after your project is delivered — so you’re never left on your own. You can start your project with confidence. To get started, simply type (yes)." },
   { keywords: ["portfolio", "previous work"], answer: "Yes, we can share samples of our work upon request." },
 
   // Getting Started
-  { keywords: ["start", "get started", "begin"], answer: "Send us a message and our team will guide you step by step 🚀 type (Ok) to get connected" },
-  { keywords: ["contact", "talk to human", "reach"], answer: "I can connect you directly with a Gemini Studio team member right now 💬 type (Ok) to get connected" },
-  { keywords: ["consultation", "meeting", "call"], answer: "We offer free consultations to understand your goals and recommend the best solution. type (Ok) to get connected" }
+  { keywords: ["start", "get started", "begin"], answer: "Send us a message and our team will guide you step by step 🚀 type (yes) to get connected" },
+  { keywords: ["contact", "talk to human", "reach"], answer: "I can connect you directly with a Gemini Studio team member right now 💬 type (yes) to get connected" },
+  { keywords: ["consultation", "meeting", "call"], answer: "We offer free consultations to understand your goals and recommend the best solution. type (yes) to get connected" }
 ];
 
 function getFaqAnswer(message) {
