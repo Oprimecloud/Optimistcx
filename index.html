@@ -657,12 +657,14 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-let selectedService = null;
-let selectedGoal = null;
 
-const whatsappBtn = document.getElementById("floating-whatsapp");
+  /* ---------------- STATE ---------------- */
+  let selectedService = null;
+  let selectedGoal = null;
+  let welcomed = false;
+  let connecting = false;
 
-  /* ---------------- SESSION ID ---------------- */
+  /* ---------------- SESSION ---------------- */
   let sessionId = localStorage.getItem("geminiSessionId");
   if (!sessionId) {
     sessionId = crypto.randomUUID();
@@ -680,33 +682,32 @@ const whatsappBtn = document.getElementById("floating-whatsapp");
   const typing = document.getElementById("gemini-typing");
   const clearBtn = document.getElementById("clear-chat");
   const closeBtn = document.getElementById("gemini-chat-close");
-
-  let welcomed = false;
-  let connecting = false;
+  const whatsappBtn = document.getElementById("floating-whatsapp");
 
   /* ---------------- OPEN / CLOSE ---------------- */
   trigger.addEventListener("click", () => {
-  windowBox.style.display = "flex";
-  trigger.style.display = "none";
-  /*whatsappBtn.classList.add("hidden");*/
+    windowBox.style.display = "flex";
+    trigger.style.display = "none";
 
-  if (!welcomed) {
-    appendBotMessage("Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?");
-    welcomed = true;
-  }
-});
+    if (!welcomed) {
+      appendBotMessage(
+        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?"
+      );
+      welcomed = true;
+    }
+  });
 
-closeBtn.addEventListener("click", () => {
-  windowBox.style.display = "none";
-  trigger.style.display = "flex";
-  /*whatsappBtn.classList.remove("hidden");*/
-});
+  closeBtn.addEventListener("click", () => {
+    windowBox.style.display = "none";
+    trigger.style.display = "flex";
+  });
 
-  /* ---------------- CLEAR CHAT ---------------- */
+  /* ---------------- CLEAR ---------------- */
   clearBtn.addEventListener("click", () => {
     messagesDiv.innerHTML = "";
     chatMenu.style.display = "grid";
     goalMenu.style.display = "none";
+
     localStorage.removeItem("geminiSessionId");
     sessionId = crypto.randomUUID();
     localStorage.setItem("geminiSessionId", sessionId);
@@ -718,25 +719,7 @@ closeBtn.addEventListener("click", () => {
     });
   });
 
-  /* ---------------- UI HELPERS ---------------- */
-  function updateWhatsAppMessage() {
-  let message = "Hi Gemini Studio, I would like to make an enquiry.";
-
-  if (selectedService && selectedGoal) {
-    message = `Hi Gemini Studio 👋
-I’m interested in *${selectedService}*.
-My main goal is *${selectedGoal}*.
-Please let me know the next steps.`;
-  } else if (selectedService) {
-    message = `Hi Gemini Studio 👋
-I’m interested in *${selectedService}*.
-Please tell me more.`;
-  }
-
-  const encoded = encodeURIComponent(message);
-  whatsappBtn.href = `https://wa.me/2348115672822?text=${encoded}`;
-}
-
+  /* ---------------- HELPERS ---------------- */
   function appendUserMessage(text) {
     const div = document.createElement("div");
     div.className = "message user-message";
@@ -753,38 +736,34 @@ Please tell me more.`;
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
-  function showTyping() {
-    typing.classList.remove("hidden");
-  }
+  function showTyping() { typing.classList.remove("hidden"); }
+  function hideTyping() { typing.classList.add("hidden"); }
 
-  function hideTyping() {
-    typing.classList.add("hidden");
-  }
-function shouldRedirectToWhatsApp(text) {
-  const keywords = [
-    "connect",
-    "whatsapp",
-    "human",
-    "agent",
-    "team",
-    "talk to someone",
-    "contact",
-    "call you"
-  ];
-
-  return keywords.some(k => text.toLowerCase().includes(k));
-}
   function hideAllMenus() {
-  chatMenu.style.display = "none";
-  goalMenu.style.display = "none";
+    chatMenu.style.display = "none";
+    goalMenu.style.display = "none";
+    document.querySelectorAll(".connect-team-btn").forEach(b => b.remove());
+  }
 
-  document
-    .querySelectorAll(".connect-team-btn")
-    .forEach(btn => btn.remove());
-}
-  
+  function shouldRedirectToWhatsApp(text) {
+    return ["connect","whatsapp","human","agent","team","contact"]
+      .some(k => text.toLowerCase().includes(k));
+  }
 
-  /* ---------------- SEND PAYLOAD ---------------- */
+  function updateWhatsAppMessage() {
+    if (!whatsappBtn) return;
+
+    let msg = "Hi Gemini Studio, I’d like to make an enquiry.";
+    if (selectedService && selectedGoal) {
+      msg = `Hi Gemini Studio 👋
+I'm interested in ${selectedService}.
+My goal is ${selectedGoal}.`;
+    }
+    whatsappBtn.href =
+      "https://wa.me/2348115672822?text=" + encodeURIComponent(msg);
+  }
+
+  /* ---------------- API ---------------- */
   async function sendPayload(payload) {
     showTyping();
     try {
@@ -793,120 +772,84 @@ function shouldRedirectToWhatsApp(text) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, sessionId }),
       });
-
       const data = await res.json();
       hideTyping();
 
       if (data.reply) appendBotMessage(data.reply);
+      goalMenu.style.display = data.showGoals ? "grid" : "none";
 
-      if (data.showGoals) goalMenu.style.display = "grid";
-      else goalMenu.style.display = "none";
-
-      /* -------- CONNECT BUTTON -------- */
       if (data.showConnectTeam && !connecting) {
-        const connectBtn = document.createElement("button");
-        connectBtn.className = "connect-btn";
-        connectBtn.textContent = "💬 Connect with Team";
+        const btn = document.createElement("button");
+        btn.className = "connect-team-btn";
+        btn.textContent = "💬 Connect with the team";
 
-        connectBtn.addEventListener("click", async () => {
-          if (connecting) return;
-          connecting = true;
+        btn.onclick = () => {
+          appendUserMessage("Connect me with the team");
+          updateWhatsAppMessage();
+          appendBotMessage("Opening WhatsApp now 💬");
 
-          appendUserMessage("Yes, connect me with the team");
-          showTyping();
+          setTimeout(() => {
+            if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
+          }, 600);
+        };
 
-          const res2 = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: "connect", sessionId }),
-          });
-
-          const connectData = await res2.json();
-          hideTyping();
-          appendBotMessage(connectData.reply);
-
-          if (connectData.whatsappUrl) {
-            const waBtn = document.createElement("a");
-            waBtn.href = connectData.whatsappUrl;
-            waBtn.target = "_blank";
-            waBtn.rel = "noopener noreferrer";
-            waBtn.className = "whatsapp-btn";
-            waBtn.textContent = "👉 Click To Start Chat";
-
-            messagesDiv.appendChild(waBtn);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-          }
-        });
-
-        messagesDiv.appendChild(connectBtn);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        messagesDiv.appendChild(btn);
       }
 
-    } catch (err) {
+    } catch (e) {
       hideTyping();
-      appendBotMessage("Oops! Something went wrong.");
-      console.error(err);
+      appendBotMessage("Something went wrong.");
     }
   }
 
-  /* ---------------- SERVICE BUTTONS ---------------- */
-  document.querySelectorAll("#chat-menu button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    selectedService = btn.dataset.value;
-    appendUserMessage(selectedService);
-    chatMenu.style.display="none";
-    sendPayload({type:"service", value:selectedService});
-    updateWhatsAppMessage();
+  /* ---------------- BUTTONS ---------------- */
+  document.querySelectorAll("#chat-menu button").forEach(btn => {
+    btn.onclick = () => {
+      selectedService = btn.dataset.value;
+      appendUserMessage(selectedService);
+      hideAllMenus();
+      updateWhatsAppMessage();
+      sendPayload({ type: "service", value: selectedService });
+    };
   });
-});
 
-
-  /* ---------------- GOAL BUTTONS ---------------- */
-  document.querySelectorAll("#goal-menu button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    selectedGoal = btn.dataset.goal;
-    appendUserMessage(selectedGoal);
-    goalMenu.style.display="none";
-    sendPayload({type:"goal", value:selectedGoal});
-    updateWhatsAppMessage();
-
+  document.querySelectorAll("#goal-menu button").forEach(btn => {
+    btn.onclick = () => {
+      selectedGoal = btn.dataset.goal;
+      appendUserMessage(selectedGoal);
+      hideAllMenus();
+      updateWhatsAppMessage();
+      sendPayload({ type: "goal", value: selectedGoal });
+    };
   });
-});
-
 
   /* ---------------- TEXT INPUT ---------------- */
-  sendBtn.addEventListener("click", () => {
-  const msg = input.value.trim();
-  if (!msg) return;
+  sendBtn.onclick = () => {
+    const msg = input.value.trim();
+    if (!msg) return;
 
-  appendUserMessage(msg);
-  input.value = "";
+    appendUserMessage(msg);
+    input.value = "";
+    hideAllMenus();
 
-  // 🔒 Hide menus immediately when typing starts
-  hideAllMenus();
+    if (shouldRedirectToWhatsApp(msg)) {
+      updateWhatsAppMessage();
+      appendBotMessage("Connecting you on WhatsApp 💬");
+      setTimeout(() => {
+        if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
+      }, 600);
+      return;
+    }
 
-  // 🚀 WhatsApp intent detected
-  if (shouldRedirectToWhatsApp(msg)) {
-    updateWhatsAppMessage(); // dynamic context-based message
-    appendBotMessage(
-      "Sure 👍 I’ll connect you to our team on WhatsApp now."
-    );
+    sendPayload({ message: msg });
+  };
 
-    setTimeout(() => {
-      window.open(whatsappBtn.href, "_blank");
-    }, 800);
+  input.addEventListener("keypress", e => {
+    if (e.key === "Enter") sendBtn.click();
+  });
 
-    return;
-  }
-
-  sendPayload({ message: msg });
 });
-input.addEventListener("keypress", e => {
-  if (e.key === "Enter") sendBtn.click();
-});
-
 </script>
-
 
 
 
