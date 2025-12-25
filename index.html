@@ -617,6 +617,8 @@
   <div id="gemini-chat-body">
     <div id="gemini-messages"></div>
 
+    
+
     <!-- Service Menu -->
     <div id="chat-menu" class="menu" style="display:grid;">
       <button data-value="Web Development">Web Development</button>
@@ -646,6 +648,15 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
+  /* ---------------- SESSION ID ---------------- */
+  let sessionId = localStorage.getItem("geminiSessionId");
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("geminiSessionId", sessionId);
+  }
+
+  /* ---------------- ELEMENTS ---------------- */
   const trigger = document.getElementById("gemini-chat-trigger");
   const windowBox = document.getElementById("gemini-chat-window");
   const chatMenu = document.getElementById("chat-menu");
@@ -658,99 +669,167 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("gemini-chat-close");
 
   let welcomed = false;
+  let connecting = false;
 
-  // --- OPEN / CLOSE ---
+  /* ---------------- OPEN / CLOSE ---------------- */
   trigger.addEventListener("click", () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
     if (!welcomed) {
-      appendBotMessage("Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?");
+      appendBotMessage(
+        "Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?"
+      );
       welcomed = true;
     }
   });
-  closeBtn.addEventListener("click", () => { windowBox.style.display = "none"; trigger.style.display = "flex"; });
 
-  // --- CLEAR CHAT ---
+  closeBtn.addEventListener("click", () => {
+    windowBox.style.display = "none";
+    trigger.style.display = "flex";
+  });
+
+  /* ---------------- CLEAR CHAT ---------------- */
   clearBtn.addEventListener("click", () => {
     messagesDiv.innerHTML = "";
     chatMenu.style.display = "grid";
     goalMenu.style.display = "none";
-    fetch("/api/chat", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({type:"reset"}) });
+    localStorage.removeItem("geminiSessionId");
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("geminiSessionId", sessionId);
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "reset", sessionId }),
+    });
   });
 
-  // --- APPEND MESSAGES ---
-  function appendUserMessage(text){ const div=document.createElement("div"); div.className="message user-message"; div.textContent=text; messagesDiv.appendChild(div); messagesDiv.scrollTop=messagesDiv.scrollHeight; }
-  function appendBotMessage(text){ const div=document.createElement("div"); div.className="message bot-message"; div.textContent=text; messagesDiv.appendChild(div); messagesDiv.scrollTop=messagesDiv.scrollHeight; }
+  /* ---------------- UI HELPERS ---------------- */
+  function appendUserMessage(text) {
+    const div = document.createElement("div");
+    div.className = "message user-message";
+    div.textContent = text;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 
-  function showTyping(){ typing.classList.remove("hidden"); }
-  function hideTyping(){ typing.classList.add("hidden"); }
+  function appendBotMessage(text) {
+    const div = document.createElement("div");
+    div.className = "message bot-message";
+    div.textContent = text;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 
-  // --- SEND PAYLOAD TO BACKEND ---
-  async function sendPayload(payload){
+  function showTyping() {
+    typing.classList.remove("hidden");
+  }
+
+  function hideTyping() {
+    typing.classList.add("hidden");
+  }
+
+  /* ---------------- SEND PAYLOAD ---------------- */
+  async function sendPayload(payload) {
     showTyping();
-    try{
+    try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, sessionId }),
       });
+
       const data = await res.json();
       hideTyping();
-      appendBotMessage(data.reply);
 
-      if(data.showGoals) goalMenu.style.display="grid";
-      else goalMenu.style.display="none";
+      if (data.reply) appendBotMessage(data.reply);
 
-      if(data.showConnectTeam){
-        const connectBtn=document.createElement("button");
-        connectBtn.textContent="Connect with Team";
-        connectBtn.addEventListener("click",()=>{
+      if (data.showGoals) goalMenu.style.display = "grid";
+      else goalMenu.style.display = "none";
+
+      /* -------- CONNECT BUTTON -------- */
+      if (data.showConnectTeam && !connecting) {
+        const connectBtn = document.createElement("button");
+        connectBtn.className = "connect-btn";
+        connectBtn.textContent = "💬 Connect with Team on WhatsApp";
+
+        connectBtn.addEventListener("click", async () => {
+          if (connecting) return;
+          connecting = true;
+
           appendUserMessage("Yes, connect me with the team");
-          appendBotMessage("✅ Awesome! Our team will reach out to you shortly.");
+          showTyping();
+
+          const res2 = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: "connect", sessionId }),
+          });
+
+          const connectData = await res2.json();
+          hideTyping();
+          appendBotMessage(connectData.reply);
+
+          if (connectData.whatsappUrl) {
+            const waBtn = document.createElement("a");
+            waBtn.href = connectData.whatsappUrl;
+            waBtn.target = "_blank";
+            waBtn.rel = "noopener noreferrer";
+            waBtn.className = "whatsapp-btn";
+            waBtn.textContent = "👉 Open WhatsApp Chat";
+
+            messagesDiv.appendChild(waBtn);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+          }
         });
+
         messagesDiv.appendChild(connectBtn);
-        messagesDiv.scrollTop=messagesDiv.scrollHeight;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       }
 
-    }catch(err){
+    } catch (err) {
       hideTyping();
       appendBotMessage("Oops! Something went wrong.");
       console.error(err);
     }
   }
 
-  // --- SERVICE BUTTONS ---
-  document.querySelectorAll("#chat-menu button").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const service=btn.dataset.value;
+  /* ---------------- SERVICE BUTTONS ---------------- */
+  document.querySelectorAll("#chat-menu button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const service = btn.dataset.value;
       appendUserMessage(service);
-      chatMenu.style.display="none";
-      sendPayload({type:"service", value:service});
+      chatMenu.style.display = "none";
+      sendPayload({ type: "service", value: service });
     });
   });
 
-  // --- GOAL BUTTONS ---
-  document.querySelectorAll("#goal-menu button").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const goal=btn.dataset.goal;
+  /* ---------------- GOAL BUTTONS ---------------- */
+  document.querySelectorAll("#goal-menu button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const goal = btn.dataset.goal;
       appendUserMessage(goal);
-      goalMenu.style.display="none";
-      sendPayload({type:"goal", value:goal});
+      goalMenu.style.display = "none";
+      sendPayload({ type: "goal", value: goal });
     });
   });
 
-  // --- TEXT INPUT ---
-  sendBtn.addEventListener("click", ()=>{
-    const msg=input.value.trim();
-    if(!msg) return;
+  /* ---------------- TEXT INPUT ---------------- */
+  sendBtn.addEventListener("click", () => {
+    const msg = input.value.trim();
+    if (!msg) return;
     appendUserMessage(msg);
-    input.value="";
-    sendPayload({message:msg});
+    input.value = "";
+    sendPayload({ message: msg });
   });
-  input.addEventListener("keypress", e=>{ if(e.key==="Enter") sendBtn.click(); });
+
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendBtn.click();
+  });
 
 });
 </script>
+
 
 
 

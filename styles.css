@@ -1,6 +1,27 @@
 /* ============================================================
    CSS RESET & BASE STYLES
    ============================================================ */
+   .connect-btn {
+  background: black;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: none;
+  margin: 10px auto;
+  cursor: pointer;
+}
+
+.whatsapp-btn {
+  display: inline-block;
+  background: #25D366;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 20px;
+  margin: 10px auto;
+  font-weight: bold;
+  text-decoration: none;
+}
+
 .menu {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -59,19 +80,56 @@
 
 /* Chat Window */
 #gemini-chat-window {
-  position: fixed;
-  bottom: 0px;
-  right: 5px;
-  width: 350px;
-  height: 500px;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  animation: slideUp 0.35s ease-out;
-  z-index: 9999;
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 350px;
+    max-width: calc(100% - 40px);
+    height: 500px;
+    max-height: calc(100vh - 140px);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.35s ease-out;
+    z-index: 9999;
+}
+
+/* helper class to show the window (toggle this from JS) */
+#gemini-chat-window.open {
+    display: flex;
+}
+
+/* Mobile / small screens */
+@media (max-width: 768px) {
+    #gemini-chat-window {
+        right: 16px;
+        left: 16px;
+        bottom: 90px; /* leave space for trigger bubble */
+        width: auto;
+        height: 70vh;
+        max-height: 80vh;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.30);
+    }
+}
+
+/* Very small screens */
+@media (max-width: 420px) {
+    #gemini-chat-window {
+        bottom: 96px; /* slightly more space for bottom UI */
+        height: 75vh;
+        max-height: 85vh;
+        padding: 0;
+    }
+
+    #gemini-chat-header img { width: 36px; height: 36px; }
+    #gemini-chat-header h3 { font-size: 15px; }
+    #gemini-chat-input { padding: 12px; }
+    #gemini-chat-input input { padding: 12px; font-size: 14px; }
+    #gemini-chat-input button { padding: 8px 12px; }
 }
 
 /* Header */
@@ -123,8 +181,8 @@
   margin-bottom: 12px;
   border-radius: 12px;
   max-width: 78%;
-  line-height: 1.4;
-  animation: fadeIn 0.25s ease-out;
+  line-height: 1.5;
+  animation: fadeIn 0.55s ease-out;
 }
 
 .bot-message {
@@ -149,7 +207,7 @@
 .typing span {
   width: 8px;
   height: 8px;
-  background: #aaa;
+  background: #0a0a0a;
   border-radius: 50%;
   animation: typing 1.2s infinite;
 }
@@ -161,17 +219,17 @@
 
 /* Input Box */
 #gemini-chat-input {
-  padding: 10px;
+  padding: 25px;
   background: #fff;
   display: flex;
   gap: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #060606;
 }
 
 #gemini-chat-input input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 15px;
   outline: none;
 }
 

@@ -143,24 +143,26 @@ export default async function handler(req, res) {
 
   const { sessionId = "default", type, value, message } = req.body;
 
-  // Initialize session
   if (!sessions[sessionId]) {
     sessions[sessionId] = {
       state: "MENU",
       service: null,
       goal: null,
       lead: {},
+      connected: false,
     };
   }
+
   const session = sessions[sessionId];
 
-  // RESET chat/session
+  // ---------- RESET ----------
   if (type === "reset") {
     sessions[sessionId] = {
       state: "MENU",
       service: null,
       goal: null,
       lead: {},
+      connected: false,
     };
     return res.json({ reply: "Chat has been reset. How can I help you today?" });
   }
@@ -170,7 +172,7 @@ export default async function handler(req, res) {
     session.service = value;
     session.state = "GOAL";
     return res.json({
-      reply: `Nice 👍 What is your main goal with this project?`,
+      reply: "Nice 👍 What is your main goal with this project?",
       showGoals: true,
     });
   }
@@ -180,12 +182,11 @@ export default async function handler(req, res) {
     session.goal = value;
     session.state = "LEAD";
     return res.json({
-      reply: `Perfect. This is something we handle really well 🚀\nMay I have your **name**?`,
-      showLead: true,
+      reply: "Perfect 🚀 May I have your **name**?",
     });
   }
 
-  // ---------- LEAD COLLECTION ----------
+  // ---------- LEAD ----------
   if (session.state === "LEAD" && !session.lead.name) {
     session.lead.name = message;
     return res.json({ reply: "Thanks! What’s your **email address**?" });
@@ -208,71 +209,95 @@ export default async function handler(req, res) {
       project: session.lead.project,
     };
 
-    console.log("🔥 NEW LEAD:", lead);
-
     try {
       await saveToGoogleSheets(lead);
     } catch (err) {
-      console.error("Google Sheets save failed:", err);
+      console.error("Google Sheets error:", err);
     }
 
-    // ✅ Ask if user wants to connect with live team
     return res.json({
-      reply: `Thanks ${lead.name}! 🎉\nWe’ve received your details.\nWould you like me to connect you with our team now?`,
+      reply: `Thanks ${lead.name}! 🎉\nWould you like me to connect you with our team on WhatsApp?`,
       showConnectTeam: true,
     });
   }
 
+  // ---------- CONNECT TO TEAM (WhatsApp) ----------
+  if (type === "connect") {
+    if (session.connected) {
+      return res.json({
+        reply: "You’re already connected with our team 😊",
+      });
+    }
+
+    session.connected = true;
+
+    const lead = {
+      name: session.lead.name || "Unknown",
+      email: session.lead.email || "Unknown",
+      service: session.service || "N/A",
+      goal: session.goal || "N/A",
+      project: session.lead.project || "N/A",
+    };
+
+    const whatsappMessage = `New Chat Request 🔔
+Name: ${lead.name}
+Email: ${lead.email}
+Service: ${lead.service}
+Goal: ${lead.goal}
+
+Project:
+${lead.project}
+
+Session ID: ${sessionId}`;
+
+    const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
+
+    return res.json({
+      reply: "You’re being connected to our team on WhatsApp 💬",
+      connected: true,
+      whatsappUrl,
+    });
+  }
+
   // ---------- AI FALLBACK ----------
-  if (!type) {
+  if (typeof type === "undefined" && message) {
     try {
-      const systemPrompt = `
-You are GemBot 🤖, a professional AI sales and support assistant for Gemini Studio.
-
-Your expertise:
-- Website design & development
-- Branding & UI/UX
-- SEO & online visibility
-- E-commerce solutions & social media management
-- AI & automation services
-- Content Marketing & Paid Advertising
-
-Your goals:
-1. Be friendly, confident, and concise
-2. Detect FAQ questions and answer them accurately
-3. Suggest relevant services dynamically based on user keywords
-4. If the user expresses interest, pitch your service in a helpful, non-pushy way
-5. Always sound professional and approachable
-6. End sales messages with: "Would you like me to connect you with our team?" if relevant
-7. If user is casual, chat naturally; if serious, guide toward lead capture
-      `;
-
       const aiResponse = await client.responses.create({
         model: "gpt-4.1-mini",
         input: [
-          { role: "system", content: systemPrompt },
+          {
+            role: "system",
+            content:
+              'You are GemBot 🤖, a professional AI sales assistant for Gemini Studio.',
+              
+          },
           { role: "user", content: message },
         ],
       });
 
-      // Detect interest keywords to show goal menu
-      let showGoals = false;
-      const keywords = ["website", "branding", "seo", "social media", "ads", "e-commerce"];
-      for (const k of keywords) {
-        if (message.toLowerCase().includes(k)) {
-          showGoals = true;
-          break;
-        }
-      }
+      const keywords = [
+        "website",
+        "branding",
+        "seo",
+        "social media",
+        "ads",
+        "e-commerce",
+      ];
+      const showGoals = keywords.some((k) =>
+        message.toLowerCase().includes(k)
+      );
 
       return res.json({
         reply: aiResponse.output_text || "Can you clarify that?",
         showGoals,
       });
-
     } catch (err) {
-      console.error("AI response error:", err);
-      return res.status(500).json({ reply: "Oops! Something went wrong." });
+      console.error(err);
+      return res.status(500).json({ reply: "AI error occurred." });
     }
   }
+
+  return res.status(400).json({ error: "Invalid request" });
 }
