@@ -658,19 +658,20 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* ---------------- STATE ---------------- */
   let selectedService = null;
   let selectedGoal = null;
   let welcomed = false;
   let connecting = false;
 
-  /* ---------- SESSION ---------- */
+  /* ---------------- SESSION ---------------- */
   let sessionId = localStorage.getItem("geminiSessionId");
   if (!sessionId) {
     sessionId = crypto.randomUUID();
     localStorage.setItem("geminiSessionId", sessionId);
   }
 
-  /* ---------- ELEMENTS ---------- */
+  /* ---------------- ELEMENTS ---------------- */
   const trigger = document.getElementById("gemini-chat-trigger");
   const windowBox = document.getElementById("gemini-chat-window");
   const chatMenu = document.getElementById("chat-menu");
@@ -681,9 +682,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const typing = document.getElementById("gemini-typing");
   const clearBtn = document.getElementById("clear-chat");
   const closeBtn = document.getElementById("gemini-chat-close");
+  const whatsappBtn = document.getElementById("floating-whatsapp");
 
-  /* ---------- OPEN / CLOSE ---------- */
-  trigger.onclick = () => {
+  /* ---------------- OPEN / CLOSE ---------------- */
+  trigger.addEventListener("click", () => {
     windowBox.style.display = "flex";
     trigger.style.display = "none";
 
@@ -693,15 +695,15 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       welcomed = true;
     }
-  };
+  });
 
-  closeBtn.onclick = () => {
+  closeBtn.addEventListener("click", () => {
     windowBox.style.display = "none";
     trigger.style.display = "flex";
-  };
+  });
 
-  /* ---------- CLEAR ---------- */
-  clearBtn.onclick = () => {
+  /* ---------------- CLEAR ---------------- */
+  clearBtn.addEventListener("click", () => {
     messagesDiv.innerHTML = "";
     chatMenu.style.display = "grid";
     goalMenu.style.display = "none";
@@ -715,22 +717,22 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "reset", sessionId }),
     });
-  };
+  });
 
-  /* ---------- HELPERS ---------- */
+  /* ---------------- HELPERS ---------------- */
   function appendUserMessage(text) {
-    const d = document.createElement("div");
-    d.className = "message user-message";
-    d.textContent = text;
-    messagesDiv.appendChild(d);
+    const div = document.createElement("div");
+    div.className = "message user-message";
+    div.textContent = text;
+    messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
   function appendBotMessage(text) {
-    const d = document.createElement("div");
-    d.className = "message bot-message";
-    d.textContent = text;
-    messagesDiv.appendChild(d);
+    const div = document.createElement("div");
+    div.className = "message bot-message";
+    div.textContent = text;
+    messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
@@ -744,11 +746,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function shouldRedirectToWhatsApp(text) {
-    return ["connect","whatsapp","human","agent","team","contact","yes","yeah","sure"]
+    return ["connect","whatsapp","human","agent","team","contact","yeah","yes","sure"]
       .some(k => text.toLowerCase().includes(k));
   }
 
-  /* ---------- API ---------- */
+  function updateWhatsAppMessage() {
+    if (!whatsappBtn) return;
+
+    let msg = "Hi Gemini Studio, I’d like to make an enquiry.";
+    if (selectedService && selectedGoal) {
+      msg = `Hi Gemini Studio 👋
+      New Chat Request 🔔
+I'm interested in ${selectedService}.
+My goal is ${selectedGoal}.`;
+    }
+    whatsappBtn.href =
+      "https://wa.me/2348115672822?text=" + encodeURIComponent(msg);
+  }
+
+  /* ---------------- API ---------------- */
   async function sendPayload(payload) {
     showTyping();
     try {
@@ -757,7 +773,6 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, sessionId }),
       });
-
       const data = await res.json();
       hideTyping();
 
@@ -769,50 +784,32 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.className = "connect-team-btn";
         btn.textContent = "💬 Connect with the team";
 
-        btn.onclick = async () => {
-          if (connecting) return;
-          connecting = true;
-
+        btn.onclick = () => {
           appendUserMessage("Connect me with the team");
-          appendBotMessage("Connecting you to our team on WhatsApp 💬");
-          showTyping();
+          updateWhatsAppMessage();
+          appendBotMessage("Opening WhatsApp now 💬");
 
-          try {
-            const res2 = await fetch("/api/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ type: "connect", sessionId }),
-            });
-
-            const connectData = await res2.json();
-            hideTyping();
-
-            if (connectData.whatsappUrl) {
-              window.open(connectData.whatsappUrl, "_blank");
-            } else {
-              appendBotMessage("Unable to open WhatsApp. Please try again.");
-            }
-          } catch {
-            hideTyping();
-            appendBotMessage("Connection failed. Please try again.");
-          }
+          setTimeout(() => {
+            if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
+          }, 600);
         };
 
         messagesDiv.appendChild(btn);
       }
 
-    } catch {
+    } catch (e) {
       hideTyping();
       appendBotMessage("Something went wrong.");
     }
   }
 
-  /* ---------- SERVICE / GOAL ---------- */
+  /* ---------------- BUTTONS ---------------- */
   document.querySelectorAll("#chat-menu button").forEach(btn => {
     btn.onclick = () => {
       selectedService = btn.dataset.value;
       appendUserMessage(selectedService);
       hideAllMenus();
+      updateWhatsAppMessage();
       sendPayload({ type: "service", value: selectedService });
     };
   });
@@ -822,11 +819,12 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedGoal = btn.dataset.goal;
       appendUserMessage(selectedGoal);
       hideAllMenus();
+      updateWhatsAppMessage();
       sendPayload({ type: "goal", value: selectedGoal });
     };
   });
 
-  /* ---------- TEXT INPUT ---------- */
+  /* ---------------- TEXT INPUT ---------------- */
   sendBtn.onclick = () => {
     const msg = input.value.trim();
     if (!msg) return;
@@ -836,8 +834,11 @@ document.addEventListener("DOMContentLoaded", () => {
     hideAllMenus();
 
     if (shouldRedirectToWhatsApp(msg)) {
-      appendBotMessage("Connecting you to our team on WhatsApp 💬");
-      sendPayload({ type: "connect" });
+      updateWhatsAppMessage();
+      appendBotMessage("Connecting you on WhatsApp 💬");
+      setTimeout(() => {
+        if (whatsappBtn) window.open(whatsappBtn.href, "_blank");
+      }, 600);
       return;
     }
 
@@ -850,6 +851,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+
 
 
     <!-- Footer -->
