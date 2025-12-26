@@ -381,6 +381,24 @@ Session ID: ${sessionId}`;
       connected: true,
     });
   }
+const CONNECT_KEYWORDS = [
+  "yes",
+  "connect",
+  "talk to human",
+  "human",
+  "agent",
+  "representative",
+  "whatsapp",
+  "contact",
+  "call me",
+  "reach you"
+];
+
+function shouldAutoConnect(message) {
+  if (!message) return false;
+  const text = message.toLowerCase().trim();
+  return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
+}
 
   /* ================= FAQ FIRST ================= */
   if (message) {
