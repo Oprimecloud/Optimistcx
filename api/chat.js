@@ -123,6 +123,11 @@ function shouldAutoConnect(message) {
 /* ================= HANDLER ================= */
 export default async function handler(req, res) {
   try {
+     // logic
+  } catch (err) {
+    // error handling
+  }
+}
     if (req.method !== "POST") return res.status(405).end();
 
     const { sessionId = "default", type, value, message } = req.body;
@@ -155,15 +160,15 @@ export default async function handler(req, res) {
     }
 
     /* AUTO CONNECT — ONLY AFTER LEAD DONE */
-    if (
-      message &&
-      shouldAutoConnect(message) &&
-      session.state === "DONE" &&
-      !session.connected
-    ) {
-      session.connected = true;
+if (
+  message &&
+  shouldAutoConnect(message) &&
+  session.state === "DONE" &&
+  !session.connected
+) {
+  session.connected = true;
 
-      const waMsg = `🔥 New Chat Request
+  const waMsg = `🔥 New Lead
 
 Name: ${session.lead.name}
 Email: ${session.lead.email}
@@ -173,16 +178,16 @@ Sub-Service: ${session.subService}
 Project:
 ${session.lead.project}
 
-Intent Score: ${session.intentScore}
-Lead Level: ${session.leadLevel}
-Session ID: ${sessionId}`;
+Intent: ${session.intentScore}
+Lead: ${session.leadLevel}
+Session: ${sessionId}`;
 
-      return res.json({
-        reply: "Connecting you to our team 💬",
-        whatsappUrl:
-          `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`,
-      });
-    }
+  return res.json({
+    reply: "Great! Connecting you with our team now 💬",
+    whatsappUrl: `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`
+  });
+}
+
 
     /* SERVICE */
     if (type === "service") {
@@ -245,10 +250,7 @@ Session ID: ${sessionId}`;
     }
 
    /* ================= AI FALLBACK ================= */
-if (
-  shouldUseAI(message, session) &&
-  !["MENU", "GOAL"].includes(session.state)
-) {
+if (shouldUseAI(message, session) && session.state === "DONE") {
   try {
     const ai = await client.responses.create({
       model: "gpt-4.1-mini",
@@ -258,29 +260,10 @@ if (
     return res.json({
       reply: ai.output_text || "Can you clarify that?"
     });
-
   } catch (err) {
     console.error("AI ERROR:", err);
     return res.json({
-      reply: "I’m here to help 😊 Please choose an option below."
+      reply: "I’m here to help 😊 Would you like to connect with our team?"
     });
   }
-}
-    return res.json({ reply: "I’m here to help 😊 Please choose an option below." });
-  } catch (err) {
-    console.error("HANDLER ERROR:", err);
-    return res.status(500).json({ reply: "Server error. Please try again later." });
-  }
-}
-function shouldUseAI(message, session) {
-  if (!message) return false;
-  const type = typeof message;
-  if (type !== "string") return false;
-  if (message.length > 500) return false;
-  if (session.intentScore < 30) return false;
-  return true;
-}
-/* ===== IGNORE AI FOR BUTTON CLICKS ===== */
-if (type && type !== "message") {
-  return res.status(200).end();
 }

@@ -955,7 +955,7 @@ function selectSubService(sub) {
     if (!msg) return;
     appendUserMessage(msg);
     input.value = "";
-    sendPayload({ message: msg });
+   sendPayload({ type: "message", message: msg });
   });
 
   input.addEventListener("keypress", (e) => {
