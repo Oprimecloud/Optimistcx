@@ -123,11 +123,7 @@ function shouldAutoConnect(message) {
 /* ================= HANDLER ================= */
 export default async function handler(req, res) {
   try {
-     // logic
-  } catch (err) {
-    // error handling
-  }
-}
+    
     if (req.method !== "POST") return res.status(405).end();
 
     const { sessionId = "default", type, value, message } = req.body;
@@ -264,6 +260,17 @@ if (shouldUseAI(message, session) && session.state === "DONE") {
     console.error("AI ERROR:", err);
     return res.json({
       reply: "I’m here to help 😊 Would you like to connect with our team?"
+    });
+  }
+}
+    return res.json({
+      reply: "I’m here to help 😊 Please choose an option above."
+    });
+
+  } catch (err) {
+    console.error("HANDLER ERROR:", err);
+    return res.status(500).json({
+      reply: "Server error. Please try again later."
     });
   }
 }
