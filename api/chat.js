@@ -419,7 +419,7 @@ return res.json({
  } 
 
  /* ================= CONNECT ================= */
-       /* if (type === "connect") {
+        if (type === "connect") {
           if (session.connected) {
             return res.json({ reply: "You’re already connected 😊" });
           }
@@ -450,7 +450,7 @@ return res.json({
             whatsappUrl,
             connected: true,
           });
-        } */
+        } 
 
   /* ================= FAQ FIRST ================= */
   if (message) {
