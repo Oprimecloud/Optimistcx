@@ -225,7 +225,7 @@ async function saveToGoogleSheets(data) {
 }
 
 /* ================= SESSION STORE ================= */
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT = 30 * 60 * 100; // 30 minutes
 let sessions = {};
 
 function isSessionExpired(session) {
@@ -237,10 +237,10 @@ const CONNECT_KEYWORDS = [
   "connect",
   "talk to human",
   "human",
-  "agent",
-  "representative",
+  "agents",
+  "representativs",
   "whatsapp",
-  "contact",
+  "contacts",
   "call me",
   "reach you"
 ];
