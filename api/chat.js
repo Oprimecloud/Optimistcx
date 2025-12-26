@@ -1,130 +1,11 @@
-// import OpenAI from "openai";
-
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-
-// const response = await openai.responses.create({
-//   prompt: {
-//     "id": "pmpt_694a7bb321448197b6cbdbc4aaa033dd03b76c7ac7bb175a",
-//     "version": "1"
-//   }
-// });
-
-// export default async function handler(req, res) {
-//   if (req.method !== "POST") {
-//     return res.status(405).json({ error: "Method not allowed" });
-//   }
-
-//   const { message } = req.body;
-
-//   if (!message) {
-//     return res.status(400).json({ error: "Message is required" });
-//   }
-
-//   try {
-//     const client = new OpenAI({
-//       apiKey: process.env.OPENAI_API_KEY,
-//     });
-
-    // SYSTEM PROMPT — Hybrid personality for Gemini Studio Assistant
-//     const systemPrompt = 
-//       `You are GemBot 🤖, an AI-powered sales and support assistant for Gemini Studio,
-// a digital agency offering:
-
-// - Web Development
-// - Branding & UI/UX
-// - SEO
-// - Content Creation
-// - Social Media Management
-// - PPC Ads
-
-// PERSONALITY:
-// - Friendly, professional, human, and confident
-// - Never robotic or pushy
-// - Short, clear responses
-
-// PRIMARY GOALS:
-// 1. Help users understand Gemini Studio’s services
-// 2. Guide users through a clear service menu
-// 3. Answer FAQs and support questions accurately
-// 4. Qualify potential clients
-// 5. Collect lead information when appropriate
-
-// CONVERSATION RULES:
-// - Always start by greeting the user and showing the main menu:
-//   Web Development, Branding, SEO, Content Creation, Social Media Management, PPC Ads
-// - If the user selects a service, ask 2–3 relevant follow-up questions
-// - Educate first, sell second
-// - If the user shows interest or intent, politely ask for:
-//   Name, Email, and Project details
-// - After collecting lead info, ask:
-//   “Would you like me to connect you with our team?”
-
-// MODE SWITCHING:
-// - FAQ Mode → pricing, timeline, process
-// - Support Mode → issues, help, troubleshooting
-// - Sales Mode → interest, services, onboarding
-
-// If the user is just chatting, respond helpfully.
-// If the user is serious, guide them toward becoming a lead.
-// Always aim to move the conversation forward.
-
-// `;
-
-//     const completion = await client.chat.completions.create({
-//       model: "gpt-4.1-mini", // cheap + fast; upgradeable
-//       messages: [
-//         { role: "system", content: systemPrompt },
-//         { role: "user", content: message },
-//       ],
-//     });
-
-//     const aiReply = completion.choices[0].message.content;
-
-//     // Lead extraction pattern
-//     let leadCaptured = false;
-//     let leadData = null;
-
-//     const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-//     const nameRegex = /\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)\b/;
-
-//     const email = message.match(emailRegex);
-//     const name = message.match(nameRegex);
-
-//     if (email) {
-//       leadCaptured = true;
-//       leadData = {
-//         name: name ? name[0] : "Unknown",
-//         email: email[0],
-//         project: message,
-//       };
-
-//       // Call Zoho Mail endpoint
-//       await fetch(`${process.env.SITE_URL}/api/send-lead`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(leadData),
-//       });
-//     }
-
-//     return res.status(200).json({
-//       reply: aiReply,
-//       leadCaptured,
-//       lead: leadData || null,
-//     });
-//   } catch (err) {
-//     console.error("Chat Error:", err);
-//     return res.status(500).json({ error: "Server error" });
-//   }
-// }
-/* import OpenAI from "openai";
+import OpenAI from "openai";
+import fetch from "node-fetch";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-/* ================= VALIDATIONS ================= 
+/* ================= VALIDATIONS ================= */
 function isValidName(name) {
   if (!name) return false;
   const n = name.trim();
@@ -141,7 +22,7 @@ function isValidProject(text) {
   return t.length >= 10 && t.length <= 500 && /[a-zA-Z]/.test(t);
 }
 
-/* ================= FAQ ================= 
+/* ================= FAQ ================= */
 const FAQS = [
   { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
   { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
@@ -185,348 +66,16 @@ function getFaqAnswer(message) {
   return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
 }
 
-/* ================= INTENT SCORING ================= 
-function scoreIntent(message, session) {
-  if (!message) return session.intentScore || 0;
-
-  let score = session.intentScore || 0;
-  const text = message.toLowerCase();
-
-  if (/website|seo|ads|branding|ecommerce|automation/.test(text)) score += 10;
-  if (/price|cost|budget|how much/.test(text)) score += 15;
-  if (/urgent|asap|immediately|now/.test(text)) score += 15;
-  if (/whatsapp|agent|human|contact|representative/.test(text)) score += 20;
-  if (session.state === "DONE") score += 30;
-
-  return Math.min(score, 100);
-}
-
-function getLeadLevel(score) {
-  if (score >= 70) return "HOT 🔥";
-  if (score >= 40) return "WARM 🙂";
-  return "COLD ❄️";
-}
-
-/* ================= AI GUARD ================= 
-function shouldUseAI(message, session) {
-  if (!message) return false;
-  if (session.state === "LEAD") return false;
-  if (message.length < 5) return false;
-  return true;
-}
-
-/* ================= GOOGLE SHEETS ================= 
-async function saveToGoogleSheets(data) {
-  await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-
-/* ================= SESSION STORE ================= 
-const SESSION_TIMEOUT = 30 * 60 * 100; // 30 minutes
-let sessions = {};
-
-function isSessionExpired(session) {
-  return Date.now() - session.lastActive > SESSION_TIMEOUT;
-}
-/* ================= AUTO CONNECT KEYWORDS ================= 
-const CONNECT_KEYWORDS = [
-  "yes",
-  "connect",
-  "talk to human",
-  "human",
-  "agents",
-  "representativs",
-  "whatsapp",
-  "contacts",
-  "call me",
-  "reach you"
-];
-
-function shouldAutoConnect(message) {
-  if (!message) return false;
-  const text = message.toLowerCase().trim();
-  return CONNECT_KEYWORDS.some(
-    k => text === k || text.includes(k)
-  );
-}
-
-/* ================= HANDLER =================
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-
-  const { sessionId = "default", type, value, message } = req.body;
-
-  if (!sessions[sessionId] || isSessionExpired(sessions[sessionId])) {
-    sessions[sessionId] = {
-      state: "MENU",
-      service: null,
-      subService: null,
-      lead: {},
-      connected: false,
-      intentScore: 0,
-      leadLevel: "COLD ❄️",
-      lastActive: Date.now(),
-    };
-  }
-
-  const session = sessions[sessionId];
-  session.lastActive = Date.now();
-
-  /* -------- SCORE -------- 
-  if (message) {
-    session.intentScore = scoreIntent(message, session);
-    session.leadLevel = getLeadLevel(session.intentScore);
-  }
-
-  /* ================= RESET ================= 
-  if (type === "reset") {
-    delete sessions[sessionId];
-    return res.json({ reply: "Chat reset. How can I help you?" });
-  }
-/* ================= AUTO CONNECT VIA TEXT ================= 
-if (
-  message &&
-  shouldAutoConnect(message) &&
-  !session.connected
-) {
-  session.connected = true;
-
-  await saveToGoogleSheets({
-    name: session.lead?.name || "Not provided",
-    email: session.lead?.email || "Not provided",
-    service: session.service || "Not selected",
-    subService: session.subService || "Not selected",
-    goal: session.goal || "Not specified",
-    project: session.lead?.project || "Not provided",
-    intentScore: session.intentScore,
-    leadLevel: session.leadLevel,
-    sessionId
-  });
-
-  const waMsg = `🔥 New Chat Request
-
-Name: ${session.lead?.name || "Not provided"}
-Email: ${session.lead?.email || "Not provided"}
-Service: ${session.service || "Not selected"}
-Sub-Service: ${session.subService || "Not selected"}
-
-
-Project:
-${session.lead?.project || "Not provided"}
-
-Intent Score: ${session.intentScore}
-Lead Level: ${session.leadLevel}
-Session ID: ${sessionId}`;
-
-  const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
-
-  return res.json({
-    reply: "Connecting you to our team 💬",
-    whatsappUrl,
-    connected: true,
-  });
-}
-
-  /* ================= SERVICE ================= 
-    if (type === "service") {
-      session.service = value;
-      session.state = "GOAL";
-      return res.json({
-        reply: "Nice 👍 What is your main goal?",
-        showGoals: true,
-        delayMs: 600,
-      });
-    }
-
-  //   if (type === "subservice") {
-  //   session.subService = value;
-  //   return res.json({
-  //     reply: "Great 👍 What is your main goal?",
-  //     showGoals: true
-  //   });
-  // }
-
-
-  /* ================= GOAL ================= 
-  if (type === "subservice") {
-    session.subService = value;
-    session.state = "LEAD";
-    return res.json({
-      reply: "May I have your full name?",
-      resumeStep: "name",
-      delayMs: 600,
-    });
-  }
-
-  /* ================= LEAD FLOW ================= 
-  if (session.state === "LEAD") {
-
-    if (!session.lead.name) {
-      if (!isValidName(message)) {
-        return res.json({
-          reply: "Please enter your full name (e.g. John Doe).",
-          resumeStep: "name",
-        });
-      }
-      session.lead.name = message.trim();
-      return res.json({ reply: "What’s your email address?", resumeStep: "email" });
-    }
-
-    if (!session.lead.email) {
-      if (!isValidEmail(message)) {
-        return res.json({
-          reply: "That email doesn’t look correct. Please try again.",
-          resumeStep: "email",
-        });
-      }
-      session.lead.email = message.trim();
-      return res.json({ reply: "Please describe your project.", resumeStep: "project" });
-    }
-
-    if (!session.lead.project) {
-      if (!isValidProject(message)) {
-        return res.json({
-          reply: "Please describe your project in more detail 😊",
-          resumeStep: "project",
-        });
-      }
-
-      session.lead.project = message.trim();
-      session.state = "DONE";
-
-      /* ===== SAVE LEAD IMMEDIATELY ===== 
-      await saveToGoogleSheets({
-        name: session.lead.name,
-        email: session.lead.email,
-        service: session.service,
-        subService: session.subService,
-        project: session.lead.project,
-        intentScore: session.intentScore,
-        leadLevel: session.leadLevel,
-        sessionId,
-        source: "chatbot"
-      });
-
-return res.json({
-  reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
-  showConnectTeam: true,
-  delayMs: 300,
-});
- } 
-
- /* ================= CONNECT ================= 
-        if (type === "connect") {
-          if (session.connected) {
-            return res.json({ reply: "You’re already connected 😊" });
-          }
-
-          session.connected = true;
-
-          // WhatsApp message ONLY (no saving here)
-          const waMsg = `🔥 New Chat Request
-
-        Name: ${session.lead.name}
-        Email: ${session.lead.email}
-        Service: ${session.service || "Not selected"}
-        Sub-Service: ${session.subService || "Not selected"}
-
-
-        Project:
-        ${session.lead.project}
-
-        Intent Score: ${session.intentScore}
-        Lead Level: ${session.leadLevel}
-        Session ID: ${sessionId}`;
-
-          const whatsappUrl =
-            `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
-
-          return res.json({
-            reply: "Connecting you to our team 💬",
-            whatsappUrl,
-            connected: true,
-          });
-        } 
-
-  /* ================= FAQ FIRST ================= 
-  if (message) {
-    const faq = getFaqAnswer(message);
-    if (faq) return res.json({ reply: faq });
-  }
-
-  /* ================= AI FALLBACK ================= 
-  if (shouldUseAI(message, session)) {
-    const ai = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
-        { role: "system", content: "You are GemBot 🤖, a professional AI sales assistant." },
-        { role: "user", content: message },
-      ],
-    });
-
-    return res.json({ reply: ai.output_text || "Can you clarify that?" });
-  }
-
-  return res.status(400).json({ error: "Invalid request" });
-}
- }/* ===== AUTO REDIRECT TO WHATSAPP ===== */
-
-
-import OpenAI from "openai";
-import fetch from "node-fetch";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-/* ================= VALIDATIONS ================= */
-function isValidName(name) {
-  if (!name) return false;
-  const n = name.trim();
-  return n.length >= 2 && n.length <= 60;
-}
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isValidProject(text) {
-  if (!text) return false;
-  const t = text.trim();
-  return t.length >= 10 && t.length <= 500 && /[a-zA-Z]/.test(t);
-}
-
-/* ================= FAQ ================= */
-const FAQS = [
-  { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
-  { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
-  { keywords: ["services", "what do you do"], answer: "We provide web development, branding, SEO, content creation, social media management, ads, and AI solutions." },
-  { keywords: ["location", "where are you"], answer: "We work with clients worldwide 🌍" },
-  { keywords: ["start", "get started", "begin"], answer: "Type yes and I’ll connect you with our team 🚀" },
-  { keywords: ["contact", "human", "agent"], answer: "Sure 🙂 type yes to connect with our team" }
-];
-
-function getFaqAnswer(message) {
-  if (!message) return null;
-  const lower = message.toLowerCase();
-  return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
-}
-
 /* ================= INTENT SCORING ================= */
 function scoreIntent(message, session) {
   if (!message) return session.intentScore || 0;
-
   let score = session.intentScore || 0;
   const text = message.toLowerCase();
 
   if (/website|seo|ads|branding|ecommerce|automation/.test(text)) score += 10;
   if (/price|cost|budget/.test(text)) score += 15;
   if (/urgent|asap|now/.test(text)) score += 15;
-  if (/whatsapp|human|agent|contact/.test(text)) score += 20;
+  if (/whatsapp|agent|human|contact/.test(text)) score += 20;
   if (session.state === "DONE") score += 30;
 
   return Math.min(score, 100);
@@ -547,12 +96,12 @@ async function saveToGoogleSheets(data) {
       body: JSON.stringify(data),
     });
   } catch (err) {
-    console.error("Google Sheet Error:", err);
+    console.error("Sheets error:", err);
   }
 }
 
 /* ================= SESSION ================= */
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT = 30 * 60 * 1000;
 let sessions = {};
 
 function isSessionExpired(session) {
@@ -561,15 +110,8 @@ function isSessionExpired(session) {
 
 /* ================= AUTO CONNECT ================= */
 const CONNECT_KEYWORDS = [
-  "yes",
-  "connect",
-  "talk to human",
-  "human",
-  "agent",
-  "representative",
-  "whatsapp",
-  "contact",
-  "call me"
+  "yes","connect","talk to human","human","agent",
+  "representative","whatsapp","contact","call me"
 ];
 
 function shouldAutoConnect(message) {
@@ -580,54 +122,53 @@ function shouldAutoConnect(message) {
 
 /* ================= HANDLER ================= */
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+  try {
+    if (req.method !== "POST") return res.status(405).end();
 
-  const { sessionId = "default", type, value, message } = req.body;
+    const { sessionId = "default", type, value, message } = req.body;
 
-  if (!sessions[sessionId] || isSessionExpired(sessions[sessionId])) {
-    sessions[sessionId] = {
-      state: "MENU",
-      service: null,
-      subService: null,
-      goal: null,
-      lead: {},
-      connected: false,
-      intentScore: 0,
-      leadLevel: "COLD ❄️",
-      lastActive: Date.now(),
-    };
-  }
+    if (!sessions[sessionId] || isSessionExpired(sessions[sessionId])) {
+      sessions[sessionId] = {
+        state: "MENU",
+        service: null,
+        subService: null,
+        lead: {},
+        connected: false,
+        intentScore: 0,
+        leadLevel: "COLD ❄️",
+        lastActive: Date.now(),
+      };
+    }
 
-  const session = sessions[sessionId];
-  session.lastActive = Date.now();
+    const session = sessions[sessionId];
+    session.lastActive = Date.now();
 
-  /* -------- SCORE -------- */
-  if (message) {
-    session.intentScore = scoreIntent(message, session);
-    session.leadLevel = getLeadLevel(session.intentScore);
-  }
+    if (message) {
+      session.intentScore = scoreIntent(message, session);
+      session.leadLevel = getLeadLevel(session.intentScore);
+    }
 
-  /* ================= RESET ================= */
-  if (type === "reset") {
-    delete sessions[sessionId];
-    return res.json({ reply: "Chat reset. How can I help you?" });
-  }
+    /* RESET */
+    if (type === "reset") {
+      delete sessions[sessionId];
+      return res.json({ reply: "Chat reset. How can I help you?" });
+    }
 
-  /* ================= AUTO CONNECT VIA TEXT ================= */
-  if (
-    message &&
-    shouldAutoConnect(message) &&
-    session.state === "DONE" &&
-    !session.connected
-  ) {
-    session.connected = true;
+    /* AUTO CONNECT — ONLY AFTER LEAD DONE */
+    if (
+      message &&
+      shouldAutoConnect(message) &&
+      session.state === "DONE" &&
+      !session.connected
+    ) {
+      session.connected = true;
 
-    const waMsg = `🔥 New Chat Request
+      const waMsg = `🔥 New Chat Request
 
 Name: ${session.lead.name}
 Email: ${session.lead.email}
-Service: ${session.service || "Not selected"}
-Sub-Service: ${session.subService || "Not selected"}
+Service: ${session.service}
+Sub-Service: ${session.subService}
 
 Project:
 ${session.lead.project}
@@ -635,129 +176,84 @@ ${session.lead.project}
 Intent Score: ${session.intentScore}
 Lead Level: ${session.leadLevel}
 Session ID: ${sessionId}`;
-
-    const whatsappUrl =
-      `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
-
-    return res.json({
-      reply: "Connecting you to our team 💬",
-      whatsappUrl,
-      connected: true,
-    });
-  }
-
-  /* ================= SERVICE ================= */
-  if (type === "service") {
-    session.service = value;
-    return res.json({
-      reply: "Great 👍 Please select a sub-service.",
-    });
-  }
-
-  /* ================= SUB SERVICE ================= */
-  if (type === "subservice") {
-    session.subService = value;
-    session.state = "LEAD";
-    return res.json({
-      reply: "May I have your full name?",
-    });
-  }
-
-  /* ================= LEAD FLOW ================= */
-  if (session.state === "LEAD") {
-
-    if (!session.lead.name) {
-      if (!isValidName(message)) {
-        return res.json({ reply: "Please enter your full name." });
-      }
-      session.lead.name = message.trim();
-      return res.json({ reply: "What’s your email address?" });
-    }
-
-    if (!session.lead.email) {
-      if (!isValidEmail(message)) {
-        return res.json({ reply: "Please enter a valid email address." });
-      }
-      session.lead.email = message.trim();
-      return res.json({ reply: "Please describe your project." });
-    }
-
-    if (!session.lead.project) {
-      if (!isValidProject(message)) {
-        return res.json({ reply: "Please describe your project in more detail." });
-      }
-
-      session.lead.project = message.trim();
-      session.state = "DONE";
-
-      /* ===== SAVE LEAD (ALWAYS) ===== */
-      await saveToGoogleSheets({
-        name: session.lead.name,
-        email: session.lead.email,
-        service: session.service,
-        subService: session.subService,
-        goal: session.goal,
-        project: session.lead.project,
-        intentScore: session.intentScore,
-        leadLevel: session.leadLevel,
-        sessionId,
-        source: "chatbot"
-      });
 
       return res.json({
-        reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
-        showConnectTeam: true,
+        reply: "Connecting you to our team 💬",
+        whatsappUrl:
+          `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`,
       });
     }
-  }
 
-  /* ================= CONNECT BUTTON ================= */
-  if (type === "connect") {
-    if (session.connected) {
-      return res.json({ reply: "You’re already connected 😊" });
+    /* SERVICE */
+    if (type === "service") {
+      session.service = value;
+      return res.json({ reply: "Please select a sub-service." });
     }
 
-    session.connected = true;
+    /* SUBSERVICE */
+    if (type === "subservice") {
+      session.subService = value;
+      session.state = "LEAD";
+      return res.json({ reply: "May I have your full name?" });
+    }
 
-    const waMsg = `🔥 New Chat Request
+    /* LEAD FLOW */
+    if (session.state === "LEAD") {
+      if (!session.lead.name) {
+        if (!isValidName(message))
+          return res.json({ reply: "Please enter your full name." });
+        session.lead.name = message.trim();
+        return res.json({ reply: "What’s your email address?" });
+      }
 
-Name: ${session.lead.name}
-Email: ${session.lead.email}
-Service: ${session.service || "Not selected"}
-Sub-Service: ${session.subService || "Not selected"}
+      if (!session.lead.email) {
+        if (!isValidEmail(message))
+          return res.json({ reply: "Enter a valid email." });
+        session.lead.email = message.trim();
+        return res.json({ reply: "Please describe your project." });
+      }
 
-Project:
-${session.lead.project}
+      if (!session.lead.project) {
+        if (!isValidProject(message))
+          return res.json({ reply: "Please describe your project clearly." });
 
-Intent Score: ${session.intentScore}
-Lead Level: ${session.leadLevel}
-Session ID: ${sessionId}`;
+        session.lead.project = message.trim();
+        session.state = "DONE";
 
-    const whatsappUrl =
-      `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+        await saveToGoogleSheets({
+          name: session.lead.name,
+          email: session.lead.email,
+          service: session.service,
+          subService: session.subService,
+          project: session.lead.project,
+          intentScore: session.intentScore,
+          leadLevel: session.leadLevel,
+          sessionId,
+        });
 
-    return res.json({
-      reply: "Connecting you to our team 💬",
-      whatsappUrl,
-      connected: true,
+        return res.json({
+          reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+          showConnectTeam: true,
+        });
+      }
+    }
+
+    /* FAQ */
+    if (message) {
+      const faq = getFaqAnswer(message);
+      if (faq) return res.json({ reply: faq });
+    }
+
+    /* AI */
+    const ai = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: [{ role: "user", content: message }],
     });
+
+    return res.json({ reply: ai.output_text });
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    return res.json({ reply: "Oops! Something went wrong 😢" });
   }
-
-  /* ================= FAQ ================= */
-  if (message) {
-    const faq = getFaqAnswer(message);
-    if (faq) return res.json({ reply: faq });
-  }
-
-  /* ================= AI FALLBACK ================= */
-  const ai = await client.responses.create({
-    model: "gpt-4.1-mini",
-    input: [
-      { role: "system", content: "You are GemBot 🤖, a professional AI sales assistant." },
-      { role: "user", content: message },
-    ],
-  });
-
-  return res.json({ reply: ai.output_text || "Can you clarify that?" });
 }
-
