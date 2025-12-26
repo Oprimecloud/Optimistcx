@@ -277,13 +277,13 @@ export default async function handler(req, res) {
       });
     }
 
-    if (type === "subservice") {
-    session.subService = value;
-    return res.json({
-      reply: "Great 👍 What is your main goal?",
-      showGoals: true
-    });
-  }
+  //   if (type === "subservice") {
+  //   session.subService = value;
+  //   return res.json({
+  //     reply: "Great 👍 What is your main goal?",
+  //     showGoals: true
+  //   });
+  // }
 
 
   /* ================= GOAL ================= */
