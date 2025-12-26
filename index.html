@@ -628,8 +628,6 @@
 
   <!-- Service Menu -->
 <div id="chat-menu" class="menu" style="display:grid;"></div>
-
-
     <!-- Goal Menu -->
     <div id="goal-menu" class="menu" style="display:none;">
       <button data-goal="sales">Sales</button>
@@ -741,7 +739,7 @@ const whatsappBtn = document.getElementById("floating-whatsapp");
   trigger.addEventListener("click", () => {
   windowBox.style.display = "flex";
   trigger.style.display = "none";
-  whatsappBtn.classList.add("hidden");
+//   whatsappBtn.classList.add("hidden");
 
   if (!welcomed) {
     appendBotMessage("Hi, I’m GemBot 🤖, your digital growth assistant at Gemini Studio! How can I help you today?");
@@ -752,7 +750,7 @@ const whatsappBtn = document.getElementById("floating-whatsapp");
 closeBtn.addEventListener("click", () => {
   windowBox.style.display = "none";
   trigger.style.display = "flex";
-  whatsappBtn.classList.remove("hidden");
+//   whatsappBtn.classList.remove("hidden");
 });
 
   /* ---------------- CLEAR CHAT ---------------- */
@@ -776,13 +774,14 @@ closeBtn.addEventListener("click", () => {
   });
 
   /* ---------------- UI HELPERS ---------------- */
-  function updateWhatsAppMessage() {
+  function shouldRedirectToWhatsApp(text) { return ["connect","human","agent","team","contacts","yes","yeah","sure"] .some(k => text.toLowerCase().includes(k)); } function updateWhatsAppMessage() 
+  { if (!whatsappBtn) return;
   let message = "Hi Gemini Studio, I would like to make an enquiry.";
 
-  if (selectedService && selectedGoal) {
+  if (selectedService && selectedSubService) {
     message = `Hi Gemini Studio 👋
 I’m interested in *${selectedService}*.
-My main goal is *${selectedGoal}*.
+My main goal is *${selectedSubService}*.
 Please let me know the next steps.`;
   } else if (selectedService) {
     message = `Hi Gemini Studio 👋

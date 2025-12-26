@@ -336,7 +336,7 @@ export default async function handler(req, res) {
       return res.json({
         reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
         showConnectTeam: true,
-        delayMs: 800,
+        delayMs: 500,
       });
     }
   }
