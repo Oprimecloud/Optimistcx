@@ -118,13 +118,13 @@
 //     return res.status(500).json({ error: "Server error" });
 //   }
 // }
-import OpenAI from "openai";
+/* import OpenAI from "openai";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-/* ================= VALIDATIONS ================= */
+/* ================= VALIDATIONS ================= 
 function isValidName(name) {
   if (!name) return false;
   const n = name.trim();
@@ -141,7 +141,7 @@ function isValidProject(text) {
   return t.length >= 10 && t.length <= 500 && /[a-zA-Z]/.test(t);
 }
 
-/* ================= FAQ ================= */
+/* ================= FAQ ================= 
 const FAQS = [
   { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
   { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
@@ -185,7 +185,7 @@ function getFaqAnswer(message) {
   return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
 }
 
-/* ================= INTENT SCORING ================= */
+/* ================= INTENT SCORING ================= 
 function scoreIntent(message, session) {
   if (!message) return session.intentScore || 0;
 
@@ -207,7 +207,7 @@ function getLeadLevel(score) {
   return "COLD ❄️";
 }
 
-/* ================= AI GUARD ================= */
+/* ================= AI GUARD ================= 
 function shouldUseAI(message, session) {
   if (!message) return false;
   if (session.state === "LEAD") return false;
@@ -215,7 +215,7 @@ function shouldUseAI(message, session) {
   return true;
 }
 
-/* ================= GOOGLE SHEETS ================= */
+/* ================= GOOGLE SHEETS ================= 
 async function saveToGoogleSheets(data) {
   await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
     method: "POST",
@@ -224,14 +224,14 @@ async function saveToGoogleSheets(data) {
   });
 }
 
-/* ================= SESSION STORE ================= */
+/* ================= SESSION STORE ================= 
 const SESSION_TIMEOUT = 30 * 60 * 100; // 30 minutes
 let sessions = {};
 
 function isSessionExpired(session) {
   return Date.now() - session.lastActive > SESSION_TIMEOUT;
 }
-/* ================= AUTO CONNECT KEYWORDS ================= */
+/* ================= AUTO CONNECT KEYWORDS ================= 
 const CONNECT_KEYWORDS = [
   "yes",
   "connect",
@@ -253,7 +253,7 @@ function shouldAutoConnect(message) {
   );
 }
 
-/* ================= HANDLER ================= */
+/* ================= HANDLER =================
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -276,18 +276,18 @@ export default async function handler(req, res) {
   const session = sessions[sessionId];
   session.lastActive = Date.now();
 
-  /* -------- SCORE -------- */
+  /* -------- SCORE -------- 
   if (message) {
     session.intentScore = scoreIntent(message, session);
     session.leadLevel = getLeadLevel(session.intentScore);
   }
 
-  /* ================= RESET ================= */
+  /* ================= RESET ================= 
   if (type === "reset") {
     delete sessions[sessionId];
     return res.json({ reply: "Chat reset. How can I help you?" });
   }
-/* ================= AUTO CONNECT VIA TEXT ================= */
+/* ================= AUTO CONNECT VIA TEXT ================= 
 if (
   message &&
   shouldAutoConnect(message) &&
@@ -331,7 +331,7 @@ Session ID: ${sessionId}`;
   });
 }
 
-  /* ================= SERVICE ================= */
+  /* ================= SERVICE ================= 
     if (type === "service") {
       session.service = value;
       session.state = "GOAL";
@@ -351,7 +351,7 @@ Session ID: ${sessionId}`;
   // }
 
 
-  /* ================= GOAL ================= */
+  /* ================= GOAL ================= 
   if (type === "subservice") {
     session.subService = value;
     session.state = "LEAD";
@@ -362,7 +362,7 @@ Session ID: ${sessionId}`;
     });
   }
 
-  /* ================= LEAD FLOW ================= */
+  /* ================= LEAD FLOW ================= 
   if (session.state === "LEAD") {
 
     if (!session.lead.name) {
@@ -398,7 +398,7 @@ Session ID: ${sessionId}`;
       session.lead.project = message.trim();
       session.state = "DONE";
 
-      /* ===== SAVE LEAD IMMEDIATELY ===== */
+      /* ===== SAVE LEAD IMMEDIATELY ===== 
       await saveToGoogleSheets({
         name: session.lead.name,
         email: session.lead.email,
@@ -418,7 +418,7 @@ return res.json({
 });
  } 
 
- /* ================= CONNECT ================= */
+ /* ================= CONNECT ================= 
         if (type === "connect") {
           if (session.connected) {
             return res.json({ reply: "You’re already connected 😊" });
@@ -452,13 +452,13 @@ return res.json({
           });
         } 
 
-  /* ================= FAQ FIRST ================= */
+  /* ================= FAQ FIRST ================= 
   if (message) {
     const faq = getFaqAnswer(message);
     if (faq) return res.json({ reply: faq });
   }
 
-  /* ================= AI FALLBACK ================= */
+  /* ================= AI FALLBACK ================= 
   if (shouldUseAI(message, session)) {
     const ai = await client.responses.create({
       model: "gpt-4.1-mini",
@@ -474,3 +474,290 @@ return res.json({
   return res.status(400).json({ error: "Invalid request" });
 }
  }/* ===== AUTO REDIRECT TO WHATSAPP ===== */
+
+
+import OpenAI from "openai";
+import fetch from "node-fetch";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+/* ================= VALIDATIONS ================= */
+function isValidName(name) {
+  if (!name) return false;
+  const n = name.trim();
+  return n.length >= 2 && n.length <= 60;
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidProject(text) {
+  if (!text) return false;
+  const t = text.trim();
+  return t.length >= 10 && t.length <= 500 && /[a-zA-Z]/.test(t);
+}
+
+/* ================= FAQ ================= */
+const FAQS = [
+  { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
+  { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
+  { keywords: ["services", "what do you do"], answer: "We provide web development, branding, SEO, content creation, social media management, ads, and AI solutions." },
+  { keywords: ["location", "where are you"], answer: "We work with clients worldwide 🌍" },
+  { keywords: ["start", "get started", "begin"], answer: "Type yes and I’ll connect you with our team 🚀" },
+  { keywords: ["contact", "human", "agent"], answer: "Sure 🙂 type yes to connect with our team" }
+];
+
+function getFaqAnswer(message) {
+  if (!message) return null;
+  const lower = message.toLowerCase();
+  return FAQS.find(f => f.keywords.some(k => lower.includes(k)))?.answer || null;
+}
+
+/* ================= INTENT SCORING ================= */
+function scoreIntent(message, session) {
+  if (!message) return session.intentScore || 0;
+
+  let score = session.intentScore || 0;
+  const text = message.toLowerCase();
+
+  if (/website|seo|ads|branding|ecommerce|automation/.test(text)) score += 10;
+  if (/price|cost|budget/.test(text)) score += 15;
+  if (/urgent|asap|now/.test(text)) score += 15;
+  if (/whatsapp|human|agent|contact/.test(text)) score += 20;
+  if (session.state === "DONE") score += 30;
+
+  return Math.min(score, 100);
+}
+
+function getLeadLevel(score) {
+  if (score >= 70) return "HOT 🔥";
+  if (score >= 40) return "WARM 🙂";
+  return "COLD ❄️";
+}
+
+/* ================= GOOGLE SHEETS ================= */
+async function saveToGoogleSheets(data) {
+  try {
+    await fetch(process.env.GOOGLE_SHEETS_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    console.error("Google Sheet Error:", err);
+  }
+}
+
+/* ================= SESSION ================= */
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+let sessions = {};
+
+function isSessionExpired(session) {
+  return Date.now() - session.lastActive > SESSION_TIMEOUT;
+}
+
+/* ================= AUTO CONNECT ================= */
+const CONNECT_KEYWORDS = [
+  "yes",
+  "connect",
+  "talk to human",
+  "human",
+  "agent",
+  "representative",
+  "whatsapp",
+  "contact",
+  "call me"
+];
+
+function shouldAutoConnect(message) {
+  if (!message) return false;
+  const text = message.toLowerCase().trim();
+  return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
+}
+
+/* ================= HANDLER ================= */
+export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).end();
+
+  const { sessionId = "default", type, value, message } = req.body;
+
+  if (!sessions[sessionId] || isSessionExpired(sessions[sessionId])) {
+    sessions[sessionId] = {
+      state: "MENU",
+      service: null,
+      subService: null,
+      goal: null,
+      lead: {},
+      connected: false,
+      intentScore: 0,
+      leadLevel: "COLD ❄️",
+      lastActive: Date.now(),
+    };
+  }
+
+  const session = sessions[sessionId];
+  session.lastActive = Date.now();
+
+  /* -------- SCORE -------- */
+  if (message) {
+    session.intentScore = scoreIntent(message, session);
+    session.leadLevel = getLeadLevel(session.intentScore);
+  }
+
+  /* ================= RESET ================= */
+  if (type === "reset") {
+    delete sessions[sessionId];
+    return res.json({ reply: "Chat reset. How can I help you?" });
+  }
+
+  /* ================= AUTO CONNECT VIA TEXT ================= */
+  if (
+    message &&
+    shouldAutoConnect(message) &&
+    session.state === "DONE" &&
+    !session.connected
+  ) {
+    session.connected = true;
+
+    const waMsg = `🔥 New Chat Request
+
+Name: ${session.lead.name}
+Email: ${session.lead.email}
+Service: ${session.service || "Not selected"}
+Sub-Service: ${session.subService || "Not selected"}
+
+Project:
+${session.lead.project}
+
+Intent Score: ${session.intentScore}
+Lead Level: ${session.leadLevel}
+Session ID: ${sessionId}`;
+
+    const whatsappUrl =
+      `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+
+    return res.json({
+      reply: "Connecting you to our team 💬",
+      whatsappUrl,
+      connected: true,
+    });
+  }
+
+  /* ================= SERVICE ================= */
+  if (type === "service") {
+    session.service = value;
+    return res.json({
+      reply: "Great 👍 Please select a sub-service.",
+    });
+  }
+
+  /* ================= SUB SERVICE ================= */
+  if (type === "subservice") {
+    session.subService = value;
+    session.state = "LEAD";
+    return res.json({
+      reply: "May I have your full name?",
+    });
+  }
+
+  /* ================= LEAD FLOW ================= */
+  if (session.state === "LEAD") {
+
+    if (!session.lead.name) {
+      if (!isValidName(message)) {
+        return res.json({ reply: "Please enter your full name." });
+      }
+      session.lead.name = message.trim();
+      return res.json({ reply: "What’s your email address?" });
+    }
+
+    if (!session.lead.email) {
+      if (!isValidEmail(message)) {
+        return res.json({ reply: "Please enter a valid email address." });
+      }
+      session.lead.email = message.trim();
+      return res.json({ reply: "Please describe your project." });
+    }
+
+    if (!session.lead.project) {
+      if (!isValidProject(message)) {
+        return res.json({ reply: "Please describe your project in more detail." });
+      }
+
+      session.lead.project = message.trim();
+      session.state = "DONE";
+
+      /* ===== SAVE LEAD (ALWAYS) ===== */
+      await saveToGoogleSheets({
+        name: session.lead.name,
+        email: session.lead.email,
+        service: session.service,
+        subService: session.subService,
+        goal: session.goal,
+        project: session.lead.project,
+        intentScore: session.intentScore,
+        leadLevel: session.leadLevel,
+        sessionId,
+        source: "chatbot"
+      });
+
+      return res.json({
+        reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+        showConnectTeam: true,
+      });
+    }
+  }
+
+  /* ================= CONNECT BUTTON ================= */
+  if (type === "connect") {
+    if (session.connected) {
+      return res.json({ reply: "You’re already connected 😊" });
+    }
+
+    session.connected = true;
+
+    const waMsg = `🔥 New Chat Request
+
+Name: ${session.lead.name}
+Email: ${session.lead.email}
+Service: ${session.service || "Not selected"}
+Sub-Service: ${session.subService || "Not selected"}
+
+Project:
+${session.lead.project}
+
+Intent Score: ${session.intentScore}
+Lead Level: ${session.leadLevel}
+Session ID: ${sessionId}`;
+
+    const whatsappUrl =
+      `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+
+    return res.json({
+      reply: "Connecting you to our team 💬",
+      whatsappUrl,
+      connected: true,
+    });
+  }
+
+  /* ================= FAQ ================= */
+  if (message) {
+    const faq = getFaqAnswer(message);
+    if (faq) return res.json({ reply: faq });
+  }
+
+  /* ================= AI FALLBACK ================= */
+  const ai = await client.responses.create({
+    model: "gpt-4.1-mini",
+    input: [
+      { role: "system", content: "You are GemBot 🤖, a professional AI sales assistant." },
+      { role: "user", content: message },
+    ],
+  });
+
+  return res.json({ reply: ai.output_text || "Can you clarify that?" });
+}
+
