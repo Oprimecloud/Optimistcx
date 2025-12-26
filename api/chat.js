@@ -342,12 +342,55 @@ export default async function handler(req, res) {
   }
 
   /* ================= CONNECT ================= */
-  if (type === "connect") {
-    if (session.connected) return res.json({ reply: "You’re already connected 😊" });
+//   if (type === "connect") {
+//     if (session.connected) return res.json({ reply: "You’re already connected 😊" });
 
-    session.connected = true;
+//     session.connected = true;
 
-    await saveToGoogleSheets({
+//     await saveToGoogleSheets({
+//     name: session.lead.name,
+//     email: session.lead.email,
+//     service: session.service,
+//     subService: session.subService,
+//     project: session.lead.project,
+//     intentScore: session.intentScore,
+//     leadLevel: session.leadLevel,
+//     sessionId
+//   });
+
+
+//     const waMsg = `🔥 New Chat Request
+
+// Name: ${session.lead.name}
+// Email: ${session.lead.email}
+// Service: ${session.service}
+// subservice: ${session.subService}
+
+// Project:
+// ${session.lead.project}
+
+// Intent Score: ${session.intentScore}
+// Lead Level: ${session.leadLevel}
+// Session ID: ${sessionId}`;
+
+//     const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+
+//     return res.json({
+//       reply: "Connecting you to our team 💬",
+//       whatsappUrl,
+//       connected: true,
+//     });
+//   }
+/* ================= AUTO CONNECT VIA TEXT ================= */
+if (
+  message &&
+  shouldAutoConnect(message) &&
+  session.state === "DONE" &&
+  !session.connected
+) {
+  session.connected = true;
+
+  await saveToGoogleSheets({
     name: session.lead.name,
     email: session.lead.email,
     service: session.service,
@@ -358,13 +401,12 @@ export default async function handler(req, res) {
     sessionId
   });
 
-
-    const waMsg = `🔥 New Chat Request
+  const waMsg = `🔥 New Chat Request
 
 Name: ${session.lead.name}
 Email: ${session.lead.email}
-Service: ${session.service}
-subservice: ${session.subService}
+Service: ${session.service || "Not selected"}
+Sub-Service: ${session.subService || "Not selected"}
 
 Project:
 ${session.lead.project}
@@ -373,14 +415,14 @@ Intent Score: ${session.intentScore}
 Lead Level: ${session.leadLevel}
 Session ID: ${sessionId}`;
 
-    const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+  const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
-    return res.json({
-      reply: "Connecting you to our team 💬",
-      whatsappUrl,
-      connected: true,
-    });
-  }
+  return res.json({
+    reply: "Connecting you to our team 💬",
+    whatsappUrl,
+    connected: true,
+  });
+}
 const CONNECT_KEYWORDS = [
   "yes",
   "connect",
