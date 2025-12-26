@@ -944,45 +944,18 @@ function selectSubService(sub) {
 }
 
   /* ---------------- TEXT INPUT ---------------- */
-    sendBtn.onclick = async () => {
-  const msg = input.value.trim();
-  if (!msg) return;
+  sendBtn.addEventListener("click", () => {
+    const msg = input.value.trim();
+    if (!msg) return;
+    appendUserMessage(msg);
+    input.value = "";
+    sendPayload({ message: msg });
+  });
 
-  appendUserMessage(msg);
-  input.value = "";
-  hideAllMenus();
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendBtn.click();
+  });
 
-  // 🟢 USER TYPED CONNECT / WHATSAPP
-  if (shouldRedirectToWhatsApp(msg)) {
-    appendBotMessage("Connecting you to our team on WhatsApp 💬");
-    showTyping();
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "connect", sessionId }),
-      });
-
-      const data = await res.json();
-      hideTyping();
-
-      if (data.whatsappUrl) {
-        window.open(data.whatsappUrl, "_blank");
-      } else {
-        appendBotMessage("Unable to open WhatsApp. Please try again.");
-      }
-    } catch (err) {
-      hideTyping();
-      appendBotMessage("Connection failed. Please try again.");
-    }
-
-    return;
-  }
-
-  // 🟢 NORMAL CHAT FLOW
-  sendPayload({ message: msg });
-};
 });
 </script>
     <!-- Footer -->
