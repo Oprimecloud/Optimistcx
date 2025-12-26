@@ -267,15 +267,24 @@ export default async function handler(req, res) {
   }
 
   /* ================= SERVICE ================= */
-  if (type === "service") {
-    session.service = value;
-    session.state = "GOAL";
+    if (type === "service") {
+      session.service = value;
+      session.state = "GOAL";
+      return res.json({
+        reply: "Nice 👍 What is your main goal?",
+        showGoals: true,
+        delayMs: 600,
+      });
+    }
+
+    if (type === "subservice") {
+    session.subService = value;
     return res.json({
-      reply: "Nice 👍 What is your main goal?",
-      showGoals: true,
-      delayMs: 600,
+      reply: "Great 👍 What is your main goal?",
+      showGoals: true
     });
   }
+
 
   /* ================= GOAL ================= */
   if (type === "goal") {
@@ -339,22 +348,24 @@ export default async function handler(req, res) {
     session.connected = true;
 
     await saveToGoogleSheets({
-      timestamp: new Date().toISOString(),
-      name: session.lead.name,
-      email: session.lead.email,
-      service: session.service,
-      goal: session.goal,
-      project: session.lead.project,
-      intentScore: session.intentScore,
-      leadLevel: session.leadLevel,
-      sessionId,
-    });
+    name: session.lead.name,
+    email: session.lead.email,
+    service: session.service,
+    subService: session.subService,
+    goal: session.goal,
+    project: session.lead.project,
+    intentScore: session.intentScore,
+    leadLevel: session.leadLevel,
+    sessionId
+  });
+
 
     const waMsg = `🔥 New Chat Request
 
 Name: ${session.lead.name}
 Email: ${session.lead.email}
 Service: ${session.service}
+Sub-Service: ${session.subService}
 Goal: ${session.goal}
 
 Project:
