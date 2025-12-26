@@ -288,7 +288,7 @@ export default async function handler(req, res) {
 
   /* ================= GOAL ================= */
   if (type === "goal") {
-    session.goal = value;
+    session.subService = value;
     session.state = "LEAD";
     return res.json({
       reply: "May I have your full name?",
