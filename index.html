@@ -850,6 +850,12 @@ Please tell me more.`;
       hideTyping();
 
       if (data.reply) appendBotMessage(data.reply);
+      /* ===== AUTO REDIRECT TO WHATSAPP ===== */
+                if (data.whatsappUrl) {
+        setTimeout(() => {
+            window.open(data.whatsappUrl, "_blank");
+        }, 300);
+}
 
       if (data.showGoals) goalMenu.style.display = "grid";
       else goalMenu.style.display = "none";
