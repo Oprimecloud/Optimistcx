@@ -244,16 +244,47 @@ Session ID: ${sessionId}`;
       if (faq) return res.json({ reply: faq });
     }
 
-    /* AI */
+   /* ================= AI FALLBACK ================= */
+if (
+  shouldUseAI(message, session) &&
+  !["MENU", "GOAL"].includes(session.state)
+) {
+  try {
     const ai = await client.responses.create({
       model: "gpt-4.1-mini",
-      input: [{ role: "user", content: message }],
+      input: message,
     });
 
-    return res.json({ reply: ai.output_text });
+    return res.json({
+      reply: ai.output_text || "Can you clarify that?"
+    });
 
   } catch (err) {
-    console.error("SERVER ERROR:", err);
-    return res.json({ reply: "Oops! Something went wrong 😢" });
+    console.error("AI ERROR:", err);
+    return res.json({
+      reply: "I’m here to help 😊 Please choose an option below."
+    });
   }
+}
+    return res.json({ reply: "I’m here to help 😊 Please choose an option below." });
+  } catch (err) {
+    console.error("HANDLER ERROR:", err);
+    res.status(500).json({ reply: "Server error. Please try again later." });
+  }
+}
+function shouldUseAI(message, session) {
+  if (!message) return false;
+  const lower = message.toLowerCase();
+
+  const aiTriggers = [
+    "explain","how to","what is","why","help me with",
+    "can you","could you","would you","tell me about",
+    "give me","suggest","recommend"
+  ];
+
+  return aiTriggers.some(trigger => lower.includes(trigger));
+}
+/* ===== IGNORE AI FOR BUTTON CLICKS ===== */
+if (type && type !== "message") {
+  return res.status(200).end();
 }
