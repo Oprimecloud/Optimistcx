@@ -242,7 +242,7 @@ export default async function handler(req, res) {
     sessions[sessionId] = {
       state: "MENU",
       service: null,
-      goal: null,
+      subService: null,
       lead: {},
       connected: false,
       intentScore: 0,
@@ -352,7 +352,6 @@ export default async function handler(req, res) {
     email: session.lead.email,
     service: session.service,
     subService: session.subService,
-    goal: session.goal,
     project: session.lead.project,
     intentScore: session.intentScore,
     leadLevel: session.leadLevel,
@@ -365,8 +364,7 @@ export default async function handler(req, res) {
 Name: ${session.lead.name}
 Email: ${session.lead.email}
 Service: ${session.service}
-Sub-Service: ${session.subService}
-Goal: ${session.goal}
+subservice: ${session.subService}
 
 Project:
 ${session.lead.project}
