@@ -1,6 +1,4 @@
 import OpenAI from "openai";
-import fetch from "node-fetch";
-
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -245,28 +243,25 @@ Session: ${sessionId}`;
       if (faq) return res.json({ reply: faq });
     }
 
-   /* ================= AI FALLBACK ================= */
-if (shouldUseAI(message, session) && session.state === "DONE") {
+/* ================= AI FALLBACK ================= */
+if (shouldUseAI(message, session)) {
   try {
-    const ai = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: message,
+    const ai = await client.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: message }],
     });
 
     return res.json({
-      reply: ai.output_text || "Can you clarify that?"
+      reply: ai.choices[0]?.message?.content || "Can you clarify that?"
     });
+
   } catch (err) {
     console.error("AI ERROR:", err);
     return res.json({
-      reply: "I’m here to help 😊 Would you like to connect with our team?"
+      reply: "I’m here to help 😊 Please choose an option below."
     });
   }
 }
-    return res.json({
-      reply: "I’m here to help 😊 Please choose an option above."
-    });
-
   } catch (err) {
     console.error("HANDLER ERROR:", err);
     return res.status(500).json({
