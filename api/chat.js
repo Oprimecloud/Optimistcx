@@ -251,7 +251,7 @@ if (
 ) {
   try {
     const ai = await client.responses.create({
-      model: "gpt-5.1",
+      model: "gpt-4.1-mini",
       input: message,
     });
 
@@ -269,20 +269,16 @@ if (
     return res.json({ reply: "I’m here to help 😊 Please choose an option below." });
   } catch (err) {
     console.error("HANDLER ERROR:", err);
-    res.status(500).json({ reply: "Server error. Please try again later." });
+    return res.status(500).json({ reply: "Server error. Please try again later." });
   }
 }
 function shouldUseAI(message, session) {
   if (!message) return false;
-  const lower = message.toLowerCase();
-
-  const aiTriggers = [
-    "explain","how to","what is","why","help me with",
-    "can you","could you","would you","tell me about",
-    "give me","suggest","recommend"
-  ];
-
-  return aiTriggers.some(trigger => lower.includes(trigger));
+  const type = typeof message;
+  if (type !== "string") return false;
+  if (message.length > 500) return false;
+  if (session.intentScore < 30) return false;
+  return true;
 }
 /* ===== IGNORE AI FOR BUTTON CLICKS ===== */
 if (type && type !== "message") {
