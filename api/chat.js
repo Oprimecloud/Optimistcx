@@ -382,65 +382,65 @@ Session ID: ${sessionId}`;
     });
   }
 /* ================= AUTO CONNECT VIA TEXT ================= */
-// if (
-//   message &&
-//   shouldAutoConnect(message) &&
-//   session.state === "DONE" &&
-//   !session.connected
-// ) {
-//   session.connected = true;
+if (
+  message &&
+  shouldAutoConnect(message) &&
+  session.state === "DONE" &&
+  !session.connected
+) {
+  session.connected = true;
 
-//   await saveToGoogleSheets({
-//     name: session.lead.name,
-//     email: session.lead.email,
-//     service: session.service,
-//     subService: session.subService,
-//     project: session.lead.project,
-//     intentScore: session.intentScore,
-//     leadLevel: session.leadLevel,
-//     sessionId
-//   });
+  await saveToGoogleSheets({
+    name: session.lead.name,
+    email: session.lead.email,
+    service: session.service,
+    subService: session.subService,
+    project: session.lead.project,
+    intentScore: session.intentScore,
+    leadLevel: session.leadLevel,
+    sessionId
+  });
 
-//   const waMsg = `🔥 New Chat Request
+  const waMsg = `🔥 New Chat Request
 
-// Name: ${session.lead.name}
-// Email: ${session.lead.email}
-// Service: ${session.service || "Not selected"}
-// Sub-Service: ${session.subService || "Not selected"}
+Name: ${session.lead.name}
+Email: ${session.lead.email}
+Service: ${session.service || "Not selected"}
+Sub-Service: ${session.subService || "Not selected"}
 
-// Project:
-// ${session.lead.project}
+Project:
+${session.lead.project}
 
-// Intent Score: ${session.intentScore}
-// Lead Level: ${session.leadLevel}
-// Session ID: ${sessionId}`;
+Intent Score: ${session.intentScore}
+Lead Level: ${session.leadLevel}
+Session ID: ${sessionId}`;
 
-//   const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+  const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
-//   return res.json({
-//     reply: "Connecting you to our team 💬",
-//     whatsappUrl,
-//     connected: true,
-//   });
-// }
-// const CONNECT_KEYWORDS = [
-//   "yes",
-//   "connect",
-//   "talk to human",
-//   "human",
-//   "agent",
-//   "representative",
-//   "whatsapp",
-//   "contact",
-//   "call me",
-//   "reach you"
-// ];
+  return res.json({
+    reply: "Connecting you to our team 💬",
+    whatsappUrl,
+    connected: true,
+  });
+}
+const CONNECT_KEYWORDS = [
+  "yes",
+  "connect",
+  "talk to human",
+  "human",
+  "agent",
+  "representative",
+  "whatsapp",
+  "contact",
+  "call me",
+  "reach you"
+];
 
-// function shouldAutoConnect(message) {
-//   if (!message) return false;
-//   const text = message.toLowerCase().trim();
-//   return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
-// }
+function shouldAutoConnect(message) {
+  if (!message) return false;
+  const text = message.toLowerCase().trim();
+  return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
+}
 
   /* ================= FAQ FIRST ================= */
   if (message) {
