@@ -313,7 +313,7 @@ Name: ${session.lead?.name || "Not provided"}
 Email: ${session.lead?.email || "Not provided"}
 Service: ${session.service || "Not selected"}
 Sub-Service: ${session.subService || "Not selected"}
-Goal: ${session.goal || "Not specified"}
+
 
 Project:
 ${session.lead?.project || "Not provided"}
@@ -398,54 +398,59 @@ Session ID: ${sessionId}`;
       session.lead.project = message.trim();
       session.state = "DONE";
 
-      return res.json({
-        reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
-        showConnectTeam: true,
-        delayMs: 500,
+      /* ===== SAVE LEAD IMMEDIATELY ===== */
+      await saveToGoogleSheets({
+        name: session.lead.name,
+        email: session.lead.email,
+        service: session.service,
+        subService: session.subService,
+        project: session.lead.project,
+        intentScore: session.intentScore,
+        leadLevel: session.leadLevel,
+        sessionId,
+        source: "chatbot"
       });
-    }
-  }
 
-  /* ================= CONNECT ================= */
-  if (type === "connect") {
-    if (session.connected) return res.json({ reply: "You’re already connected 😊" });
+return res.json({
+  reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+  showConnectTeam: true,
+  delayMs: 300,
+});
+ } 
 
-    session.connected = true;
+ /* ================= CONNECT ================= */
+        if (type === "connect") {
+          if (session.connected) {
+            return res.json({ reply: "You’re already connected 😊" });
+          }
 
-    await saveToGoogleSheets({
-    name: session.lead.name,
-    email: session.lead.email,
-    service: session.service,
-    subService: session.subService,
-    project: session.lead.project,
-    intentScore: session.intentScore,
-    leadLevel: session.leadLevel,
-    sessionId
-  });
+          session.connected = true;
+
+          // WhatsApp message ONLY (no saving here)
+          const waMsg = `🔥 New Chat Request
+
+        Name: ${session.lead.name}
+        Email: ${session.lead.email}
+        Service: ${session.service || "Not selected"}
+        Sub-Service: ${session.subService || "Not selected"}
 
 
-    const waMsg = `🔥 New Chat Request
+        Project:
+        ${session.lead.project}
 
-Name: ${session.lead.name}
-Email: ${session.lead.email}
-Service: ${session.service}
-subservice: ${session.subService}
+        Intent Score: ${session.intentScore}
+        Lead Level: ${session.leadLevel}
+        Session ID: ${sessionId}`;
 
-Project:
-${session.lead.project}
+          const whatsappUrl =
+            `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
-Intent Score: ${session.intentScore}
-Lead Level: ${session.leadLevel}
-Session ID: ${sessionId}`;
-
-    const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
-
-    return res.json({
-      reply: "Connecting you to our team 💬",
-      whatsappUrl,
-      connected: true,
-    });
-  }
+          return res.json({
+            reply: "Connecting you to our team 💬",
+            whatsappUrl,
+            connected: true,
+          });
+        } 
 
   /* ================= FAQ FIRST ================= */
   if (message) {
@@ -468,4 +473,4 @@ Session ID: ${sessionId}`;
 
   return res.status(400).json({ error: "Invalid request" });
 }
-
+ }/* ===== AUTO REDIRECT TO WHATSAPP ===== */
