@@ -97,34 +97,36 @@ async function saveToGoogleSheets(data) {
     console.error("Sheets error:", err);
   }
 }
+/* ================= SETUP ================= */
 
-/* ================= SESSION ================= */
-const SESSION_TIMEOUT = 30 * 60 * 1000;
-let sessions = {};
+const sessions = {};
+const SESSION_TIMEOUT = 1000 * 60 * 30; // 30 mins
 
 function isSessionExpired(session) {
   return Date.now() - session.lastActive > SESSION_TIMEOUT;
 }
 
-/* ================= AUTO CONNECT ================= */
-const CONNECT_KEYWORDS = [
-  "yes","connect","talk to human","human","agent",
-  "representative","whatsapp","contact","call me"
-];
+/* 🔥 FIX: DEFINE shouldUseAI */
+function shouldUseAI(session) {
+  // You can improve this later
+  return false; // for now, menu-based flow only
+}
 
-function shouldAutoConnect(message) {
-  if (!message) return false;
-  const text = message.toLowerCase().trim();
-  return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
+/* 🔥 LEAD STORAGE (EXCEL / GOOGLE SHEET / DB HOOK) */
+async function saveLeadToExcel(lead) {
+  console.log("LEAD SAVED:", lead);
+  // 👉 plug Google Sheets / Excel / DB here later
 }
 
 /* ================= HANDLER ================= */
-export default async function handler(req, res) {
-  console.log("CHAT API HIT", req.body); // ✅ ADD HERE
 
+export default async function handler(req, res) {
   try {
-    
-    if (req.method !== "POST") return res.status(405).end();
+    console.log("CHAT API HIT", req.body);
+
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
     const { sessionId = "default", type, value, message } = req.body;
 
@@ -144,130 +146,274 @@ export default async function handler(req, res) {
     const session = sessions[sessionId];
     session.lastActive = Date.now();
 
-    if (message) {
-      session.intentScore = scoreIntent(message, session);
-      session.leadLevel = getLeadLevel(session.intentScore);
+    /* ================= AI GUARD (NO CRASH) ================= */
+
+    if (shouldUseAI(session)) {
+      return res.json({
+        reply: "AI mode coming soon 👀",
+      });
     }
 
-    /* RESET */
-    if (type === "reset") {
-      delete sessions[sessionId];
-      return res.json({ reply: "Chat reset. How can I help you?" });
+    /* ================= FLOW ================= */
+
+    // MAIN MENU
+    if (session.state === "MENU") {
+      session.service = value || message;
+      session.state = "SUB_MENU";
+
+      return res.json({
+        reply: "Please select a sub-service.",
+      });
     }
 
-    /* AUTO CONNECT — ONLY AFTER LEAD DONE */
-if (
-  message &&
-  shouldAutoConnect(message) &&
-  session.state === "DONE" &&
-  !session.connected
-) {
-  session.connected = true;
+    // SUB MENU
+    if (session.state === "SUB_MENU") {
+      session.subService = value || message;
+      session.state = "ASK_NAME";
 
-  const waMsg = `🔥 New Lead
-
-Name: ${session.lead.name}
-Email: ${session.lead.email}
-Service: ${session.service}
-Sub-Service: ${session.subService}
-
-Project:
-${session.lead.project}
-
-Intent: ${session.intentScore}
-Lead: ${session.leadLevel}
-Session: ${sessionId}`;
-
-  return res.json({
-    reply: "Great! Connecting you with our team now 💬",
-    whatsappUrl: `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`
-  });
-}
-
-
-    /* SERVICE */
-    if (type === "service") {
-      session.service = value;
-      return res.json({ reply: "Please select a sub-service." });
+      return res.json({
+        reply: "May I have your full name?",
+      });
     }
 
-    /* SUBSERVICE */
-    if (type === "subservice") {
-      session.subService = value;
-      session.state = "LEAD";
-      return res.json({ reply: "May I have your full name?" });
+    // NAME
+    if (session.state === "ASK_NAME") {
+      session.lead.name = message;
+      session.state = "ASK_EMAIL";
+
+      await saveLeadToExcel(session.lead); // ✅ SAVE EARLY
+
+      return res.json({
+        reply: "What’s your email address?",
+      });
     }
 
-    /* LEAD FLOW */
-    if (session.state === "LEAD") {
-      if (!session.lead.name) {
-        if (!isValidName(message))
-          return res.json({ reply: "Please enter your full name." });
-        session.lead.name = message.trim();
-        return res.json({ reply: "What’s your email address?" });
-      }
+    // EMAIL
+    if (session.state === "ASK_EMAIL") {
+      session.lead.email = message;
+      session.state = "ASK_PROJECT";
 
-      if (!session.lead.email) {
-        if (!isValidEmail(message))
-          return res.json({ reply: "Enter a valid email." });
-        session.lead.email = message.trim();
-        return res.json({ reply: "Please describe your project." });
-      }
+      await saveLeadToExcel(session.lead); // ✅ SAVE AGAIN
 
-      if (!session.lead.project) {
-        if (!isValidProject(message))
-          return res.json({ reply: "Please describe your project clearly." });
-
-        session.lead.project = message.trim();
-        session.state = "DONE";
-
-        await saveToGoogleSheets({
-          name: session.lead.name,
-          email: session.lead.email,
-          service: session.service,
-          subService: session.subService,
-          project: session.lead.project,
-          intentScore: session.intentScore,
-          leadLevel: session.leadLevel,
-          sessionId,
-        });
-
-        return res.json({
-          reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
-          showConnectTeam: true,
-        });
-      }
+      return res.json({
+        reply: "Please describe your project.",
+      });
     }
 
-    /* FAQ */
-    if (message) {
-      const faq = getFaqAnswer(message);
-      if (faq) return res.json({ reply: faq });
+    // PROJECT
+    if (session.state === "ASK_PROJECT") {
+      session.lead.project = message;
+      session.state = "CONNECT";
+
+      await saveLeadToExcel(session.lead); // ✅ SAVE AGAIN
+
+      return res.json({
+        reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+        options: ["Yes, connect me", "Not now"],
+      });
     }
 
-/* ================= AI FALLBACK ================= */
-if (shouldUseAI(message, session)) {
-  try {
-    const ai = await client.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: message }],
-    });
+    // CONNECT
+    if (session.state === "CONNECT") {
+      session.connected = value === "Yes, connect me";
+
+      await saveLeadToExcel({
+        ...session.lead,
+        connected: session.connected,
+        service: session.service,
+        subService: session.subService,
+      });
+
+      session.state = "DONE";
+
+      return res.json({
+        reply: session.connected
+          ? "Great! Our team will contact you shortly 🚀"
+          : "No problem! We’ll still keep your details 😊",
+      });
+    }
 
     return res.json({
-      reply: ai.choices[0]?.message?.content || "Can you clarify that?"
+      reply: "I’m not sure how to proceed. Let’s start again.",
     });
-
-  } catch (err) {
-    console.error("AI ERROR:", err);
-    return res.json({
-      reply: "I’m here to help 😊 Please choose an option below."
-    });
-  }
-}
-  } catch (err) {
-    console.error("HANDLER ERROR:", err);
+  } catch (error) {
+    console.error("HANDLER ERROR:", error);
     return res.status(500).json({
-      reply: "Server error. Please try again later."
+      reply: "Oops! Something went wrong.",
     });
   }
 }
+
+// /* ================= SESSION ================= */
+// const SESSION_TIMEOUT = 30 * 60 * 1000;
+// let sessions = {};
+
+// function isSessionExpired(session) {
+//   return Date.now() - session.lastActive > SESSION_TIMEOUT;
+// }
+
+// /* ================= AUTO CONNECT ================= */
+// const CONNECT_KEYWORDS = [
+//   "yes","connect","talk to human","human","agent",
+//   "representative","whatsapp","contact","call me"
+// ];
+
+// function shouldAutoConnect(message) {
+//   if (!message) return false;
+//   const text = message.toLowerCase().trim();
+//   return CONNECT_KEYWORDS.some(k => text === k || text.includes(k));
+// }
+
+// /* ================= HANDLER ================= */
+// export default async function handler(req, res) {
+//   console.log("CHAT API HIT", req.body); // ✅ ADD HERE
+
+//   try {
+    
+//     if (req.method !== "POST") return res.status(405).end();
+
+//     const { sessionId = "default", type, value, message } = req.body;
+
+//     if (!sessions[sessionId] || isSessionExpired(sessions[sessionId])) {
+//       sessions[sessionId] = {
+//         state: "MENU",
+//         service: null,
+//         subService: null,
+//         lead: {},
+//         connected: false,
+//         intentScore: 0,
+//         leadLevel: "COLD ❄️",
+//         lastActive: Date.now(),
+//       };
+//     }
+
+//     const session = sessions[sessionId];
+//     session.lastActive = Date.now();
+
+//     if (message) {
+//       session.intentScore = scoreIntent(message, session);
+//       session.leadLevel = getLeadLevel(session.intentScore);
+//     }
+
+//     /* RESET */
+//     if (type === "reset") {
+//       delete sessions[sessionId];
+//       return res.json({ reply: "Chat reset. How can I help you?" });
+//     }
+
+//     /* AUTO CONNECT — ONLY AFTER LEAD DONE */
+// if (
+//   message &&
+//   shouldAutoConnect(message) &&
+//   session.state === "DONE" &&
+//   !session.connected
+// ) {
+//   session.connected = true;
+
+//   const waMsg = `🔥 New Lead
+
+// Name: ${session.lead.name}
+// Email: ${session.lead.email}
+// Service: ${session.service}
+// Sub-Service: ${session.subService}
+
+// Project:
+// ${session.lead.project}
+
+// Intent: ${session.intentScore}
+// Lead: ${session.leadLevel}
+// Session: ${sessionId}`;
+
+//   return res.json({
+//     reply: "Great! Connecting you with our team now 💬",
+//     whatsappUrl: `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`
+//   });
+// }
+
+
+//     /* SERVICE */
+//     if (type === "service") {
+//       session.service = value;
+//       return res.json({ reply: "Please select a sub-service." });
+//     }
+
+//     /* SUBSERVICE */
+//     if (type === "subservice") {
+//       session.subService = value;
+//       session.state = "LEAD";
+//       return res.json({ reply: "May I have your full name?" });
+//     }
+
+//     /* LEAD FLOW */
+//     if (session.state === "LEAD") {
+//       if (!session.lead.name) {
+//         if (!isValidName(message))
+//           return res.json({ reply: "Please enter your full name." });
+//         session.lead.name = message.trim();
+//         return res.json({ reply: "What’s your email address?" });
+//       }
+
+//       if (!session.lead.email) {
+//         if (!isValidEmail(message))
+//           return res.json({ reply: "Enter a valid email." });
+//         session.lead.email = message.trim();
+//         return res.json({ reply: "Please describe your project." });
+//       }
+
+//       if (!session.lead.project) {
+//         if (!isValidProject(message))
+//           return res.json({ reply: "Please describe your project clearly." });
+
+//         session.lead.project = message.trim();
+//         session.state = "DONE";
+
+//         await saveToGoogleSheets({
+//           name: session.lead.name,
+//           email: session.lead.email,
+//           service: session.service,
+//           subService: session.subService,
+//           project: session.lead.project,
+//           intentScore: session.intentScore,
+//           leadLevel: session.leadLevel,
+//           sessionId,
+//         });
+
+//         return res.json({
+//           reply: `Thanks ${session.lead.name}! Would you like me to connect you with our team?`,
+//           showConnectTeam: true,
+//         });
+//       }
+//     }
+
+//     /* FAQ */
+//     if (message) {
+//       const faq = getFaqAnswer(message);
+//       if (faq) return res.json({ reply: faq });
+//     }
+
+// /* ================= AI FALLBACK ================= */
+// if (shouldUseAI(message, session)) {
+//   try {
+//     const ai = await client.chat.completions.create({
+//       model: "gpt-3.5-turbo",
+//       messages: [{ role: "user", content: message }],
+//     });
+
+//     return res.json({
+//       reply: ai.choices[0]?.message?.content || "Can you clarify that?"
+//     });
+
+//   } catch (err) {
+//     console.error("AI ERROR:", err);
+//     return res.json({
+//       reply: "I’m here to help 😊 Please choose an option below."
+//     });
+//   }
+// }
+//   } catch (err) {
+//     console.error("HANDLER ERROR:", err);
+//     return res.status(500).json({
+//       reply: "Server error. Please try again later."
+//     });
+//   }
+// }
