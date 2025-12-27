@@ -385,14 +385,33 @@ const SERVICES = {
 // MENU RENDERING
 // ================================
 
+// function renderMenu() {
+//   const menu = document.getElementById("menu");
+
+//   // 🔄 Reset menu state
+//   menu.style.display = "flex";
+//   menu.className = "";
+
+//   // 🧭 Progress hint
+//   menu.innerHTML = `<strong>Select a service</strong>`;
+
+//   Object.keys(SERVICES).forEach(service => {
+//     const btn = document.createElement("button");
+//     btn.textContent = service;
+//     btn.onclick = () => selectService(service);
+//     menu.appendChild(btn);
+//   });
+// }
+
+// renderMenu();
+
 function renderMenu() {
+  if (state.leadCaptured) return; // 🚫 STOP menu forever after lead
+
   const menu = document.getElementById("menu");
 
-  // 🔄 Reset menu state
   menu.style.display = "flex";
   menu.className = "";
-
-  // 🧭 Progress hint
   menu.innerHTML = `<strong>Select a service</strong>`;
 
   Object.keys(SERVICES).forEach(service => {
@@ -403,7 +422,6 @@ function renderMenu() {
   });
 }
 
-renderMenu();
 
 // ================================
 // SERVICE SELECTION
@@ -751,6 +769,19 @@ function returnToBot() {
   addBotMessage("No problem 😊 I’m back. How can I help?");
 }
 
+// ================================
+// UX COPY (OPTIONAL BUT NICE)
+// ================================
+
+// const UX_COPY = {
+//   resetConfirm: "This will restart the conversation. Are you sure?",
+//   resetSuccess: "🧹 Chat reset successfully. Let’s start fresh!",
+//   humanMode: "You’re now chatting with a human agent.",
+//   botMode: "🤖 You’re back with the assistant. How can I help?",
+//   connectingHuman: "Connecting you with our team 👇",
+//   backToBot: "← Continue chatting with bot"
+// };
+
 
 // ================================
 // RESUME CHAT STATE ON LOAD
@@ -773,10 +804,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ================================
 //widget
+// ================================
+// WIDGET + RESET BINDING
+// ================================
+
 document.addEventListener("DOMContentLoaded", () => {
   const launcher = document.getElementById("chatbot-launcher");
   const widget = document.getElementById("chatbot-widget");
   const closeChat = document.getElementById("close-chat");
+  const resetBtn = document.getElementById("reset-chat");
 
   if (!launcher || !widget || !closeChat) {
     console.error("Chatbot elements not found");
@@ -787,7 +823,49 @@ document.addEventListener("DOMContentLoaded", () => {
     widget.classList.remove("hidden");
   });
 
+  // 🧠 STEP 4 — PROTECT ON CHAT REOPEN
+  if (state.leadCaptured) {
+    // Hide menu forever once lead is captured
+    const menu = document.getElementById("menu");
+    if (menu) menu.style.display = "none";
+
+    // Restore correct chat mode
+    if (state.postLeadChoice === "human") {
+      disableChat();
+      showWhatsappButton();
+      showBackToBotButton();
+    } else {
+      enableChat();
+    }
+  }
+});
+
   closeChat.addEventListener("click", () => {
     widget.classList.add("hidden");
   });
-});
+
+  // 🗑️ Reset chat safely
+  // if (resetBtn) {
+  //   resetBtn.addEventListener("click", resetChatbot);
+  // }
+
+
+// //ADD RESET FUNCTION
+// function resetChatbot() {
+//   // 1️⃣ Clear storage
+//   localStorage.removeItem("chatbotState");
+
+//   // 2️⃣ Reset UI
+//   document.getElementById("chat-window").innerHTML = "";
+//   document.getElementById("menu").style.display = "flex";
+
+//   removeHumanUI();
+//   showBotUI();
+//   enableChat();
+
+//   // 3️⃣ Reset in-memory state
+//   Object.keys(state).forEach(key => delete state[key]);
+
+//   // 4️⃣ Reload page logic (safe re-init)
+//   window.location.reload();
+// }
