@@ -496,7 +496,7 @@ function calculateIntentScore(text) {
   });
 }
 
-const humanKeywords = ["human", "agent", "connect", "representative", "support"];
+const humanKeywords = ["human", "agent", "connect", "representative", "support", "now"];
 
 // ================================
 // INPUT HANDLING

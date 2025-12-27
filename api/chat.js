@@ -6,13 +6,121 @@ const openai = new OpenAI({
 
 /* ================= FAQ ================= */
 const FAQS = [
-  { keywords: ["price", "cost", "pricing"], answer: "Our pricing depends on your project scope. I can connect you with our team 💬" },
-  { keywords: ["timeline", "delivery", "how long"], answer: "Most projects take 2–4 weeks depending on complexity." },
-  { keywords: ["services", "what do you do"], answer: "We provide coding, design, content marketing, branding, SEO, social media management, ads, and AI assistance." },
-  { keywords: ["location", "where are you", "based"], answer: "We work with clients worldwide 🌍" },
-  { keywords: ["payment", "pay", "installment"], answer: "We offer flexible payment options depending on the project." },
-  { keywords: ["contacts", "humans", "reach"], answer: "I can connect you with our team 💬 type (yes) to get connected" }
+  // Pricing & Payment
+  {
+    keywords: ["price", "cost", "pricing"],
+    answer: "Our pricing depends on your project scope and requirements. I can connect you with our team to get an exact quote 💬"
+  },
+  {
+    keywords: ["payment", "pay", "installment"],
+    answer: "We offer flexible payment options depending on the project size and timeline."
+  },
+
+  // Timeline
+  {
+    keywords: ["timeline", "delivery", "how long"],
+    answer: "Most projects are completed within 2–4 weeks, depending on complexity and requirements."
+  },
+
+  // Services Overview
+  {
+    keywords: ["services", "what do you do"],
+    answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads, and AI-powered solutions."
+  },
+
+  // Location
+  {
+    keywords: ["location", "where are you", "based"],
+    answer: "Gemini Studio is a fully virtual agency working with clients worldwide 🌍"
+  },
+
+  // Leadership & Company
+  {
+    keywords: ["ceo", "who is the ceo"],
+    answer: "Gemini Studio is a virtual agency led collaboratively by experienced developers, designers, and marketing professionals."
+  },
+  {
+    keywords: ["founder", "who founded", "owner"],
+    answer: "Gemini Studio was built and is managed by a collective team of industry experts rather than a single founder."
+  },
+  {
+    keywords: ["leadership", "management", "who runs"],
+    answer: "Our leadership consists of specialists across technology, design, marketing, and AI."
+  },
+  {
+    keywords: ["company", "about", "who are you"],
+    answer: "Gemini Studio is a digital agency delivering modern technology and marketing solutions for growing businesses."
+  },
+
+  // Team & Experience
+  {
+    keywords: ["teams", "staff", "developers"],
+    answer: "Our team includes skilled developers, designers, marketers, content creators, and AI specialists."
+  },
+  {
+    keywords: ["experience", "how experienced"],
+    answer: "Our professionals bring years of hands-on experience across multiple digital industries."
+  },
+  {
+    keywords: ["virtual", "remote", "online agency"],
+    answer: "Yes, we operate as a fully remote agency, allowing us to serve clients globally with flexibility."
+  },
+
+  // Specific Services
+  {
+    keywords: ["website", "web development", "coding"],
+    answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
+  },
+  {
+    keywords: ["branding", "logo", "identity"],
+    answer: "We create strong brand identities including logos, visual systems, and brand guidelines."
+  },
+  {
+    keywords: ["seo", "search engine"],
+    answer: "Our SEO services help improve visibility, search rankings, and organic traffic."
+  },
+  {
+    keywords: ["social media", "management", "content"],
+    answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
+  },
+  {
+    keywords: ["ai", "automation", "assistant"],
+    answer: "We provide AI-powered tools and automation to enhance efficiency and customer experience."
+  },
+
+  // Process & Trust
+  {
+    keywords: ["process", "how it works"],
+    answer: "Our process includes consultation, planning, execution, and delivery with clear communication at every stage."
+  },
+  {
+    keywords: ["revision", "changes"],
+    answer: "Yes, revisions are included to ensure the final result meets your expectations."
+  },
+  {
+    keywords: ["help", "maintenance", "supports"],
+    answer: "We provide ongoing support and maintenance even after project delivery. To get started, simply type (yes)."
+  },
+  {
+    keywords: ["portfolio", "previous work"],
+    answer: "Yes, we can share samples of our previous work upon request."
+  },
+
+  // Getting Started
+  {
+    keywords: ["start", "get started", "begin"],
+    answer: "Getting started is easy 🚀 Just type (now) and I’ll connect you with our team."
+  },
+  {
+    keywords: ["contacts", "talk to human", "reachs"],
+    answer: "I can connect you directly with a Gemini Studio team member 💬 Just type (now)."
+  },
+  {
+    keywords: ["consultation", "meeting", "call"],
+    answer: "We offer free consultations to understand your goals and recommend the best solution. Type (now) to get connected."
+  }
 ];
+
 
 /* ============ HUMAN HANDOFF ============ */
 const HUMAN_KEYWORDS = [
