@@ -1,0 +1,333 @@
+/* ===============================
+   CHATBOT LAUNCHER
+================================ */
+.hidden {
+  display: none !important;
+}
+
+#chatbot-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #fff;
+  font-size: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  z-index: 9999;
+  transition: transform 0.3s ease;
+}
+
+#chatbot-launcher:hover {
+  transform: scale(1.08);
+}
+
+/* ===============================
+   CHATBOT WIDGET
+================================ */
+
+#chatbot-widget {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  width: 360px;
+  height: 520px;
+  background: #0e1117;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10000;
+  animation: slideUp 0.35s ease;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===============================
+   HEADER
+================================ */
+
+#chat-header {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  padding: 14px 16px;
+  color: #fff;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#close-chat {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+/* ===============================
+   MENU – STACKED SERVICE LIST (FINAL)
+================================ */
+
+#menu {
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: #0e1117;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  scroll-behavior: smooth;
+  animation: fadeIn 0.25s ease;
+}
+
+/* Scrollbar */
+#menu::-webkit-scrollbar {
+  width: 6px;
+}
+#menu::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+#menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Menu title / progress hint */
+#menu strong {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Menu item */
+#menu button {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: #f9fafb;
+  font-size: 14px;
+  font-weight: 500;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+/* Arrow */
+#menu button::after {
+  content: "›";
+  font-size: 18px;
+  opacity: 0.5;
+}
+
+/* Hover */
+#menu button:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Active */
+#menu button:active {
+  background: rgba(37,99,235,0.15);
+  transform: scale(0.98);
+}
+
+/* ===============================
+   MENU LOCK AFTER SELECTION
+================================ */
+
+#menu.menu-locked button {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ===============================
+   BREADCRUMB BACK BUTTON
+================================ */
+
+.menu-back {
+  all: unset;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: block;
+}
+
+.menu-back:hover {
+  color: #e5e7eb;
+}
+
+/* ===============================
+   SUBMENU ANIMATIONS
+================================ */
+
+.menu-slide-in {
+  animation: slideIn 0.25s ease;
+}
+
+.menu-slide-out {
+  animation: slideOut 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+/* ===============================
+   INPUT LOCK (CSS ONLY)
+================================ */
+
+#input-area {
+  display: none;
+}
+
+/* ===============================
+   FADE IN
+================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+/* ===============================
+   CHAT WINDOW
+================================ */
+
+#chat-window {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.bot {
+  background: #1f2933;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  max-width: 85%;
+}
+
+.user {
+  background: #2563eb;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  margin-left: auto;
+  max-width: 85%;
+}
+
+/* ===============================
+   TYPING INDICATOR
+================================ */
+
+#typing-indicator {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #9ca3af;
+  display: none;
+}
+
+#typing-indicator span {
+  animation: blink 1.4s infinite both;
+}
+
+#typing-indicator span:nth-child(2) {
+  animation-delay: .2s;
+}
+
+#typing-indicator span:nth-child(3) {
+  animation-delay: .4s;
+}
+
+@keyframes blink {
+  0% { opacity: .2; }
+  20% { opacity: 1; }
+  100% { opacity: .2; }
+}
+
+/* ===============================
+   INPUT
+================================ */
+
+#input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #1f2933;
+}
+
+#chat-input {
+  flex: 1;
+  background: #111827;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  outline: none;
+}
+
+#send-btn {
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  margin-left: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* ===============================
+   WHATSAPP BUTTON
+================================ */
+
+.whatsapp-btn {
+  display: inline-block;
+  margin-top: 10px;
+  background: #25d366;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+}
+
+
+#menu.sub-services {
+  grid-template-columns: 1fr;
+}

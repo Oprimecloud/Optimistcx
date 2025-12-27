@@ -183,7 +183,32 @@
             </div>
         </div>
     </nav>
+<!-- CHATBOT WIDGET -->
+<link rel="stylesheet" href="css/chatbot.css">
+ <script src="js/chatbot.js" defer></script>
+<!-- CHATBOT FLOATING BUTTON -->
+ <!-- Floating Button -->
+<div id="chatbot-launcher">💬</div>
 
+<!-- Chatbot Widget -->
+<div id="chatbot-widget" class="hidden">
+  <div id="chat-header">
+    Gemini Studio Assistant
+    <span id="close-chat">✕</span>
+  </div>
+
+  <div id="menu"></div>
+  <div id="chat-window"></div>
+
+  <div id="typing-indicator">
+    Gembot 🤖 is typing 👀<span>.</span><span>.</span><span>.</span>
+  </div>
+
+  <div id="input-area">
+    <input id="chat-input" placeholder="Type your message..." />
+    <button id="send-btn">➤</button>
+  </div>
+</div>
     <!-- Hero Section -->
     <section class="hero" id="home"
         style="background-image: url('https://images.unsplash.com/photo-1583321500900-82807e458f3c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dGVhbXdvcmt8ZW58MHx8MHx8fDA%3D'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; color: #fff;">
