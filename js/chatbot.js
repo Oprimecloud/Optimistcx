@@ -385,33 +385,14 @@ const SERVICES = {
 // MENU RENDERING
 // ================================
 
-// function renderMenu() {
-//   const menu = document.getElementById("menu");
-
-//   // 🔄 Reset menu state
-//   menu.style.display = "flex";
-//   menu.className = "";
-
-//   // 🧭 Progress hint
-//   menu.innerHTML = `<strong>Select a service</strong>`;
-
-//   Object.keys(SERVICES).forEach(service => {
-//     const btn = document.createElement("button");
-//     btn.textContent = service;
-//     btn.onclick = () => selectService(service);
-//     menu.appendChild(btn);
-//   });
-// }
-
-// renderMenu();
-
 function renderMenu() {
-  if (state.leadCaptured) return; // 🚫 STOP menu forever after lead
-
   const menu = document.getElementById("menu");
 
+  // 🔄 Reset menu state
   menu.style.display = "flex";
   menu.className = "";
+
+  // 🧭 Progress hint
   menu.innerHTML = `<strong>Select a service</strong>`;
 
   Object.keys(SERVICES).forEach(service => {
@@ -421,6 +402,25 @@ function renderMenu() {
     menu.appendChild(btn);
   });
 }
+
+renderMenu();
+
+// function renderMenu() {
+//   if (state.leadCaptured) return; // 🚫 STOP menu forever after lead
+
+//   const menu = document.getElementById("menu");
+
+//   menu.style.display = "flex";
+//   menu.className = "";
+//   menu.innerHTML = `<strong>Select a service</strong>`;
+
+//   Object.keys(SERVICES).forEach(service => {
+//     const btn = document.createElement("button");
+//     btn.textContent = service;
+//     btn.onclick = () => selectService(service);
+//     menu.appendChild(btn);
+//   });
+// }
 
 
 // ================================
@@ -580,7 +580,7 @@ if (state.leadCaptured && state.postLeadChoice === "human") {
 // 🤖 Continue normal bot chat
 if (state.leadCaptured) return sendMessage(value);
 
-  addBotMessage("Please select a service.");
+  addBotMessage("To start, please select a service!!!");
 }
 
 // ================================
