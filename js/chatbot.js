@@ -290,6 +290,10 @@ const state = {
 
   intentScore: savedState.intentScore || 0,
   followUpStage: savedState.followUpStage || "new",
+
+  // 🆕 POST-LEAD DECISION STATE
+  postLeadChoice: savedState.postLeadChoice || null, // "human" | "bot" | null
+
   leadSubmitting: false
 };
 
@@ -518,7 +522,21 @@ function handleUserInput(value) {
     return submitLead();
   }
 
-  if (state.leadCaptured) return sendMessage(value);
+ // 🔑 KEYWORD-BASED HUMAN HANDOFF (STEP 6)
+if (
+  state.leadCaptured &&
+  !state.postLeadChoice &&
+  /human|agent|connect|whatsapp|team/i.test(value)
+) {
+  state.postLeadChoice = "human";
+  saveState();
+  disableChat();
+  addBotMessage("Connecting you with our team 👇");
+  return showWhatsappButton();
+}
+
+// 🤖 Continue normal bot chat
+if (state.leadCaptured) return sendMessage(value);
 
   addBotMessage("Please select a service.");
 }
@@ -555,6 +573,47 @@ async function submitLead() {
   saveState();
 
   addBotMessage("✅ Thanks! You can now chat with me.");
+  showPostLeadOptions();
+
+}
+// POST-LEAD OPTIONS UI (ADD THIS FUNCTION)
+
+function showPostLeadOptions() {
+  const container = document.createElement("div");
+  container.className = "post-lead-options";
+
+  const humanBtn = document.createElement("button");
+  humanBtn.textContent = "💬 Chat with Human";
+  humanBtn.onclick = chooseHuman;
+
+  const botBtn = document.createElement("button");
+  botBtn.textContent = "🤖 Continue with Bot";
+  botBtn.onclick = chooseBot;
+
+  container.appendChild(humanBtn);
+  container.appendChild(botBtn);
+
+  document.getElementById("chat-window").appendChild(container);
+}
+
+//BUTTON ACTIONS (ADD THESE FUNCTIONS)
+function chooseBot() {
+  state.postLeadChoice = "bot";
+  saveState();
+  unlockChat();
+  addBotMessage("Great! I’m here to help 😊");
+}
+
+function chooseHuman() {
+  state.postLeadChoice = "human";
+  saveState();
+  disableChat();
+  showWhatsappButton();
+}
+// DISABLE CHAT INPUT (ADD THIS FUNCTION)
+function disableChat() {
+  document.getElementById("chat-input").disabled = true;
+  document.getElementById("send-btn").disabled = true;
 }
 
 // ================================
