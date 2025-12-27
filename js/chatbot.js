@@ -625,6 +625,9 @@ function chooseBot() {
   state.postLeadChoice = "bot";
   saveState();
 
+  removeHumanUI();   // 👈 remove WhatsApp + back button
+  showBotUI();       // 👈 restore chat input
+
   enableChat();
   addBotMessage("Great! I’m here to help 😊");
 }
@@ -634,7 +637,9 @@ function chooseHuman() {
   state.postLeadChoice = "human";
   saveState();
 
-  disableChat();
+  hideBotUI();          // 👈 hide bot UI
+  removeHumanUI();      // 👈 safety cleanup
+
   addBotMessage("Connecting you with our team 👇");
   showWhatsappButton();
   showBackToBotButton();
@@ -674,6 +679,17 @@ async function sendMessage(msg) {
 // ================================
 // UI HELPERS
 // ================================
+function hideBotUI() {
+  document.getElementById("input-area").style.display = "none";
+}
+
+function showBotUI() {
+  document.getElementById("input-area").style.display = "flex";
+}
+
+function removeHumanUI() {
+  document.querySelectorAll(".whatsapp-btn, .back-to-bot-btn").forEach(el => el.remove());
+}
 
 function unlockChat() {
   document.getElementById("input-area").style.display = "flex";
@@ -728,9 +744,13 @@ function returnToBot() {
   state.postLeadChoice = "bot";
   saveState();
 
+  removeHumanUI();
+  showBotUI();
   enableChat();
+
   addBotMessage("No problem 😊 I’m back. How can I help?");
 }
+
 
 // ================================
 // RESUME CHAT STATE ON LOAD
@@ -738,15 +758,18 @@ function returnToBot() {
 
 document.addEventListener("DOMContentLoaded", () => {
   if (state.postLeadChoice === "human") {
-    disableChat();
+    hideBotUI();
     showWhatsappButton();
     showBackToBotButton();
   }
 
   if (state.postLeadChoice === "bot") {
+    removeHumanUI();
+    showBotUI();
     enableChat();
   }
 });
+
 
 // ================================
 //widget
