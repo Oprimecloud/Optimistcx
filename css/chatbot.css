@@ -4,6 +4,14 @@
 .hidden {
   display: none !important;
 }
+.back-to-bot-btn {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #0a0a0a;
+  background: #f5f5f5;
+  cursor: pointer;
+}
 
 #chatbot-launcher {
   position: fixed;

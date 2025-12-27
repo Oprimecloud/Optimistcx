@@ -477,7 +477,8 @@ function calculateIntentScore(text) {
     if (text.toLowerCase().includes(k)) state.intentScore += 2;
   });
 }
-const humanKeywords = ["human", "agent", "connect", "representative", "whatsapp"];
+
+const humanKeywords = ["human", "agent", "connect", "representative", "support"];
 
 // ================================
 // INPUT HANDLING
@@ -498,6 +499,13 @@ function handleSend() {
 function handleUserInput(value) {
   calculateIntentScore(value);
   saveState();
+
+//   if (state.postLeadChoice === "human") {
+//   return addBotMessage(
+//     "You’re currently connecting with our team. Click “Continue chatting with bot” to come back 😊"
+//   );
+// }
+
 
   if (state.awaiting === "name") {
     if (value.length < 2) return addBotMessage("Please enter a valid name.");
@@ -538,6 +546,16 @@ if (
   addBotMessage("Sure 😊 You can connect with our team below.");
   disableChat();
   showWhatsappButton();
+  showBackToBotButton();
+  return;
+}
+// ================================
+// ⛔ Block bot replies if user is in HUMAN mode
+if (state.leadCaptured && state.postLeadChoice === "human") {
+  addBotMessage(
+    "You’re currently chatting with our team 😊 Click below to return to the bot."
+  );
+  showBackToBotButton();
   return;
 }
 
@@ -606,16 +624,22 @@ function showPostLeadOptions() {
 function chooseBot() {
   state.postLeadChoice = "bot";
   saveState();
-  unlockChat();
+
+  enableChat();
   addBotMessage("Great! I’m here to help 😊");
 }
+
 
 function chooseHuman() {
   state.postLeadChoice = "human";
   saveState();
+
   disableChat();
+  addBotMessage("Connecting you with our team 👇");
   showWhatsappButton();
+  showBackToBotButton();
 }
+
 // DISABLE CHAT INPUT (ADD THIS FUNCTION)
 function disableChat() {
   document.getElementById("chat-input").disabled = true;
@@ -672,6 +696,8 @@ function hideTyping() {
 }
 
 function showWhatsappButton() {
+  if (document.querySelector(".whatsapp-btn")) return;
+
   const btn = document.createElement("a");
   btn.href = state.whatsappLink;
   btn.target = "_blank";
@@ -680,6 +706,49 @@ function showWhatsappButton() {
   document.getElementById("chat-window").appendChild(btn);
 }
 
+
+function enableChat() {
+  document.getElementById("chat-input").disabled = false;
+  document.getElementById("send-btn").disabled = false;
+}
+
+function showBackToBotButton() {
+  if (document.querySelector(".back-to-bot-btn")) return;
+
+  const btn = document.createElement("button");
+  btn.className = "back-to-bot-btn";
+  btn.textContent = "← Continue chatting with bot";
+  btn.onclick = returnToBot;
+
+  document.getElementById("chat-window").appendChild(btn);
+}
+
+
+function returnToBot() {
+  state.postLeadChoice = "bot";
+  saveState();
+
+  enableChat();
+  addBotMessage("No problem 😊 I’m back. How can I help?");
+}
+
+// ================================
+// RESUME CHAT STATE ON LOAD
+// ================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (state.postLeadChoice === "human") {
+    disableChat();
+    showWhatsappButton();
+    showBackToBotButton();
+  }
+
+  if (state.postLeadChoice === "bot") {
+    enableChat();
+  }
+});
+
+// ================================
 //widget
 document.addEventListener("DOMContentLoaded", () => {
   const launcher = document.getElementById("chatbot-launcher");
