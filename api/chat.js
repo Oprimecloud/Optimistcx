@@ -11,7 +11,7 @@ const FAQS = [
   { keywords: ["services", "what do you do"], answer: "We provide coding, design, content marketing, branding, SEO, social media management, ads, and AI assistance." },
   { keywords: ["location", "where are you", "based"], answer: "We work with clients worldwide 🌍" },
   { keywords: ["payment", "pay", "installment"], answer: "We offer flexible payment options depending on the project." },
-  { keywords: ["contact", "talk to human", "reach"], answer: "I can connect you with our team 💬 type (yes) to get connected" }
+  { keywords: ["contacts", "humans", "reach"], answer: "I can connect you with our team 💬 type (yes) to get connected" }
 ];
 
 /* ============ HUMAN HANDOFF ============ */

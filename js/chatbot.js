@@ -477,6 +477,7 @@ function calculateIntentScore(text) {
     if (text.toLowerCase().includes(k)) state.intentScore += 2;
   });
 }
+const humanKeywords = ["human", "agent", "connect", "representative", "whatsapp"];
 
 // ================================
 // INPUT HANDLING
@@ -522,17 +523,22 @@ function handleUserInput(value) {
     return submitLead();
   }
 
- // 🔑 KEYWORD-BASED HUMAN HANDOFF (STEP 6)
+// ================================
+// KEYWORD → HUMAN HANDOFF (FRONTEND OVERRIDE)
+// ================================
+
 if (
   state.leadCaptured &&
-  !state.postLeadChoice &&
-  /human|agent|connect|whatsapp|team/i.test(value)
+  humanKeywords.some(k => value.toLowerCase().includes(k))
 ) {
+  // prevent backend AI reply
   state.postLeadChoice = "human";
   saveState();
+
+  addBotMessage("Sure 😊 You can connect with our team below.");
   disableChat();
-  addBotMessage("Connecting you with our team 👇");
-  return showWhatsappButton();
+  showWhatsappButton();
+  return;
 }
 
 // 🤖 Continue normal bot chat
