@@ -11,60 +11,14 @@ const FAQS = [
     keywords: ["how much"],
     answer: "Our pricing depends on your project scope and requirements. I can connect you with our team to get an exact quote 💬"
   },
- {
-  keywords: ["mode of payment", "how to pay"],
-  answer: "We offer flexible payment options based on your project size and timeline. Once we understand your needs, we’ll guide you to the best option.",
-  cta: [
-    { label: "✅ Yes", action: "proceed" },
-    { label: "💬 Talk to an Agent", action: "handoff" },
-    { label: "➡️ Continue", action: "continue" }
-  ]
-},
-function botReply(text, ctas = null) {
-  const messageDiv = document.createElement("div");
-  messageDiv.className = "bot-message";
-  messageDiv.innerText = text;
-
-  chatBody.appendChild(messageDiv);
-
-  // 👇 RENDER BUTTONS IF CTA EXISTS
-  if (ctas && ctas.length) {
-    const btnWrapper = document.createElement("div");
-    btnWrapper.className = "cta-buttons";
-
-    ctas.forEach(cta => {
-      const btn = document.createElement("button");
-      btn.innerText = cta.label;
-      btn.onclick = () => handleCTA(cta.action);
-      btnWrapper.appendChild(btn);
-    });
-
-    chatBody.appendChild(btnWrapper);
-  }
-
-  chatBody.scrollTop = chatBody.scrollHeight;
-},
-function handleCTA(action) {
-  switch (action) {
-    case "proceed":
-      botReply("Great 👍 What service are you interested in?");
-      break;
-
-    case "handoff":
-      botReply("No problem 😊 I’ll connect you with our team.");
-      // WhatsApp / human handoff here
-      break;
-
-    case "continue":
-      botReply("Alright, tell me more about your project.");
-      break;
-  }
-},
+  {
+    keywords: ["mode of payment", "how to pay"],
+    answer: "Our payment options are flexible and tailored to your project requirements. 👉 Can I connect you with our team to discuss the best payment plan? if yes type [now]"
+  },
   // Timeline
   {
     keywords: ["timeline", "delivery", "how long"],
     answer: "Most projects are typically completed within 2–4 weeks, depending on scope and requirements."
-
   },
 
   // Services Overview
