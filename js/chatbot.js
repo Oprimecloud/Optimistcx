@@ -721,7 +721,7 @@ function addBotMessage(text) {
   document.getElementById("chat-window").innerHTML +=
     `<div class="bot">${text}</div>`;
 
-  playNotificationSound(); // 🔔 bot reply sound modified
+  // playNotificationSound(); // 🔔 bot reply sound modified
 }
 
 
@@ -729,7 +729,7 @@ function addUserMessage(text) {
   document.getElementById("chat-window").innerHTML +=
     `<div class="user">${text}</div>`;
 
-  // playNotificationSound(); // 🔔 user message sound modified
+   playNotificationSound(); // 🔔 user message sound modified
 }
 
 function showTyping() {
