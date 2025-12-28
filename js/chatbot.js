@@ -809,7 +809,7 @@ function showSoundOptIn() {
   container.className = "sound-optin";
 
   container.innerHTML = `
-    <p>🔔 Would you like a live sound chat?</p>
+    <p>🔔 Turn on chat sound effects?</p>
     <button id="sound-yes">Yes</button>
     <button id="sound-no">No</button>
   `;
@@ -823,7 +823,7 @@ function showSoundOptIn() {
 
     playNotificationSound();
     container.remove();
-    addBotMessage("Great! I’ll notify you when needed 😊");
+    addBotMessage("Got it! effects are now ON. 🔊");
   };
 
   document.getElementById("sound-no").onclick = () => {
@@ -832,7 +832,7 @@ function showSoundOptIn() {
     saveState();
 
     container.remove();
-    addBotMessage("No problem — you can turn it on anytime 👍");
+    addBotMessage("No problem! We'll keep things quiet. 🔇");
   };
 }
 //JS HELPERS
