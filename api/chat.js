@@ -19,7 +19,8 @@ const FAQS = [
   // Timeline
   {
     keywords: ["timeline", "delivery", "how long"],
-    answer: "Most projects are completed within 2–4 weeks, depending on complexity and requirements."
+    answer: "Most projects are typically completed within 2–4 weeks, depending on scope and requirements."
+
   },
 
   // Services Overview
@@ -173,6 +174,7 @@ Help users understand value and move them closer to starting a project.
 
 RULES:
 - Highlight benefits, not features
+- Never contradict stated pricing or timelines
 - Encourage next steps (brief, discovery call, WhatsApp)
 - Use friendly persuasion
 - Avoid pressure or urgency lies
@@ -278,7 +280,16 @@ export default async function handler(req, res) {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
+       { role: "system", content: BASE_SYSTEM_PROMPT },
        { role: "system", content: systemPrompt },
+        {
+      role: "system",
+      content: "All factual information must align with the predefined FAQ. Do not contradict pricing, timeline, services, or company structure stated there."
+    },
+    { 
+  role: "system", 
+  content: "Reference FAQ summary: Pricing depends on scope. Timeline usually 2–4 weeks. Fully remote agency. No single founder. Services include web, branding, marketing, AI."
+},
         { role: "user", content: message }
       ]
     });
