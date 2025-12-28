@@ -17,14 +17,14 @@ const FAQS = [
   },
   // Timeline
   {
-    keywords: ["timeline", "delivery", "how long"],
+    keywords: ["delivery", "how long"],
     answer: "Most projects are typically completed within 2–4 weeks, depending on scope and requirements."
   },
 
   // Services Overview
   {
-    keywords: ["services", "what do you do"],
-    answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads, and AI-powered solutions."
+    keywords: ["service"],
+    answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads."
   },
 
   // Location
@@ -39,22 +39,22 @@ const FAQS = [
     answer: "Gemini Studio is a virtual agency led collaboratively by experienced developers, designers, and marketing professionals."
   },
   {
-    keywords: ["founder", "who founded", "owner"],
-    answer: "Gemini Studio was built and is managed by a collective team of industry experts rather than a single founder."
+    keywords: ["founder", "who founded"],
+    answer: "Gemini Studio was built and is managed by a collective team of industry experts."
   },
   {
-    keywords: ["leadership", "management", "who runs"],
+    keywords: ["leadership", "management"],
     answer: "Our leadership consists of specialists across technology, design, marketing, and AI."
   },
   {
-    keywords: ["company", "about", "who are you"],
+    keywords: ["what is gemini studio", "about gemini studio"],
     answer: "Gemini Studio is a digital agency delivering modern technology and marketing solutions for growing businesses."
   },
 
   // Team & Experience
   {
-    keywords: ["teams", "staff", "developers"],
-    answer: "Our team includes skilled developers, designers, marketers, content creators, and AI specialists."
+    keywords: ["teams", "staff"],
+    answer: "Our team includes skilled developers, designers, marketers, content creators."
   },
   {
     keywords: ["experience", "how experienced"],
@@ -67,7 +67,7 @@ const FAQS = [
 
   // Specific Services
   {
-    keywords: ["website", "web development", "coding", "code"],
+    keywords: ["website", "web development"],
     answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
   },
   {
