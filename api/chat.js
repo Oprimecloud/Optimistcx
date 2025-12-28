@@ -25,6 +25,7 @@ const FAQS = [
   {
     keywords: ["service"],
     answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads."
+    
   },
 
   // Location
@@ -66,22 +67,22 @@ const FAQS = [
   },
 
   // Specific Services
-  {
-    keywords: ["website", "web development"],
-    answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
-  },
-  {
-    keywords: ["branding", "logo", "identity"],
-    answer: "We create strong brand identities including logos, visual systems, and brand guidelines."
-  },
-  {
-    keywords: ["seo", "search engine"],
-    answer: "Our SEO services help improve visibility, search rankings, and organic traffic."
-  },
-  {
-    keywords: ["social media", "management", "content"],
-    answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
-  },
+  // {
+  //   keywords: ["website", "web development"],
+  //   answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
+  // },
+  // {
+  //   keywords: ["branding", "logo", "identity"],
+  //   answer: "We create strong brand identities including logos, visual systems, and brand guidelines."
+  // },
+  // {
+  //   keywords: ["seo", "search engine"],
+  //   answer: "Our SEO services help improve visibility, search rankings, and organic traffic."
+  // },
+  // {
+  //   keywords: ["social media", "management", "content"],
+  //   answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
+  // },
 
   // Process & Trust
   {
@@ -96,10 +97,10 @@ const FAQS = [
     keywords: ["help", "maintenance", "supports"],
     answer: "We provide ongoing support and maintenance even after project delivery. <br> To get started, simply type [now]."
   },
-  {
-    keywords: ["portfolio", "previous work"],
-    answer: "Yes, we can share samples of our previous work upon request."
-  },
+  // {
+  //   keywords: ["portfolio", "previous work"],
+  //   answer: "Yes, we can share samples of our previous work upon request."
+  // },
 
   // Getting Started
   {
@@ -188,8 +189,8 @@ You explain technical topics in a non-technical, client-friendly way.
 
 RULES:
 - No code
-- Give definitions if user ask what is website, branding, seo etc
-- Use everyday analogies
+- No jargon
+- Show real portfolio examples in simple terms we have provided.
 - No frameworks unless asked
 - Use simple analogies
 - Focus on outcomes, not implementation
@@ -220,7 +221,9 @@ function getSystemPrompt(message) {
     text.includes("how does") ||
     text.includes("technical") ||
     text.includes("backend") ||
-    text.includes("hosting")
+    text.includes("hosting") ||
+    text.includes("portfolio") ||
+    text.includes("previous work")
   ) {
     return TECHNICAL_SYSTEM_PROMPT;
   }
