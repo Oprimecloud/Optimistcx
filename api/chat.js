@@ -82,14 +82,10 @@ const FAQS = [
     keywords: ["social media", "management", "content"],
     answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
   },
-  {
-    keywords: ["ai", "automation", "assistant"],
-    answer: "We provide AI-powered tools and automation to enhance efficiency and customer experience."
-  },
 
   // Process & Trust
   {
-    keywords: ["process", "how it works"],
+    keywords: ["process", "how you works"],
     answer: "Our process includes consultation, planning, execution, and delivery with clear communication at every stage."
   },
   {
@@ -98,7 +94,7 @@ const FAQS = [
   },
   {
     keywords: ["help", "maintenance", "supports"],
-    answer: "We provide ongoing support and maintenance even after project delivery. To get started, simply type (now)."
+    answer: "We provide ongoing support and maintenance even after project delivery. <br> To get started, simply type [now]."
   },
   {
     keywords: ["portfolio", "previous work"],
@@ -108,22 +104,22 @@ const FAQS = [
   // Getting Started
   {
     keywords: ["start", "get started", "begin"],
-    answer: "Getting started is easy 🚀 Just type (now) and I’ll connect you with our team."
+    answer: "Getting started is easy 🚀 Just type [now] and I’ll connect you with our team."
   },
   {
-    keywords: ["contact", "talk to human", "reachs"],
-    answer: "I can connect you directly with a Gemini Studio team member 💬 Just type (now)."
+    keywords: ["contact", "talk to human", "support"],
+    answer: "I can connect you directly with a Gemini Studio team member 💬 Just type [now]."
   },
   {
     keywords: ["consultation", "meeting", "call"],
-    answer: "We offer free consultations to understand your goals and recommend the best solution. Type (now) to get connected."
+    answer: "We offer free consultations to understand your goals and recommend the best solution. <br>Type [now] to get connected."
   }
 ];
 
 
 /* ============ HUMAN HANDOFF ============ */
 const HUMAN_KEYWORDS = [
-"human", "agent", "connect", "representative", "support", "now"
+"human", "agent", "connect", "representative", "now"
 ];
 
 function wantsHuman(message) {
@@ -193,6 +189,7 @@ You explain technical topics in a non-technical, client-friendly way.
 
 RULES:
 - No code
+- Give definitions if user ask "what is ..."
 - No frameworks unless asked
 - Use simple analogies
 - Focus on outcomes, not implementation
