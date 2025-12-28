@@ -48,7 +48,7 @@
   height: 520px;
   background: #0e1117;
   border-radius: 16px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  box-shadow: 0 25px 60px rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -93,7 +93,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: #0e1117;
+  background: #090606;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   scroll-behavior: smooth;
   animation: fadeIn 0.25s ease;
@@ -244,8 +244,8 @@
 }
 
 .bot {
-  background: #1f2933;
-  color: #fff;
+  background: #06192d;
+  color: #f5f3f3;
   padding: 10px 12px;
   border-radius: 14px;
   margin-bottom: 8px;
@@ -253,8 +253,8 @@
 }
 
 .user {
-  background: #2563eb;
-  color: #fff;
+  background: #f2f0f0;
+  color: #090909;
   padding: 10px 12px;
   border-radius: 14px;
   margin-bottom: 8px;
@@ -269,7 +269,7 @@
 #typing-indicator {
   padding: 8px 12px;
   font-size: 12px;
-  color: #9ca3af;
+  color: #f2f0f0;
   display: none;
 }
 
@@ -298,18 +298,26 @@
 #input-area {
   display: flex;
   padding: 10px;
-  border-top: 1px solid #1f2933;
+  border-top: 1px solid #f6f8fa;
 }
 
 #chat-input {
   flex: 1;
-  background: #111827;
+  background: #e4e4e5;
   border: none;
-  color: #fff;
-  padding: 10px;
+  color: #111111;
+  padding: 12px;
   border-radius: 12px;
   outline: none;
+
+  resize: none;           /* prevent manual resize */
+  overflow-y: hidden;     /* hide scrollbar */
+  min-height: 44px;       /* base height */
+  max-height: 160px;      /* optional limit */
+  line-height: 1.4;
+  font-family: inherit;
 }
+
 
 #send-btn {
   background: #2563eb;
@@ -328,11 +336,13 @@
 .whatsapp-btn {
   display: inline-block;
   margin-top: 10px;
-  background: #25d366;
-  color: #fff;
-  padding: 10px 14px;
+  background: #f2f0f0;
+  color: #090909;
+  padding: 10px 12px;
   border-radius: 14px;
   text-decoration: none;
+  margin-bottom: 8px;
+  max-width: 85%;
 }
 
 

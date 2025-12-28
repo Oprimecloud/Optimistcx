@@ -393,7 +393,7 @@ function renderMenu() {
   menu.className = "";
 
   // 🧭 Progress hint
-  menu.innerHTML = `<strong>Select a service</strong>`;
+  menu.innerHTML = `<strong>select a service to get started</strong>`;
 
   Object.keys(SERVICES).forEach(service => {
     const btn = document.createElement("button");
@@ -580,7 +580,7 @@ if (state.leadCaptured && state.postLeadChoice === "human") {
 // 🤖 Continue normal bot chat
 if (state.leadCaptured) return sendMessage(value);
 
-  addBotMessage("To start, please select a service!!!");
+  addBotMessage("please select a service to continue!!!");
 }
 
 // ================================
@@ -812,37 +812,37 @@ document.addEventListener("DOMContentLoaded", () => {
   const launcher = document.getElementById("chatbot-launcher");
   const widget = document.getElementById("chatbot-widget");
   const closeChat = document.getElementById("close-chat");
-  const resetBtn = document.getElementById("reset-chat");
 
   if (!launcher || !widget || !closeChat) {
     console.error("Chatbot elements not found");
     return;
   }
 
+  // Open widget
   launcher.addEventListener("click", () => {
     widget.classList.remove("hidden");
+
+    // 🧠 PROTECT ON CHAT REOPEN
+    if (state.leadCaptured) {
+      const menu = document.getElementById("menu");
+      if (menu) menu.style.display = "none";
+
+      if (state.postLeadChoice === "human") {
+        disableChat();
+        showWhatsappButton();
+        showBackToBotButton();
+      } else {
+        enableChat();
+      }
+    }
   });
 
-  // 🧠 STEP 4 — PROTECT ON CHAT REOPEN
-  if (state.leadCaptured) {
-    // Hide menu forever once lead is captured
-    const menu = document.getElementById("menu");
-    if (menu) menu.style.display = "none";
-
-    // Restore correct chat mode
-    if (state.postLeadChoice === "human") {
-      disableChat();
-      showWhatsappButton();
-      showBackToBotButton();
-    } else {
-      enableChat();
-    }
-  }
-});
-
+  // ❌➡️✅ CLOSE widget (THIS WAS MISSING)
   closeChat.addEventListener("click", () => {
     widget.classList.add("hidden");
   });
+});
+
 
   // 🗑️ Reset chat safely
   // if (resetBtn) {
