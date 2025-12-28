@@ -279,6 +279,8 @@
 const savedState = JSON.parse(localStorage.getItem("chatbotState")) || {};
 
 const state = {
+  soundEnabled: savedState.soundEnabled || false,
+  soundPrompted: savedState.soundPrompted || false,
   welcomeShown: savedState.welcomeShown || false,
   sessionId: savedState.sessionId || null,
   service: savedState.service || null,
@@ -716,11 +718,18 @@ function unlockChat() {
 }
 
 function addBotMessage(text) {
-  document.getElementById("chat-window").innerHTML += `<div class="bot">${text}</div>`;
+  document.getElementById("chat-window").innerHTML +=
+    `<div class="bot">${text}</div>`;
+
+  playNotificationSound(); // 🔔 bot reply sound modified
 }
 
+
 function addUserMessage(text) {
-  document.getElementById("chat-window").innerHTML += `<div class="user">${text}</div>`;
+  document.getElementById("chat-window").innerHTML +=
+    `<div class="user">${text}</div>`;
+
+  // playNotificationSound(); // 🔔 user message sound modified
 }
 
 function showTyping() {
@@ -784,6 +793,48 @@ function returnToBot() {
   addBotMessage("No problem 😊 I’m back. How can I help?");
 }
 
+//SOUND HELPER FUNCTIONS modified
+const notificationSound = new Audio("/sounds/notify.mp3");
+
+function playNotificationSound() {
+  if (!state.soundEnabled) return;
+
+  // Reset so it can play repeatedly modified
+  notificationSound.currentTime = 0;
+  notificationSound.play().catch(() => {});
+}
+function showSoundOptIn() {
+  const container = document.createElement("div");
+  container.className = "sound-optin";
+
+  container.innerHTML = `
+    <p>🔔 Would you like sound notifications?</p>
+    <button id="sound-yes">Yes</button>
+    <button id="sound-no">No</button>
+  `;
+
+  document.getElementById("chat-window").appendChild(container);
+
+  document.getElementById("sound-yes").onclick = () => {
+    state.soundEnabled = true;
+    state.soundPrompted = true;
+    saveState();
+
+    playNotificationSound();
+    container.remove();
+    addBotMessage("Great! I’ll notify you when needed 😊");
+  };
+
+  document.getElementById("sound-no").onclick = () => {
+    state.soundEnabled = false;
+    state.soundPrompted = true;
+    saveState();
+
+    container.remove();
+    addBotMessage("No problem — you can turn it on anytime 👍");
+  };
+}
+
 // ================================
 // UX COPY (OPTIONAL BUT NICE)
 // ================================
@@ -844,6 +895,13 @@ if (state.leadCaptured && !state.welcomeShown) {
 
   state.welcomeShown = true;
   saveState();
+}
+
+// 🔔 Ask for sound permission once
+if (!state.soundPrompted) {
+  setTimeout(() => {
+    showSoundOptIn();
+  }, 800);
 }
 
     // 🧠 PROTECT ON CHAT REOPEN
