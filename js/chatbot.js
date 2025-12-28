@@ -751,7 +751,7 @@ function showWhatsappButton() {
   btn.href = state.whatsappLink;
   btn.target = "_blank";
   btn.className = "whatsapp-btn";
-  btn.textContent = "💬 Chat on WhatsApp";
+  btn.textContent = "💬 live Chat";
   document.getElementById("chat-window").appendChild(btn);
 }
 
