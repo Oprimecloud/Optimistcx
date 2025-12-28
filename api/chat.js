@@ -68,7 +68,7 @@ const FAQS = [
 
   // Specific Services
   {
-    keywords: ["website", "web development", "coding"],
+    keywords: ["website", "web development", "coding", "code"],
     answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
   },
   {
@@ -99,7 +99,7 @@ const FAQS = [
   },
   {
     keywords: ["help", "maintenance", "supports"],
-    answer: "We provide ongoing support and maintenance even after project delivery. To get started, simply type (yes)."
+    answer: "We provide ongoing support and maintenance even after project delivery. To get started, simply type (now)."
   },
   {
     keywords: ["portfolio", "previous work"],
@@ -112,7 +112,7 @@ const FAQS = [
     answer: "Getting started is easy 🚀 Just type (now) and I’ll connect you with our team."
   },
   {
-    keywords: ["contacts", "talk to human", "reachs"],
+    keywords: ["contact", "talk to human", "reachs"],
     answer: "I can connect you directly with a Gemini Studio team member 💬 Just type (now)."
   },
   {
@@ -131,7 +131,6 @@ const HUMAN_KEYWORDS = [
   "human",
   "agent",
   "whatsapp",
-  "contact"
 ];
 
 function wantsHuman(message) {
@@ -275,7 +274,7 @@ export default async function handler(req, res) {
   // 🤖 OPENAI FALLBACK
   try {
     const systemPrompt = getSystemPrompt(message);
-    
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [

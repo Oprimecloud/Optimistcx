@@ -69,7 +69,6 @@ Name: ${name}
 Email: ${email}
 Service: ${service}
 Sub-Service: ${subService}
-Goal: null
 
 Project:
 ${project}
