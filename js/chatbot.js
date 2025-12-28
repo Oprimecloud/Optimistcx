@@ -279,11 +279,13 @@
 const savedState = JSON.parse(localStorage.getItem("chatbotState")) || {};
 
 const state = {
+  welcomeShown: savedState.welcomeShown || false,
   sessionId: savedState.sessionId || null,
   service: savedState.service || null,
   subService: savedState.subService || null,
   leadCaptured: savedState.leadCaptured || false,
   whatsappLink: savedState.whatsappLink || null,
+  
 
   awaiting: null,
   tempLead: {},
@@ -729,6 +731,19 @@ function hideTyping() {
   document.getElementById("typing-indicator").style.display = "none";
 }
 
+function showWelcomeBack() {
+  addBotMessage("👋 Welcome back — let’s continue from where you stopped 😊");
+}
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "☀️ Good morning";
+  if (hour < 18) return "🌤️ Good afternoon";
+  return "🌙 Good evening";
+}
+
+
 function showWhatsappButton() {
   if (document.querySelector(".whatsapp-btn")) return;
 
@@ -821,6 +836,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Open widget
   launcher.addEventListener("click", () => {
     widget.classList.remove("hidden");
+
+// 🔁 SMART REOPEN — SHOW WELCOME ONLY ONCE
+if (state.leadCaptured && !state.welcomeShown) {
+  const greeting = getTimeGreeting();
+  addBotMessage(`${greeting}! 👋 Welcome back — let’s continue from where you stopped 😊`);
+
+  state.welcomeShown = true;
+  saveState();
+}
 
     // 🧠 PROTECT ON CHAT REOPEN
     if (state.leadCaptured) {
