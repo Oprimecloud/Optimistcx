@@ -66,22 +66,22 @@ const FAQS = [
   },
 
   // Specific Services
-  // {
-  //   keywords: ["website", "web development"],
-  //   answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
-  // },
-  // {
-  //   keywords: ["branding", "logo", "identity"],
-  //   answer: "We create strong brand identities including logos, visual systems, and brand guidelines."
-  // },
-  // {
-  //   keywords: ["seo", "search engine"],
-  //   answer: "Our SEO services help improve visibility, search rankings, and organic traffic."
-  // },
-  // {
-  //   keywords: ["social media", "management", "content"],
-  //   answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
-  // },
+  {
+    keywords: ["website", "web development"],
+    answer: "We build modern, fast, scalable websites and web applications tailored to your business goals."
+  },
+  {
+    keywords: ["branding", "logo", "identity"],
+    answer: "We create strong brand identities including logos, visual systems, and brand guidelines."
+  },
+  {
+    keywords: ["seo", "search engine"],
+    answer: "Our SEO services help improve visibility, search rankings, and organic traffic."
+  },
+  {
+    keywords: ["social media", "management", "content"],
+    answer: "We manage social media accounts with strategic content, engagement, and growth-focused campaigns."
+  },
 
   // Process & Trust
   {
@@ -115,6 +115,41 @@ const FAQS = [
     answer: "We offer free consultations to understand your goals and recommend the best solution. <br>Type [now] to get connected."
   }
 ];
+
+//new added function to detect definition questions
+function isDefinitionQuestion(text) {
+  const definitionTriggers = [
+    "what is",
+    "what's",
+    "define",
+    "meaning of",
+    "explain",
+    "tell me about",
+    "difference between",
+    "how does"
+  ];
+
+  return definitionTriggers.some(trigger =>
+    text.toLowerCase().startsWith(trigger)
+  );
+}
+// ❌ Do NOT answer FAQ if it's a definition question
+if (isDefinitionQuestion(message)) {
+  return null; // fall through to AI
+}
+function matchFAQ(message) {
+  if (isDefinitionQuestion(message)) return null;
+
+  const text = message.toLowerCase();
+
+  for (const faq of FAQS) {
+    if (faq.keywords.some(k => text.includes(k))) {
+      return faq.answer;
+    }
+  }
+
+  return null;
+}
 
 
 /* ============ HUMAN HANDOFF ============ */
