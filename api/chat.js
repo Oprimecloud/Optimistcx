@@ -9,7 +9,7 @@ const FAQS = [
   // Pricing & Payment
   {
     keywords: ["how much"],
-    answer: "Our pricing depends on your project scope and requirements. I can connect you with our team to get an exact quote 💬"
+    answer: "Our pricing depends on your project scope and requirements. I can connect you with our team to get an exact quote 💬 <br> just type [connect]"
   },
   {
     keywords: ["mode of payment", "how to pay"],
@@ -249,6 +249,7 @@ function getSystemPrompt(message) {
     text.includes("how does") ||
     text.includes("technical") ||
     text.includes("website") ||
+     text.includes("service") ||
     text.includes("web development") ||
     text.includes("logo design") ||
     text.includes("web design") ||
