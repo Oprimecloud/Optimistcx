@@ -8,13 +8,19 @@ const openai = new OpenAI({
 const FAQS = [
   // Pricing & Payment
   {
-    keywords: ["price", "cost", "pricing"],
+    keywords: ["how much"],
     answer: "Our pricing depends on your project scope and requirements. I can connect you with our team to get an exact quote 💬"
   },
-  {
-    keywords: ["payment", "pay", "installment"],
-    answer: "We offer flexible payment options depending on the project size and timeline."
-  },
+ {
+  keywords: ["mode of payment", "how to pay"],
+  answer: "We offer flexible payment options based on your project size and timeline. Once we understand your needs, we’ll guide you to the best option.",
+  cta: [
+    { label: "✅ Yes", action: "proceed" },
+    { label: "💬 Talk to an Agent", action: "handoff" },
+    { label: "➡️ Continue", action: "continue" }
+  ]
+},
+
 
   // Timeline
   {
@@ -125,13 +131,7 @@ const FAQS = [
 
 /* ============ HUMAN HANDOFF ============ */
 const HUMAN_KEYWORDS = [
-  "yes",
-  "connect",
-  "connect me",
-  "talk to human",
-  "human",
-  "agent",
-  "whatsapp",
+"human", "agent", "connect", "representative", "support", "now"
 ];
 
 function wantsHuman(message) {
