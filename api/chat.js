@@ -22,11 +22,11 @@ const FAQS = [
   },
 
   // Services Overview
-  {
-    keywords: ["service"],
-    answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads."
+  // {
+  //   keywords: ["service"],
+  //   answer: "We offer web development, UI/UX design, branding, content marketing, SEO, social media management, paid ads."
     
-  },
+  // },
 
   // Location
   {
@@ -249,7 +249,7 @@ function getSystemPrompt(message) {
     text.includes("how does") ||
     text.includes("technical") ||
     text.includes("website") ||
-     text.includes("service") ||
+    text.includes("service") ||
     text.includes("web development") ||
     text.includes("logo design") ||
     text.includes("web design") ||
