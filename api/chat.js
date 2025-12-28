@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     keywords: ["mode of payment", "how to pay"],
-    answer: "Our payment options are flexible and tailored to your project requirements. 👉 Can I connect you with our team to discuss the best payment plan? if yes type [now]"
+    answer: "Our payment options are flexible and tailored to your project requirements. <br>👉 Can I connect you with our team to discuss the best payment plan? if yes type [now]"
   },
   // Timeline
   {
