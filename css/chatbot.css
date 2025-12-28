@@ -294,6 +294,22 @@
 /* ===============================
    INPUT
 ================================ */
+.cta-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.cta-buttons button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #1f2937;
+  color: #fff;
+  font-size: 14px;
+}
+/* new style added*/
 
 #input-area {
   display: flex;

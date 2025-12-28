@@ -20,24 +20,46 @@ const FAQS = [
     { label: "➡️ Continue", action: "continue" }
   ]
 },
+function botReply(text, ctas = null) {
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "bot-message";
+  messageDiv.innerText = text;
+
+  chatBody.appendChild(messageDiv);
+
+  // 👇 RENDER BUTTONS IF CTA EXISTS
+  if (ctas && ctas.length) {
+    const btnWrapper = document.createElement("div");
+    btnWrapper.className = "cta-buttons";
+
+    ctas.forEach(cta => {
+      const btn = document.createElement("button");
+      btn.innerText = cta.label;
+      btn.onclick = () => handleCTA(cta.action);
+      btnWrapper.appendChild(btn);
+    });
+
+    chatBody.appendChild(btnWrapper);
+  }
+
+  chatBody.scrollTop = chatBody.scrollHeight;
+},
 function handleCTA(action) {
   switch (action) {
     case "proceed":
-      botReply("Great 👍 Let’s get started. What service are you interested in?");
+      botReply("Great 👍 What service are you interested in?");
       break;
 
     case "handoff":
-      botReply("No problem 😊 I’ll connect you with our team shortly.");
-      // trigger WhatsApp / live agent / email form
+      botReply("No problem 😊 I’ll connect you with our team.");
+      // WhatsApp / human handoff here
       break;
 
     case "continue":
-      botReply("Alright, let’s continue. Tell me more about your project.");
+      botReply("Alright, tell me more about your project.");
       break;
   }
 },
-
-
   // Timeline
   {
     keywords: ["timeline", "delivery", "how long"],
