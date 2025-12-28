@@ -116,42 +116,6 @@ const FAQS = [
   }
 ];
 
-//new added function to detect definition questions
-function isDefinitionQuestion(text) {
-  const definitionTriggers = [
-    "what is",
-    "what's",
-    "define",
-    "meaning of",
-    "explain",
-    "tell me about",
-    "difference between",
-    "how does"
-  ];
-
-  return definitionTriggers.some(trigger =>
-    text.toLowerCase().startsWith(trigger)
-  );
-}
-// ❌ Do NOT answer FAQ if it's a definition question
-if (isDefinitionQuestion(message)) {
-  return null; // fall through to AI
-}
-function matchFAQ(message) {
-  if (isDefinitionQuestion(message)) return null;
-
-  const text = message.toLowerCase();
-
-  for (const faq of FAQS) {
-    if (faq.keywords.some(k => text.includes(k))) {
-      return faq.answer;
-    }
-  }
-
-  return null;
-}
-
-
 /* ============ HUMAN HANDOFF ============ */
 const HUMAN_KEYWORDS = [
 "human", "agent", "connect", "representative", "now"
