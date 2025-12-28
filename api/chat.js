@@ -220,6 +220,15 @@ function getSystemPrompt(message) {
   if (
     text.includes("how does") ||
     text.includes("technical") ||
+    text.includes("website") ||
+    text.includes("web development") ||
+    text.includes("logo design") ||
+    text.includes("web design") ||
+    text.includes("branding") ||
+    text.includes("paid ads") ||
+    text.includes("seo") ||
+    text.includes("social media management") ||
+    text.includes("content marketing") ||
     text.includes("backend") ||
     text.includes("hosting") ||
     text.includes("portfolio") ||
