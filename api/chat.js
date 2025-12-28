@@ -20,6 +20,22 @@ const FAQS = [
     { label: "➡️ Continue", action: "continue" }
   ]
 },
+function handleCTA(action) {
+  switch (action) {
+    case "proceed":
+      botReply("Great 👍 Let’s get started. What service are you interested in?");
+      break;
+
+    case "handoff":
+      botReply("No problem 😊 I’ll connect you with our team shortly.");
+      // trigger WhatsApp / live agent / email form
+      break;
+
+    case "continue":
+      botReply("Alright, let’s continue. Tell me more about your project.");
+      break;
+  }
+},
 
 
   // Timeline
