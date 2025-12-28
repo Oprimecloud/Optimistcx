@@ -139,6 +139,105 @@ function wantsHuman(message) {
   return HUMAN_KEYWORDS.some(keyword => msg.includes(keyword));
 }
 
+// ================================
+// SYSTEM PROMPTS
+// ================================
+
+const BASE_SYSTEM_PROMPT = `
+You are Geministudio Agency’s Client Support Assistant.
+
+TONE:
+Calm, respectful, professional, Nigerian & international friendly.
+
+RULES:
+- Be clear and concise
+- Simplify confusion
+- Ask focused follow-up questions
+- Guide users forward
+- Do not overwhelm
+
+BUSINESS:
+- Pricing depends on scope
+- Timeline must be realistic
+- Explain process clearly
+
+NEVER:
+- Make guarantees
+- Expose internal technical details
+`;
+
+const SALES_SYSTEM_PROMPT = `
+You are a conversion-focused sales assistant for Geministudio Agency.
+
+GOAL:
+Help users understand value and move them closer to starting a project.
+
+RULES:
+- Highlight benefits, not features
+- Encourage next steps (brief, discovery call, WhatsApp)
+- Use friendly persuasion
+- Avoid pressure or urgency lies
+
+ESCALATION:
+If interest is high, suggest speaking with a human team member.
+`;
+
+const SUPPORT_SYSTEM_PROMPT = `
+You are a customer support assistant focused on clarity and trust.
+
+GOAL:
+Help users feel confident, informed, and supported.
+
+RULES:
+- Reassure politely
+- Explain things simply
+- Reduce confusion
+- Never upsell aggressively
+`;
+
+const TECHNICAL_SYSTEM_PROMPT = `
+You explain technical topics in a non-technical, client-friendly way.
+
+RULES:
+- No code
+- No frameworks unless asked
+- Use simple analogies
+- Focus on outcomes, not implementation
+`;
+
+function getSystemPrompt(message) {
+  const text = message.toLowerCase();
+
+  if (
+    text.includes("price") ||
+    text.includes("cost") ||
+    text.includes("hire") ||
+    text.includes("start")
+  ) {
+    return SALES_SYSTEM_PROMPT;
+  }
+
+  if (
+    text.includes("issue") ||
+    text.includes("problem") ||
+    text.includes("confused") ||
+    text.includes("help")
+  ) {
+    return SUPPORT_SYSTEM_PROMPT;
+  }
+
+  if (
+    text.includes("how does") ||
+    text.includes("technical") ||
+    text.includes("backend") ||
+    text.includes("hosting")
+  ) {
+    return TECHNICAL_SYSTEM_PROMPT;
+  }
+
+  return BASE_SYSTEM_PROMPT;
+}
+
 /* ============ API HANDLER ============ */
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -175,10 +274,12 @@ export default async function handler(req, res) {
 
   // 🤖 OPENAI FALLBACK
   try {
+    const systemPrompt = getSystemPrompt(message);
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: ' You are Geministudio Agency’s Client Support Assistant. Your role is to assist users clearly, calmly, and professionally. You help users understand services, processes, timelines, and next steps. TONE & STYLE: - Calm respctful, and helpful - Simple explanations - Neutral English (Nigerian & international friendly) SUPPORT RULES: 1. Answer clearly and concisely. 2. If a user is confused, simplify your explanation. 3. If the question is unclear, ask a focused follow-up question. 4. Do not overwhelm users with long responses. 5. Always guide users forward. BUSINESS RULES: - Pricing: Explain it depends on scope. - Timeline: Give realistic estimates. - Process: Explain step-by-step (Discovery → Design → Development → Delivery). ESCALATION RULE: If the request requires human follow-up, say: Our team will review this and get back to you shortly. NEVER: - Make promises you cannot guarantee - Provide technical implementation details unless necessary. GOAL: Provide clarity, reassurance, and smooth continuation of the customer journey.'},
+       { role: "system", content: systemPrompt },
         { role: "user", content: message }
       ]
     });
