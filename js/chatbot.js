@@ -722,6 +722,7 @@ function addBotMessage(text) {
     `<div class="bot">${text}</div>`;
 
   // playNotificationSound(); // 🔔 bot reply sound modified
+  showUnreadBadge(); // 🔴 NEW
 }
 
 
@@ -808,7 +809,7 @@ function showSoundOptIn() {
   container.className = "sound-optin";
 
   container.innerHTML = `
-    <p>🔔 Would you like sound notifications?</p>
+    <p>🔔 Would you like a live sound chat?</p>
     <button id="sound-yes">Yes</button>
     <button id="sound-no">No</button>
   `;
@@ -834,6 +835,21 @@ function showSoundOptIn() {
     addBotMessage("No problem — you can turn it on anytime 👍");
   };
 }
+//JS HELPERS
+function showUnreadBadge() {
+  const badge = document.getElementById("unread-badge");
+  const widget = document.getElementById("chatbot-widget");
+
+  if (widget.classList.contains("hidden")) {
+    badge.classList.remove("hidden");
+  }
+}
+
+function clearUnreadBadge() {
+  const badge = document.getElementById("unread-badge");
+  badge.classList.add("hidden");
+}
+
 
 // ================================
 // UX COPY (OPTIONAL BUT NICE)
@@ -887,6 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Open widget
   launcher.addEventListener("click", () => {
     widget.classList.remove("hidden");
+    clearUnreadBadge();
 
 // 🔁 SMART REOPEN — SHOW WELCOME ONLY ONCE
 if (state.leadCaptured && !state.welcomeShown) {
