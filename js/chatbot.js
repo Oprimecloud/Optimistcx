@@ -953,6 +953,12 @@ if (!state.soundPrompted) {
   });
 });
 
+  // ✅ OPTIONAL POLISH — iOS keyboard UX fix
+  if (chatInput) {
+    chatInput.addEventListener("focus", () => {
+      setTimeout(scrollToBottom, 300);
+    });
+  }
 
   // 🗑️ Reset chat safely
   // if (resetBtn) {
@@ -979,3 +985,15 @@ if (!state.soundPrompted) {
 //   // 4️⃣ Reload page logic (safe re-init)
 //   window.location.reload();
 // }
+
+// ================================
+// VIEWPORT HEIGHT ADJUSTMENT
+// ================================
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => {
+    const widget = document.getElementById("chatbot-widget");
+    if (!widget) return;
+
+    widget.style.height = window.visualViewport.height + "px";
+  });
+}

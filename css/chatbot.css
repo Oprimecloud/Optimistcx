@@ -443,7 +443,7 @@
 }
 
 /* MOBILE FULLSCREEN CHAT */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   #chatbot-widget {
     position: fixed;
     inset: 0;
@@ -463,14 +463,44 @@
     position: sticky;
     top: 0;
     z-index: 10;
-  }
-
+  } */
+/* 
   #input-area {
     position: sticky;
     bottom: 0;
     background: #fff;
-  }
-}
+  } */
+/* }
 #chat-window {
   will-change: transform;
+} */
+
+/*// MOBILE FULLSCREEN CHAT // */
+@media (max-width: 768px) {
+  #chatbot-widget {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    background: #fff;
+  }
+
+  #chat-header {
+    flex-shrink: 0;
+  }
+
+  #chat-window {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #input-area {
+    flex-shrink: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #fff;
+  }
 }
