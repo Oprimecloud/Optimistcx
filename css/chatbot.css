@@ -441,3 +441,43 @@
 .hidden {
   display: none;
 }
+
+/* full page like whatsaap on mobile*/
+@media (max-width: 768px) {
+  #chatbot-widget {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chat-header {
+    flex-shrink: 0;
+  }
+
+  #chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  #input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    z-index: 10000;
+  }
+
+  #chatbot-launcher {
+    bottom: 20px;
+    right: 20px;
+  }
+}

@@ -717,9 +717,16 @@ function unlockChat() {
   document.getElementById("input-area").style.display = "flex";
 }
 
+function scrollToBottom() {
+  const chatWindow = document.getElementById("chat-window");
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
 function addBotMessage(text) {
   document.getElementById("chat-window").innerHTML +=
     `<div class="bot">${text}</div>`;
+
+    scrollToBottom(); // 👈 NEW auto scroll down
 
   // playNotificationSound(); // 🔔 bot reply sound modified
   showUnreadBadge(); // 🔴 NEW
@@ -731,10 +738,12 @@ function addUserMessage(text) {
     `<div class="user">${text}</div>`;
 
    playNotificationSound(); // 🔔 user message sound modified
+   scrollToBottom(); // 👈 NEW auto scroll down
 }
 
 function showTyping() {
   document.getElementById("typing-indicator").style.display = "block";
+  scrollToBottom();
 }
 
 function hideTyping() {
