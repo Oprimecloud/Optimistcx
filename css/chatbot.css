@@ -497,12 +497,6 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-#input-area {
-  position: sticky;
-  bottom: 0;
-  background: #fff;
-  z-index: 10;
-}
 
   #input-area {
     flex-shrink: 0;

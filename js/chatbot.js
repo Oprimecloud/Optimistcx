@@ -948,25 +948,13 @@ if (!state.soundPrompted) {
     }
   });
 
-// 📱 iOS keyboard fix
-  if (window.visualViewport && chatInput && inputArea) {
-    window.visualViewport.addEventListener("resize", () => {
-      const keyboardHeight =
-        window.innerHeight - window.visualViewport.height;
+// ✅ OPTIONAL POLISH — iOS keyboard UX fix
+if (chatInput) {
+  chatInput.addEventListener("focus", () => {
+    setTimeout(scrollToBottom, 300);
+  });
+}
 
-      if (keyboardHeight > 100) {
-        inputArea.style.bottom = keyboardHeight + "px";
-      } else {
-        inputArea.style.bottom = "0px";
-      }
-
-      scrollToBottom();
-    });
-
-    chatInput.addEventListener("focus", () => {
-      setTimeout(scrollToBottom, 300);
-    });
-  }
 
   // ❌➡️✅ CLOSE widget (THIS WAS MISSING)
   closeChat.addEventListener("click", () => {
