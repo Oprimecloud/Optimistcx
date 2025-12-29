@@ -903,6 +903,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const launcher = document.getElementById("chatbot-launcher");
   const widget = document.getElementById("chatbot-widget");
   const closeChat = document.getElementById("close-chat");
+  const chatInput = document.getElementById("chat-input");
+  const inputArea = document.getElementById("input-area");
 
   if (!launcher || !widget || !closeChat) {
     console.error("Chatbot elements not found");
@@ -946,19 +948,32 @@ if (!state.soundPrompted) {
     }
   });
 
+// 📱 iOS keyboard fix
+  if (window.visualViewport && chatInput && inputArea) {
+    window.visualViewport.addEventListener("resize", () => {
+      const keyboardHeight =
+        window.innerHeight - window.visualViewport.height;
+
+      if (keyboardHeight > 100) {
+        inputArea.style.bottom = keyboardHeight + "px";
+      } else {
+        inputArea.style.bottom = "0px";
+      }
+
+      scrollToBottom();
+    });
+
+    chatInput.addEventListener("focus", () => {
+      setTimeout(scrollToBottom, 300);
+    });
+  }
+
   // ❌➡️✅ CLOSE widget (THIS WAS MISSING)
   closeChat.addEventListener("click", () => {
     widget.classList.add("hidden");
     document.body.style.overflow = ""; // 🔓
   });
 });
-
-  // ✅ OPTIONAL POLISH — iOS keyboard UX fix
-  if (chatInput) {
-    chatInput.addEventListener("focus", () => {
-      setTimeout(scrollToBottom, 300);
-    });
-  }
 
   // 🗑️ Reset chat safely
   // if (resetBtn) {
