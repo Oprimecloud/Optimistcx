@@ -723,22 +723,20 @@ function scrollToBottom() {
 }
 
 function addBotMessage(text) {
-  document.getElementById("chat-window").innerHTML +=
-    `<div class="bot">${text}</div>`;
-
-    scrollToBottom(); // 👈 NEW auto scroll down
-
+  const chat = document.getElementById("chat-window");
+  chat.innerHTML += `<div class="bot">${text}</div>`;
+  scrollToBottom();
   // playNotificationSound(); // 🔔 bot reply sound modified
   showUnreadBadge(); // 🔴 NEW
 }
 
 
 function addUserMessage(text) {
-  document.getElementById("chat-window").innerHTML +=
-    `<div class="user">${text}</div>`;
+  const chat = document.getElementById("chat-window");
+  chat.innerHTML += `<div class="user">${text}</div>`;
+  scrollToBottom();
 
    playNotificationSound(); // 🔔 user message sound modified
-   scrollToBottom(); // 👈 NEW auto scroll down
 }
 
 function showTyping() {
@@ -748,7 +746,9 @@ function showTyping() {
 
 function hideTyping() {
   document.getElementById("typing-indicator").style.display = "none";
+  scrollToBottom();
 }
+
 
 function showWelcomeBack() {
   addBotMessage("👋 Welcome back — let’s continue from where you stopped 😊");
