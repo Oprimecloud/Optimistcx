@@ -912,6 +912,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Open widget
   launcher.addEventListener("click", () => {
     widget.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // 🔒
     clearUnreadBadge();
 
 // 🔁 SMART REOPEN — SHOW WELCOME ONLY ONCE
@@ -948,6 +949,7 @@ if (!state.soundPrompted) {
   // ❌➡️✅ CLOSE widget (THIS WAS MISSING)
   closeChat.addEventListener("click", () => {
     widget.classList.add("hidden");
+    document.body.style.overflow = ""; // 🔓
   });
 });
 
