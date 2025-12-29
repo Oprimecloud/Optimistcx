@@ -983,11 +983,3 @@ if (!state.soundPrompted) {
 // ================================
 // VIEWPORT HEIGHT ADJUSTMENT
 // ================================
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", () => {
-    const widget = document.getElementById("chatbot-widget");
-    if (!widget) return;
-
-    widget.style.height = window.visualViewport.height + "px";
-  });
-}
