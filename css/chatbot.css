@@ -218,9 +218,9 @@
    INPUT LOCK (CSS ONLY)
 ================================ */
 
-#input-area {
+/* #input-area {
   display: none;
-}
+} */
 
 /* ===============================
    FADE IN
@@ -294,11 +294,11 @@
 /* ===============================
    INPUT
 ================================ */
-#input-area {
+/* #input-area {
   display: flex;
   padding: 10px;
   border-top: 1px solid #f6f8fa;
-}
+} */
 
 #chat-input {
   flex: 1;
@@ -465,11 +465,20 @@
     z-index: 10;
   }
 
-  #input-area {
+  /*#input-area {
     position: sticky;
     bottom: 0;
-  } 
+  } */
+  #input-area {
+  position: relative; /* 👈 THIS IS THE KEY */
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #eee;
 }
 #chat-window {
   will-change: transform;
+  padding-bottom: 70px; /* space for input area */
+}
 }
