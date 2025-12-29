@@ -903,8 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const launcher = document.getElementById("chatbot-launcher");
   const widget = document.getElementById("chatbot-widget");
   const closeChat = document.getElementById("close-chat");
-  const chatInput = document.getElementById("chat-input");
-  const inputArea = document.getElementById("input-area");
+  
 
   if (!launcher || !widget || !closeChat) {
     console.error("Chatbot elements not found");
@@ -947,14 +946,6 @@ if (!state.soundPrompted) {
       }
     }
   });
-
-// ✅ OPTIONAL POLISH — iOS keyboard UX fix
-if (chatInput) {
-  chatInput.addEventListener("focus", () => {
-    setTimeout(scrollToBottom, 300);
-  });
-}
-
 
   // ❌➡️✅ CLOSE widget (THIS WAS MISSING)
   closeChat.addEventListener("click", () => {
